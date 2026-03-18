@@ -41,12 +41,12 @@ function CodeBlock({ code, language = 'tsx' }: { code: string; language?: string
 }
 
 const installCommands = [
-  { pm: 'npm', cmd: 'npm install react-driftkitkit' },
-  { pm: 'yarn', cmd: 'yarn add react-driftkitkit' },
-  { pm: 'pnpm', cmd: 'pnpm add react-driftkitkit' },
+  { pm: 'npm', cmd: 'npm install react-driftkit' },
+  { pm: 'yarn', cmd: 'yarn add react-driftkit' },
+  { pm: 'pnpm', cmd: 'pnpm add react-driftkit' },
 ];
 
-const basicExample = `import { Drift } from 'react-driftkitkit';
+const basicExample = `import { Drift } from 'react-driftkit';
 
 function App() {
   return (
@@ -58,7 +58,7 @@ function App() {
   );
 }`;
 
-const snapExample = `import { Drift } from 'react-driftkitkit';
+const snapExample = `import { Drift } from 'react-driftkit';
 
 function App() {
   return (
@@ -71,7 +71,7 @@ function App() {
   );
 }`;
 
-const freeExample = `import { Drift } from 'react-driftkitkit';
+const freeExample = `import { Drift } from 'react-driftkit';
 
 function App() {
   return (
@@ -91,7 +91,7 @@ const positionExample = `// Snap to a corner
 <Drift defaultPosition={{ x: 300, y: 150 }} />`;
 
 const fullExample = `import { useState } from 'react';
-import { Drift } from 'react-driftkitkit';
+import { Drift } from 'react-driftkit';
 
 function DevTools() {
   const [snap, setSnap] = useState(true);
