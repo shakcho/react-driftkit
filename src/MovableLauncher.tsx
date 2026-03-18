@@ -68,6 +68,7 @@ export function MovableLauncher({
   const dragOffset = useRef<Position>({ x: 0, y: 0 });
   const snapRef = useRef(snapToCorners);
   snapRef.current = snapToCorners;
+  const hasDragged = useRef(false);
 
   // Initialize position after mount
   useEffect(() => {
@@ -88,6 +89,7 @@ export function MovableLauncher({
     const rect = ref.current.getBoundingClientRect();
     dragOffset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     draggingRef.current = true;
+    hasDragged.current = true;
     setDragging(true);
     ref.current.setPointerCapture(e.pointerId);
   }, []);
@@ -138,8 +140,8 @@ export function MovableLauncher({
   }, []);
 
   const posStyle: CSSProperties = pos
-    ? { left: pos.x, top: pos.y }
-    : { visibility: 'hidden' as const, left: 0, top: 0 };
+    ? { left: pos.x, top: pos.y, opacity: 1 }
+    : { visibility: 'hidden' as const, left: 0, top: 0, opacity: 0 };
 
   return (
     <div
@@ -151,7 +153,11 @@ export function MovableLauncher({
         cursor: dragging ? 'grabbing' : 'grab',
         touchAction: 'none',
         userSelect: 'none',
-        transition: dragging ? 'none' : 'left 0.25s ease, top 0.25s ease',
+        transition: dragging
+          ? 'none'
+          : hasDragged.current
+            ? 'left 0.25s ease, top 0.25s ease'
+            : 'opacity 0.3s ease',
         ...posStyle,
         ...style,
       }}

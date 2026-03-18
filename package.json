@@ -1,6 +1,6 @@
 {
   "name": "react-driftkit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A draggable, floating widget wrapper for React — snap to corners or drag anywhere",
   "type": "module",
   "main": "dist/react-driftkit.cjs",
