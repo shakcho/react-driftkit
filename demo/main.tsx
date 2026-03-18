@@ -41,12 +41,12 @@ function CodeBlock({ code, language = 'tsx' }: { code: string; language?: string
 }
 
 const installCommands = [
-  { pm: 'npm', cmd: 'npm install react-drift' },
-  { pm: 'yarn', cmd: 'yarn add react-drift' },
-  { pm: 'pnpm', cmd: 'pnpm add react-drift' },
+  { pm: 'npm', cmd: 'npm install react-driftkitkit' },
+  { pm: 'yarn', cmd: 'yarn add react-driftkitkit' },
+  { pm: 'pnpm', cmd: 'pnpm add react-driftkitkit' },
 ];
 
-const basicExample = `import { Drift } from 'react-drift';
+const basicExample = `import { Drift } from 'react-driftkitkit';
 
 function App() {
   return (
@@ -58,7 +58,7 @@ function App() {
   );
 }`;
 
-const snapExample = `import { Drift } from 'react-drift';
+const snapExample = `import { Drift } from 'react-driftkitkit';
 
 function App() {
   return (
@@ -71,7 +71,7 @@ function App() {
   );
 }`;
 
-const freeExample = `import { Drift } from 'react-drift';
+const freeExample = `import { Drift } from 'react-driftkitkit';
 
 function App() {
   return (
@@ -91,7 +91,7 @@ const positionExample = `// Snap to a corner
 <Drift defaultPosition={{ x: 300, y: 150 }} />`;
 
 const fullExample = `import { useState } from 'react';
-import { Drift } from 'react-drift';
+import { Drift } from 'react-driftkitkit';
 
 function DevTools() {
   const [snap, setSnap] = useState(true);
@@ -139,13 +139,13 @@ function App() {
       <nav className="nav">
         <div className="nav-inner">
           <a href="/" className="nav-logo">
-            react-<span className="accent">drift</span>
+            react-<span className="accent">driftkit</span>
           </a>
           <div className="nav-links">
             <a href="#demo">Demo</a>
             <a href="#api">API</a>
             <a href="#examples">Examples</a>
-            <a href="https://github.com/shakcho/react-drift" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://github.com/shakcho/react-driftkit" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
         </div>
       </nav>
@@ -154,7 +154,7 @@ function App() {
         {/* Hero */}
         <section className="hero">
           <div className="hero-badge">React + TypeScript &middot; Draggable widgets</div>
-          <h1 className="hero-title">react-drift</h1>
+          <h1 className="hero-title">react-driftkit</h1>
           <p className="hero-tagline">
             A draggable, floating widget wrapper for React. Snap to corners or drop anywhere on the viewport.
           </p>

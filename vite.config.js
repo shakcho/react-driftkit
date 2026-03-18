@@ -17,9 +17,9 @@ export default defineConfig(({ command }) => {
     build: {
       lib: {
         entry: resolve(__dirname, 'src/index.ts'),
-        name: 'ReactDrift',
+        name: 'ReactDriftKit',
         formats: ['es', 'cjs'],
-        fileName: 'react-drift',
+        fileName: 'react-driftkit',
       },
       rollupOptions: {
         external: ['react', 'react-dom', 'react/jsx-runtime'],
