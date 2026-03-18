@@ -114,6 +114,15 @@ export function MovableLauncher({
     }
   }, []);
 
+  // Snap to nearest corner when snapToCorners is enabled
+  useEffect(() => {
+    if (!snapToCorners || !ref.current || !pos) return;
+    hasDragged.current = true;
+    const rect = ref.current.getBoundingClientRect();
+    const corner = getNearestCorner(rect.left, rect.top, rect.width, rect.height);
+    setPos(getCornerPosition(corner, rect.width, rect.height));
+  }, [snapToCorners]);
+
   // Reposition on window resize
   useEffect(() => {
     const onResize = () => {
