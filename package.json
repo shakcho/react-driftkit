@@ -21,26 +21,35 @@
     "build": "vite build && tsc --emitDeclarationOnly",
     "build:demo": "vite build --config demo/vite.config.ts",
     "prepublishOnly": "npm run build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/shakcho/react-drift.git"
   },
-  "homepage": "https://github.com/shakcho/react-drift#readme",
+  "homepage": "https://react-driftkit.saktichourasia.dev/",
+  "bugs": {
+    "url": "https://github.com/shakcho/react-drift/issues"
+  },
   "author": "Sakti Kumar Chourasia",
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/prismjs": "^1.26.6",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "jsdom": "^29.0.1",
     "prismjs": "^1.30.0",
     "typescript": "^5.9.3",
-    "vite": "^8.0.0"
+    "vite": "^8.0.0",
+    "vitest": "^4.1.2"
   },
   "keywords": [
     "react",

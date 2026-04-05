@@ -69,48 +69,82 @@ export function MovableLauncher({
   const snapRef = useRef(snapToCorners);
   snapRef.current = snapToCorners;
   const hasDragged = useRef(false);
+  /** Tracks which corner the widget is currently anchored to. */
+  const anchorCornerRef = useRef<Corner>(isCorner(defaultPosition) ? defaultPosition : 'bottom-right');
+  /** Tracks last known size for computing resize deltas. */
+  const lastSizeRef = useRef<{ width: number; height: number } | null>(null);
 
-  // Initialize position after mount
+  // Initialize position after mount — no animation
   useEffect(() => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
+    lastSizeRef.current = { width: rect.width, height: rect.height };
 
     if (isCorner(defaultPosition)) {
+      anchorCornerRef.current = defaultPosition;
       const { x, y } = getCornerPosition(defaultPosition, rect.width, rect.height);
       setPos({ x, y });
     } else if (typeof defaultPosition === 'object') {
       setPos({ x: defaultPosition.x ?? 0, y: defaultPosition.y ?? 0 });
     }
+    // Mark as initialized after a frame so the first render has no transition
+    requestAnimationFrame(() => { initializedRef.current = true; });
   }, []);
+
+  const DRAG_THRESHOLD = 5;
+  const pointerStart = useRef<{ x: number; y: number; id: number } | null>(null);
 
   const handlePointerDown = useCallback((e: PointerEvent<HTMLDivElement>) => {
     if (!ref.current) return;
-    e.preventDefault();
     const rect = ref.current.getBoundingClientRect();
     dragOffset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    draggingRef.current = true;
-    hasDragged.current = true;
-    setDragging(true);
-    ref.current.setPointerCapture(e.pointerId);
+    pointerStart.current = { x: e.clientX, y: e.clientY, id: e.pointerId };
+    // Don't capture or preventDefault — wait for movement past threshold
   }, []);
 
   const handlePointerMove = useCallback((e: PointerEvent<HTMLDivElement>) => {
-    if (!draggingRef.current) return;
+    if (!pointerStart.current) return;
+
+    // If not yet dragging, check if we've moved past the threshold
+    if (!draggingRef.current) {
+      const dx = Math.abs(e.clientX - pointerStart.current.x);
+      const dy = Math.abs(e.clientY - pointerStart.current.y);
+      if (dx < DRAG_THRESHOLD && dy < DRAG_THRESHOLD) return;
+      // Start dragging — now capture the pointer
+      if (ref.current) {
+        ref.current.setPointerCapture(pointerStart.current.id);
+      }
+      draggingRef.current = true;
+      hasDragged.current = true;
+      setDragging(true);
+    }
+
     const newX = e.clientX - dragOffset.current.x;
     const newY = e.clientY - dragOffset.current.y;
     setPos({ x: newX, y: newY });
   }, []);
 
   const handlePointerUp = useCallback(() => {
-    if (!draggingRef.current) return;
+    const wasDragging = draggingRef.current;
+    pointerStart.current = null;
+
+    if (!wasDragging) return; // Was a click/tap — let it propagate normally
+
     draggingRef.current = false;
     setDragging(false);
 
     if (snapRef.current && ref.current) {
       const rect = ref.current.getBoundingClientRect();
       const corner = getNearestCorner(rect.left, rect.top, rect.width, rect.height);
+      anchorCornerRef.current = corner;
+      lastSizeRef.current = { width: rect.width, height: rect.height };
       const snapped = getCornerPosition(corner, rect.width, rect.height);
       setPos(snapped);
+    } else if (ref.current) {
+      // Free-form drag — determine anchor from position
+      const rect = ref.current.getBoundingClientRect();
+      anchorCornerRef.current = getNearestCorner(rect.left, rect.top, rect.width, rect.height);
+      lastSizeRef.current = { width: rect.width, height: rect.height };
     }
   }, []);
 
@@ -120,10 +154,12 @@ export function MovableLauncher({
     hasDragged.current = true;
     const rect = ref.current.getBoundingClientRect();
     const corner = getNearestCorner(rect.left, rect.top, rect.width, rect.height);
+    anchorCornerRef.current = corner;
+    lastSizeRef.current = { width: rect.width, height: rect.height };
     setPos(getCornerPosition(corner, rect.width, rect.height));
   }, [snapToCorners]);
 
-  // Reposition on window resize
+  // Reposition on window resize (full snap recalculation)
   useEffect(() => {
     const onResize = () => {
       if (!ref.current || draggingRef.current) return;
@@ -133,6 +169,8 @@ export function MovableLauncher({
 
       if (snapRef.current) {
         const corner = getNearestCorner(rect.left, rect.top, rect.width, rect.height);
+        anchorCornerRef.current = corner;
+        lastSizeRef.current = { width: rect.width, height: rect.height };
         setPos(getCornerPosition(corner, rect.width, rect.height));
       } else {
         setPos((prev) => {
@@ -146,6 +184,56 @@ export function MovableLauncher({
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // Adjust position when children resize — pin to the anchor corner's edges
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (!ref.current) return;
+    let first = true;
+    const observer = new ResizeObserver(() => {
+      // Skip the initial observation that fires immediately on observe()
+      if (first) { first = false; return; }
+      if (!ref.current || draggingRef.current || !initializedRef.current) return;
+      hasDragged.current = true;
+
+      const rect = ref.current.getBoundingClientRect();
+      const newWidth = rect.width;
+      const newHeight = rect.height;
+      const oldSize = lastSizeRef.current;
+      lastSizeRef.current = { width: newWidth, height: newHeight };
+
+      if (!oldSize) return;
+      const dw = newWidth - oldSize.width;
+      const dh = newHeight - oldSize.height;
+      if (dw === 0 && dh === 0) return;
+
+      const corner = anchorCornerRef.current;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      setPos((prev) => {
+        if (!prev) return prev;
+        let { x, y } = prev;
+
+        // If anchored to a right edge, shift left when width grows
+        if (corner === 'top-right' || corner === 'bottom-right') {
+          x -= dw;
+        }
+        // If anchored to a bottom edge, shift up when height grows
+        if (corner === 'bottom-left' || corner === 'bottom-right') {
+          y -= dh;
+        }
+
+        // Clamp to viewport
+        x = Math.min(Math.max(0, x), vw - newWidth);
+        y = Math.min(Math.max(0, y), vh - newHeight);
+
+        return { x, y };
+      });
+    });
+    observer.observe(ref.current);
+    return () => observer.disconnect();
   }, []);
 
   const posStyle: CSSProperties = pos
@@ -162,10 +250,10 @@ export function MovableLauncher({
         cursor: dragging ? 'grabbing' : 'grab',
         touchAction: 'none',
         userSelect: 'none',
-        transition: dragging
+        transition: dragging || !initializedRef.current
           ? 'none'
           : hasDragged.current
-            ? 'left 0.25s ease, top 0.25s ease'
+            ? 'left 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)'
             : 'opacity 0.3s ease',
         ...posStyle,
         ...style,
