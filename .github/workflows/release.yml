@@ -21,7 +21,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
     # Skip release commits to avoid infinite loops
-    if: "!startsWith(github.event.head_commit.message, 'release:')"
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      !startsWith(github.event.head_commit.message, 'release:')
 
     steps:
       - name: Checkout
@@ -100,7 +102,14 @@ jobs:
 
       - name: Publish to npm
         if: steps.bump.outputs.type != 'none'
-        run: npm publish
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          PUBLISHED=$(npm view react-driftkit version 2>/dev/null || echo "")
+          if [ "$PUBLISHED" = "$VERSION" ]; then
+            echo "Version $VERSION is already published to npm. Skipping."
+            exit 0
+          fi
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
