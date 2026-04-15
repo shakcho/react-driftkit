@@ -106,7 +106,7 @@ code {
 
 /* ── Hero ─────────────────────────────────────── */
 .hero {
-  padding: 80px 0 48px;
+  padding: 80px 0 20px;
 }
 
 .hero-badge {
@@ -684,5 +684,357 @@ code {
     flex-direction: column;
     gap: 6px;
     text-align: center;
+  }
+}
+
+/* ── New: install tabs ─────────────────────────── */
+.section--subtle {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.install-tabs {
+  max-width: 560px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+.install-tabs-header {
+  display: flex;
+  gap: 0;
+  background: #f3f4f6;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.install-tab {
+  padding: 8px 16px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  border-right: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.install-tab:hover {
+  color: #111827;
+}
+
+.install-tab--active {
+  color: #111827;
+  background: #fafafa;
+  font-weight: 500;
+}
+
+.install-tabs-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  color: #111827;
+}
+
+.install-tabs-body code {
+  background: transparent;
+  font-family: inherit;
+}
+
+/* ── New: widget intro ─────────────────────────── */
+.widget-intro {
+  padding-top: 16px;
+  padding-bottom: 8px;
+}
+
+.widget-title {
+  font-size: 1.6rem;
+  margin: 0 0 8px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.widget-description {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+  max-width: 640px;
+  line-height: 1.55;
+}
+
+/* ── Widget sticky header (name + desc + nav) ──── */
+.sub-nav-wrap {
+  position: sticky;
+  top: 53px;
+  z-index: 50;
+  margin: 8px -24px 0;
+  padding: 0 24px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.widget-header {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto 6px;
+  padding: 18px 0 14px;
+}
+
+.widget-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(229, 231, 235, 0.9) 20%,
+    rgba(229, 231, 235, 0.9) 80%,
+    transparent 100%
+  );
+}
+
+.widget-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.widget-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  color: #6366f1;
+  box-shadow: 0 4px 12px -4px rgba(99, 102, 241, 0.35);
+  flex-shrink: 0;
+}
+
+.widget-header .widget-title {
+  font-size: 1.5rem;
+  margin: 0;
+  color: #111827;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  background: linear-gradient(135deg, #111827 0%, #6366f1 120%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.widget-header .widget-description {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  max-width: 640px;
+}
+
+.sub-nav {
+  display: flex;
+  gap: 4px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding-bottom: 0;
+}
+
+.sub-nav-item {
+  padding: 10px 18px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  margin-bottom: -1px;
+}
+
+.sub-nav-item:hover {
+  color: #111827;
+}
+
+.sub-nav-item--active {
+  color: #6366f1;
+  border-bottom-color: #6366f1;
+}
+
+#launcher-install,
+#launcher-demo,
+#launcher-api,
+#launcher-examples,
+#dock-install,
+#dock-demo,
+#dock-api,
+#dock-examples {
+  scroll-margin-top: 240px;
+}
+
+/* ── Nav component buttons ─────────────────────── */
+.nav-component-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  line-height: 1;
+}
+
+.nav-component-btn:hover {
+  color: #111827;
+  background: #f3f4f6;
+}
+
+.nav-component-btn--active {
+  color: #6366f1;
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+.nav-component-btn svg {
+  color: currentColor;
+}
+
+/* ── Diagonal GitHub ribbon (top-right) ────────── */
+.gh-ribbon {
+  position: fixed;
+  top: 22px;
+  right: -58px;
+  z-index: 200;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 220px;
+  padding: 8px 0;
+  background: #111827;
+  color: #ffffff !important;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transform: rotate(45deg);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  transition: background 0.15s ease;
+}
+
+.gh-ribbon::before,
+.gh-ribbon::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  border-top: 3px solid #0b1220;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+}
+
+.gh-ribbon::before { left: 6px; }
+.gh-ribbon::after  { right: 6px; }
+
+.gh-ribbon:hover {
+  background: #1f2937;
+  color: #ffffff !important;
+}
+
+.gh-ribbon svg {
+  color: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .gh-ribbon {
+    display: none;
+  }
+  .sub-nav {
+    overflow-x: auto;
+  }
+  .sub-nav-item {
+    padding: 10px 14px;
+    font-size: 0.82rem;
+  }
+  .nav-component-btn {
+    padding: 5px 8px;
+    font-size: 0.72rem;
+  }
+  .nav-links {
+    gap: 6px;
+  }
+}
+
+/* ── Bottom GitHub CTA card ────────────────────── */
+.github-cta-section {
+  padding-top: 24px;
+  padding-bottom: 64px;
+}
+
+.github-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 32px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fafafa 0%, #f3f4f6 100%);
+}
+
+.github-cta-text h3 {
+  margin: 0 0 4px;
+  font-size: 1.15rem;
+  color: #111827;
+  font-weight: 600;
+}
+
+.github-cta-text p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.github-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: #111827;
+  color: #ffffff !important;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.github-cta-btn:hover {
+  background: #1f2937;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .github-cta {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
   }
 }

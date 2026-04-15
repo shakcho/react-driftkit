@@ -1,7 +1,7 @@
 {
   "name": "react-driftkit",
   "version": "0.1.4",
-  "description": "A draggable, floating widget wrapper for React — snap to corners or drag anywhere",
+  "description": "Small React primitives for floating UI: draggable launchers and edge-pinned docks",
   "type": "module",
   "main": "dist/react-driftkit.cjs",
   "module": "dist/react-driftkit.js",
@@ -57,7 +57,11 @@
     "movable",
     "widget",
     "driftkit",
-    "floating"
+    "floating",
+    "floating-ui",
+    "dock",
+    "toolbar",
+    "chat-widget"
   ],
   "license": "MIT"
 }
