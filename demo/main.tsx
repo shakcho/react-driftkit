@@ -6,7 +6,7 @@ import 'prismjs/components/prism-jsx';
 import 'prismjs/components/prism-typescript';
 import 'prismjs/components/prism-tsx';
 import 'prismjs/themes/prism-tomorrow.css';
-import { MovableLauncher, SnapDock, type Edge } from '../src/index';
+import { MovableLauncher, SnapDock, DraggableSheet, type Edge, type SheetEdge, type SnapPoint } from '../src/index';
 import './styles.css';
 
 function CopyButton({ text }: { text: string }) {
@@ -154,6 +154,113 @@ function DockGlyphIcon({ size = 16, strokeWidth = 2 }: { size?: number; strokeWi
       <circle cx="16" cy="32.5" r="0.9" fill="currentColor" />
       <circle cx="20" cy="32.5" r="0.9" fill="currentColor" />
       <circle cx="24" cy="32.5" r="0.9" fill="currentColor" />
+    </svg>
+  );
+}
+
+/**
+ * Edge-aware drag handle strip for the live DraggableSheet demo. For
+ * top/bottom sheets the pill is horizontal; for left/right sheets it
+ * rotates 90° so the grab surface always hugs the side of the sheet that
+ * faces the viewport interior.
+ */
+function SheetHandleStrip({ edge }: { edge: SheetEdge }) {
+  const isHorizontal = edge === 'bottom' || edge === 'top';
+  return (
+    <div
+      data-sheet-handle
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: isHorizontal ? '10px 16px' : '16px 10px',
+        // The sheet resizes along its pinned-edge axis, so the cursor should
+        // advertise resize, not drag. ns-resize for bottom/top (vertical
+        // axis), ew-resize for left/right (horizontal axis).
+        cursor: isHorizontal ? 'ns-resize' : 'ew-resize',
+        flexShrink: 0,
+      }}
+    >
+      <div
+        style={{
+          width: isHorizontal ? 44 : 5,
+          height: isHorizontal ? 5 : 44,
+          borderRadius: 999,
+          background: 'rgba(255,255,255,0.45)',
+        }}
+      />
+    </div>
+  );
+}
+
+/**
+ * Absolutely-positioned corner close button for the live DraggableSheet
+ * demo. Always sits in the sheet's top-right corner regardless of the
+ * pinned edge, so users have a consistent affordance for dismissing the
+ * sheet. Stops pointerdown propagation so taps on the × don't start a drag.
+ */
+function SheetCloseButton({ onClose }: { onClose: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label="Close sheet"
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={(e) => { e.stopPropagation(); onClose(); }}
+      style={{
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        width: 30,
+        height: 30,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(255,255,255,0.1)',
+        color: 'white',
+        border: 'none',
+        borderRadius: 999,
+        cursor: 'pointer',
+        padding: 0,
+        transition: 'background 0.15s ease',
+        zIndex: 1,
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.2)')}
+      onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
+    >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M6 6l12 12" />
+        <path d="M18 6L6 18" />
+      </svg>
+    </button>
+  );
+}
+
+function SheetIcon({ size = 16, strokeWidth = 2 }: { size?: number; strokeWidth?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 40 40"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="6" y="6" width="28" height="28" rx="3" opacity="0.35" />
+      <rect x="8" y="22" width="24" height="12" rx="2" />
+      <path d="M16 26h8" strokeWidth={strokeWidth + 0.4} />
     </svg>
   );
 }
@@ -429,6 +536,95 @@ interface SnapDockProps {
   className?: string;
 }`;
 
+const sheetBasic = `import { DraggableSheet } from 'react-driftkit';
+
+function App() {
+  return (
+    <DraggableSheet snapPoints={['peek', 'half', 'full']} defaultSnap="half">
+      <div className="my-sheet">
+        <div data-handle className="sheet-handle" />
+        <div className="sheet-body">Details, filters, cart...</div>
+      </div>
+    </DraggableSheet>
+  );
+}`;
+
+const sheetPresets = `// Preset snap points resolve against the viewport axis.
+// 'peek' = 96px, 'half' = 50%, 'full' = 92%, 'closed' = 0.
+<DraggableSheet snapPoints={['closed', 'peek', 'half', 'full']} defaultSnap="peek" />`;
+
+const sheetCustom = `// Mix presets with raw pixels and percentage strings.
+// All values are resolved and sorted internally at gesture time,
+// so order doesn't matter.
+<DraggableSheet
+  snapPoints={['peek', 200, '40%', 'full']}
+  defaultSnap="40%"
+/>`;
+
+const sheetHandle = `// Restrict dragging to a handle strip so inner content
+// stays scrollable / clickable.
+<DraggableSheet
+  snapPoints={['peek', 'half', 'full']}
+  dragHandleSelector="[data-handle]"
+>
+  <div data-handle className="handle-strip" />
+  <div className="scroll-area">
+    <!-- long content here, scrolls normally -->
+  </div>
+</DraggableSheet>`;
+
+const sheetControlled = `import { useState } from 'react';
+import { DraggableSheet, type SnapPoint } from 'react-driftkit';
+
+function App() {
+  const [snap, setSnap] = useState<SnapPoint>('half');
+
+  return (
+    <>
+      <button onClick={() => setSnap('full')}>Expand</button>
+      <DraggableSheet
+        snap={snap}
+        snapPoints={['peek', 'half', 'full']}
+        onSnapChange={(next) => setSnap(next)}
+      >
+        <Sheet />
+      </DraggableSheet>
+    </>
+  );
+}`;
+
+const sheetEdges = `// Pin the sheet to any edge. Percentage snap points
+// resolve against the drag axis (height for top/bottom,
+// width for left/right).
+<DraggableSheet edge="bottom" snapPoints={['peek', 'half', 'full']} />
+<DraggableSheet edge="top" snapPoints={['peek', 'half']} />
+<DraggableSheet edge="left" snapPoints={['peek', '40%', '80%']} />
+<DraggableSheet edge="right" snapPoints={['peek', '40%', '80%']} />`;
+
+const sheetTypes = `type SheetEdge = 'bottom' | 'top' | 'left' | 'right';
+type SnapPoint =
+  | 'closed'
+  | 'peek'
+  | 'half'
+  | 'full'
+  | number
+  | \`\${number}%\`;
+
+interface DraggableSheetProps {
+  children: ReactNode;
+  edge?: SheetEdge;
+  snapPoints?: SnapPoint[];
+  defaultSnap?: SnapPoint;
+  snap?: SnapPoint;
+  onSnapChange?: (snap: SnapPoint, sizePx: number) => void;
+  draggable?: boolean;
+  dragHandleSelector?: string;
+  velocityThreshold?: number;
+  closeOnOutsideClick?: boolean;
+  style?: CSSProperties;
+  className?: string;
+}`;
+
 const launcherApiRows: ApiRow[] = [
   { prop: 'children', type: 'ReactNode', default: <>&mdash;</>, description: 'Content rendered inside the draggable container.' },
   {
@@ -443,6 +639,51 @@ const launcherApiRows: ApiRow[] = [
     ),
   },
   { prop: 'snapToCorners', type: 'boolean', default: 'false', description: 'When true, animates to the nearest corner on release.' },
+  { prop: 'style', type: 'CSSProperties', default: '{}', description: 'Additional inline styles for the wrapper.' },
+  { prop: 'className', type: 'string', default: "''", description: 'Additional CSS class for the wrapper.' },
+];
+
+const sheetApiRows: ApiRow[] = [
+  { prop: 'children', type: 'ReactNode', default: <>&mdash;</>, description: 'Content rendered inside the sheet.' },
+  { prop: 'edge', type: "'bottom' | 'top' | 'left' | 'right'", default: "'bottom'", description: 'Edge the sheet is pinned to.' },
+  {
+    prop: 'snapPoints',
+    type: 'SnapPoint[]',
+    default: "['peek', 'half', 'full']",
+    description: (
+      <>
+        Ordered list of stops. Mix presets (<code>'peek'</code>, <code>'half'</code>, <code>'full'</code>, <code>'closed'</code>),
+        raw pixel <code>number</code>s, and percentage strings like <code>'40%'</code>.
+      </>
+    ),
+  },
+  { prop: 'defaultSnap', type: 'SnapPoint', default: 'middle of snapPoints', description: 'Uncontrolled initial stop.' },
+  { prop: 'snap', type: 'SnapPoint', default: <>&mdash;</>, description: 'Controlled current stop. When set, parent drives transitions.' },
+  {
+    prop: 'onSnapChange',
+    type: <code>(snap: SnapPoint, sizePx: number) =&gt; void</code>,
+    default: <>&mdash;</>,
+    description: 'Fires on drag release with the resolved stop and its pixel size.',
+  },
+  { prop: 'draggable', type: 'boolean', default: 'true', description: 'Whether the user can drag the sheet.' },
+  {
+    prop: 'dragHandleSelector',
+    type: 'string',
+    default: <>&mdash;</>,
+    description: 'CSS selector for a nested handle. When set, drag only begins inside matching elements.',
+  },
+  { prop: 'velocityThreshold', type: 'number', default: '0.5', description: 'Flick velocity (px/ms) above which a release advances one stop in the flick direction.' },
+  {
+    prop: 'closeOnOutsideClick',
+    type: 'boolean',
+    default: 'false',
+    description: (
+      <>
+        When true, a pointerdown outside the sheet collapses it to <code>0</code> and fires{' '}
+        <code>onSnapChange('closed', 0)</code>. Ignored while already closed or mid-drag.
+      </>
+    ),
+  },
   { prop: 'style', type: 'CSSProperties', default: '{}', description: 'Additional inline styles for the wrapper.' },
   { prop: 'className', type: 'string', default: "''", description: 'Additional CSS class for the wrapper.' },
 ];
@@ -469,7 +710,7 @@ const dockApiRows: ApiRow[] = [
 ];
 
 type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-type ActiveComponent = 'launcher' | 'dock';
+type ActiveComponent = 'launcher' | 'dock' | 'sheet';
 type SubView = 'install' | 'demo' | 'api' | 'examples';
 
 function SubNav({ prefix }: { prefix: string }) {
@@ -502,6 +743,13 @@ function App() {
   const [snap, setSnap] = useState(true);
   const [position, setPosition] = useState<Corner>('bottom-right');
 
+  // Sheet state
+  const [sheetExample, setSheetExample] = useState(0);
+  const [sheetEdge, setSheetEdge] = useState<SheetEdge>('bottom');
+  const [sheetSnap, setSheetSnap] = useState<SnapPoint>('half');
+  const [sheetCloseOnOutside, setSheetCloseOnOutside] = useState(true);
+  const sheetSnapPoints: SnapPoint[] = ['closed', 'peek', 'half', 'full'];
+
   // Dock state
   const [dockExample, setDockExample] = useState(0);
   const [dockEdge, setDockEdge] = useState<Edge>('bottom');
@@ -528,6 +776,17 @@ function App() {
     { label: 'Styling', code: dockStyled },
     { label: 'Events', code: dockEvents },
   ];
+
+  const sheetExamples = [
+    { label: 'Basic Usage', code: sheetBasic },
+    { label: 'Preset Stops', code: sheetPresets },
+    { label: 'Custom Stops', code: sheetCustom },
+    { label: 'Drag Handle', code: sheetHandle },
+    { label: 'Controlled', code: sheetControlled },
+    { label: 'All Edges', code: sheetEdges },
+  ];
+
+  const sheetEdgeOptions: SheetEdge[] = ['bottom', 'top', 'left', 'right'];
 
   const corners: Corner[] = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
   const edges: Edge[] = ['left', 'right', 'top', 'bottom'];
@@ -556,6 +815,14 @@ function App() {
             >
               <DockGlyphIcon size={16} />
               SnapDock
+            </button>
+            <button
+              className={`nav-component-btn ${activeComponent === 'sheet' ? 'nav-component-btn--active' : ''}`}
+              onClick={() => setActiveComponent('sheet')}
+              aria-pressed={activeComponent === 'sheet'}
+            >
+              <SheetIcon size={16} />
+              DraggableSheet
             </button>
           </div>
         </div>
@@ -750,6 +1017,90 @@ function App() {
           </>
         )}
 
+        {activeComponent === 'sheet' && (
+          <>
+            <WidgetHeader
+              prefix="sheet"
+              icon={<SheetIcon size={28} />}
+              title="DraggableSheet"
+              description={
+                <>
+                  A pull-up / pull-down sheet pinned to an edge with snap points like peek, half, and full.
+                  Great for mobile-style details, filters, or cart drawers.
+                </>
+              }
+            />
+
+            <InstallSection id="sheet-install" />
+
+            <section id="sheet-demo" className="section" style={{ paddingTop: 16 }}>
+              <div className="section-label">Interactive Demo</div>
+
+              <div className="demo-row">
+                <span className="demo-row-label">Edge</span>
+                <div className="demo-row-controls">
+                  {sheetEdgeOptions.map((e) => (
+                    <button
+                      key={e}
+                      className={`pill-btn ${sheetEdge === e ? 'pill-btn--active' : ''}`}
+                      onClick={() => setSheetEdge(e)}
+                    >
+                      {e}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="demo-row">
+                <span className="demo-row-label">Snap Point</span>
+                <div className="demo-row-controls">
+                  {sheetSnapPoints.map((p) => (
+                    <button
+                      key={String(p)}
+                      className={`pill-btn ${sheetSnap === p ? 'pill-btn--active' : ''}`}
+                      onClick={() => setSheetSnap(p)}
+                    >
+                      {String(p)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="demo-row" style={{ borderBottom: 'none' }}>
+                <span className="demo-row-label">Close on Outside Click</span>
+                <div className="demo-row-controls">
+                  <button
+                    className={`toggle ${sheetCloseOnOutside ? 'toggle--on' : ''}`}
+                    onClick={() => setSheetCloseOnOutside((v) => !v)}
+                  />
+                  <span className="toggle-label">{sheetCloseOnOutside ? 'on' : 'off'}</span>
+                </div>
+              </div>
+            </section>
+
+            <section id="sheet-api" className="section" style={{ paddingTop: 0 }}>
+              <div className="section-label">API Reference</div>
+              <ApiTable
+                rows={sheetApiRows}
+                footnote={
+                  <>
+                    The wrapper exposes <code>data-edge</code>, <code>data-snap</code>, and{' '}
+                    <code>data-dragging</code> so you can drive styles from CSS without re-rendering.
+                  </>
+                }
+              />
+            </section>
+
+            <CodeExamplesSection
+              id="sheet-examples"
+              examples={sheetExamples}
+              activeIndex={sheetExample}
+              onSelect={setSheetExample}
+              typesCode={sheetTypes}
+            />
+          </>
+        )}
+
         {/* GitHub star CTA */}
         <section className="section github-cta-section">
           <div className="github-cta">
@@ -827,6 +1178,56 @@ function App() {
             <path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2-1.2L14 3h-4l-.6 2.6a7 7 0 0 0-2 1.2l-2.3-.9-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 2 1.2L10 21h4l.6-2.6a7 7 0 0 0 2-1.2l2.3.9 2-3.4-2-1.5c0-.4.1-.8.1-1.2z" />
           </DockIconButton>
         </SnapDock>
+      )}
+
+      {/* Live DraggableSheet */}
+      {activeComponent === 'sheet' && (
+        <DraggableSheet
+          edge={sheetEdge}
+          snap={sheetSnap}
+          snapPoints={sheetSnapPoints}
+          onSnapChange={(next) => setSheetSnap(next)}
+          dragHandleSelector="[data-sheet-handle]"
+          closeOnOutsideClick={sheetCloseOnOutside}
+          style={{
+            background: 'rgba(17, 24, 39, 0.96)',
+            color: 'white',
+            // Round the two "inner" corners for each edge.
+            borderTopLeftRadius: sheetEdge === 'bottom' || sheetEdge === 'right' ? 16 : 0,
+            borderTopRightRadius: sheetEdge === 'bottom' || sheetEdge === 'left' ? 16 : 0,
+            borderBottomLeftRadius: sheetEdge === 'top' || sheetEdge === 'right' ? 16 : 0,
+            borderBottomRightRadius: sheetEdge === 'top' || sheetEdge === 'left' ? 16 : 0,
+            boxShadow: '0 0 40px rgba(0,0,0,0.35)',
+            display: 'flex',
+            // For top/bottom edges the handle sits perpendicular to the drag
+            // axis (a column of: handle, body). For left/right edges it
+            // rotates 90° so the grab pill always hugs the viewport-interior
+            // side of the sheet.
+            flexDirection:
+              sheetEdge === 'bottom' ? 'column'
+              : sheetEdge === 'top' ? 'column-reverse'
+              : sheetEdge === 'left' ? 'row-reverse'
+              : 'row',
+          }}
+        >
+          <SheetHandleStrip edge={sheetEdge} />
+          <SheetCloseButton onClose={() => setSheetSnap('closed')} />
+          <div
+            style={{
+              padding: sheetEdge === 'bottom' || sheetEdge === 'top' ? '8px 20px 20px' : '20px',
+              fontSize: '0.95rem',
+              lineHeight: 1.5,
+              opacity: 0.9,
+              overflow: 'auto',
+              flex: 1,
+              minWidth: 0,
+              minHeight: 0,
+            }}
+          >
+            <strong style={{ display: 'block', marginBottom: 8 }}>DraggableSheet</strong>
+            Drag the handle to resize between snap points. Flick fast to skip stops. Tap the × to close.
+          </div>
+        </DraggableSheet>
       )}
     </div>
   );
