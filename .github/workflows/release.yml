@@ -92,10 +92,27 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
+          # Keep llms.txt in sync with the version that is about to be
+          # published, so the source file, the demo build, and npm are all
+          # aligned in the same release commit.
+          if [ -f llms.txt ]; then
+            NEW_VERSION="$VERSION" node -e '
+              const fs = require("fs");
+              const path = "llms.txt";
+              const v = process.env.NEW_VERSION;
+              const src = fs.readFileSync(path, "utf8");
+              const out = src.replace(
+                /(Current documented version:\s*`)[^`]+(`)/,
+                `$1${v}$2`,
+              );
+              if (out !== src) fs.writeFileSync(path, out);
+            '
+          fi
+
       - name: Commit and tag
         if: steps.bump.outputs.type != 'none'
         run: |
-          git add package.json package-lock.json
+          git add package.json package-lock.json llms.txt
           git commit -m "release: v${{ steps.version.outputs.version }}"
           git tag "v${{ steps.version.outputs.version }}"
           git push origin main --tags
