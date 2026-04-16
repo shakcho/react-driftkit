@@ -28,6 +28,7 @@ Building a chat widget, floating toolbar, debug panel, or side dock? You want th
 |-----------|--------------|
 | [`<MovableLauncher>`](#movablelauncher) | A draggable floating wrapper that pins to any viewport corner or lives at custom `{x, y}` — drop-anywhere with optional snap-on-release. |
 | [`<SnapDock>`](#snapdock) | An edge-pinned dock that slides along any side of the viewport and flips orientation automatically between horizontal and vertical. |
+| [`<DraggableSheet>`](#draggablesheet) | A pull-up / pull-down sheet pinned to an edge with named snap points (`peek`, `half`, `full`) or arbitrary pixel / percentage stops. |
 
 ## Installation
 
@@ -278,11 +279,162 @@ The wrapper element exposes these attributes so you can drive CSS without re-ren
 
 ---
 
+## DraggableSheet
+
+A pull-up / pull-down sheet pinned to an edge of the viewport, with snap points like `peek`, `half`, and `full`. Built for mobile-style detail drawers, filter panels, cart drawers, and inspector flyouts — but works at any edge on any screen size.
+
+### Features
+
+- **Named snap presets** — `'closed'`, `'peek'`, `'half'`, `'full'` resolve to sensible defaults against the viewport axis
+- **Arbitrary snap points** — mix presets with raw pixel `number`s and percentage strings like `'40%'` in a single `snapPoints` array
+- **Any edge** — pin to `bottom` (default), `top`, `left`, or `right`; percentage snaps resolve against the drag axis automatically
+- **Velocity-aware release** — a fast flick advances one stop in the flick direction, slow drags snap to the nearest stop
+- **Drag handle selector** — restrict drag to a nested handle so inner content stays scrollable and clickable
+- **Controlled & uncontrolled** — omit `snap` for uncontrolled, pass it for parent-driven transitions
+- **Data attributes** — `data-edge`, `data-snap`, `data-dragging` for CSS-only styling
+
+### Examples
+
+#### Basic bottom sheet
+
+```tsx
+<DraggableSheet snapPoints={['peek', 'half', 'full']} defaultSnap="half">
+  <div className="my-sheet">
+    <div data-handle className="sheet-handle" />
+    <div className="sheet-body">Details, filters, cart...</div>
+  </div>
+</DraggableSheet>
+```
+
+#### Mixed snap points
+
+Presets, pixels, and percentages in the same list. Order doesn't matter — internally the values are resolved against the viewport and sorted at gesture time.
+
+```tsx
+<DraggableSheet
+  snapPoints={['peek', 200, '40%', 'full']}
+  defaultSnap="40%"
+/>
+```
+
+#### Drag handle
+
+Restrict drag to a handle strip so the rest of the sheet remains free for scrolling and clicks.
+
+```tsx
+<DraggableSheet
+  snapPoints={['peek', 'half', 'full']}
+  dragHandleSelector="[data-handle]"
+>
+  <div data-handle className="handle-strip" />
+  <div className="scroll-area">{/* long content scrolls normally */}</div>
+</DraggableSheet>
+```
+
+#### Controlled mode
+
+```tsx
+import { useState } from 'react';
+import { DraggableSheet, type SnapPoint } from 'react-driftkit';
+
+function App() {
+  const [snap, setSnap] = useState<SnapPoint>('half');
+
+  return (
+    <>
+      <button onClick={() => setSnap('full')}>Expand</button>
+      <DraggableSheet
+        snap={snap}
+        snapPoints={['peek', 'half', 'full']}
+        onSnapChange={(next) => setSnap(next)}
+      >
+        <Sheet />
+      </DraggableSheet>
+    </>
+  );
+}
+```
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | *required* | Content rendered inside the sheet. |
+| `edge` | `'bottom' \| 'top' \| 'left' \| 'right'` | `'bottom'` | Edge the sheet is pinned to. |
+| `snapPoints` | `SnapPoint[]` | `['peek', 'half', 'full']` | Ordered list of stops. Mix presets, pixel `number`s, and `'n%'` strings. |
+| `defaultSnap` | `SnapPoint` | middle of `snapPoints` | Uncontrolled initial stop. |
+| `snap` | `SnapPoint` | — | Controlled current stop. When set, parent drives transitions. |
+| `onSnapChange` | `(snap: SnapPoint, sizePx: number) => void` | — | Fires on drag release with the resolved stop and its pixel size. |
+| `draggable` | `boolean` | `true` | Whether the user can drag the sheet. |
+| `dragHandleSelector` | `string` | — | CSS selector for a nested handle. When set, drag only begins inside matching elements. |
+| `velocityThreshold` | `number` | `0.5` | Flick velocity (px/ms) above which a release advances one stop in the flick direction. |
+| `closeOnOutsideClick` | `boolean` | `false` | When true, a pointerdown outside the sheet collapses it to `0` and fires `onSnapChange('closed', 0)`. Ignored while already closed or mid-drag. |
+| `style` | `CSSProperties` | `{}` | Inline styles merged with the wrapper. |
+| `className` | `string` | `''` | CSS class added to the wrapper. |
+
+### Snap point resolution
+
+| Preset | Resolves to |
+|--------|-------------|
+| `'closed'` | `0` |
+| `'peek'` | `96` px (capped at the viewport axis) |
+| `'half'` | `50%` of the viewport along the drag axis |
+| `'full'` | `92%` of the viewport along the drag axis |
+| `number` | Raw pixels along the drag axis |
+| `` `${n}%` `` | `n%` of the viewport along the drag axis (height for top/bottom, width for left/right) |
+
+### Types
+
+```typescript
+type SheetEdge = 'bottom' | 'top' | 'left' | 'right';
+type SnapPoint =
+  | 'closed'
+  | 'peek'
+  | 'half'
+  | 'full'
+  | number
+  | `${number}%`;
+
+interface DraggableSheetProps {
+  children: ReactNode;
+  edge?: SheetEdge;
+  snapPoints?: SnapPoint[];
+  defaultSnap?: SnapPoint;
+  snap?: SnapPoint;
+  onSnapChange?: (snap: SnapPoint, sizePx: number) => void;
+  draggable?: boolean;
+  dragHandleSelector?: string;
+  velocityThreshold?: number;
+  closeOnOutsideClick?: boolean;
+  style?: CSSProperties;
+  className?: string;
+}
+```
+
+### Data attributes
+
+| Attribute | Values |
+|-----------|--------|
+| `data-edge` | `bottom`, `top`, `left`, `right` |
+| `data-snap` | the stringified current `SnapPoint` (e.g. `half`, `40%`, `200`) |
+| `data-dragging` | present while the user is actively dragging |
+
+### CSS classes
+
+| Class | When |
+|-------|------|
+| `draggable-sheet` | Always present |
+| `draggable-sheet--dragging` | While the user is actively dragging |
+
+---
+
 ## Use Cases
 
 - **Chat widgets** — floating support buttons that stay accessible
 - **Floating toolbars** — draggable formatting bars or quick-action panels
 - **Side docks** — VS Code / Figma-style side rails that snap to any edge
+- **Mobile detail sheets** — pull-up drawers for details, filters, or carts
+- **Inspector panels** — developer tool drawers that expand between peek and full
 - **Debug panels** — dev tool overlays that can be moved out of the way
 - **Media controls** — picture-in-picture style video or audio controls
 - **Notification centers** — persistent notification panels users can reposition
