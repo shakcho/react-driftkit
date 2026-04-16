@@ -226,6 +226,8 @@ export function DraggableSheet({
   }, []);
 
   const commitGesture = useCallback(() => {
+    // Capture velocity before clearGesture resets lastMove.
+    const velocity = lastMove.current?.v ?? 0;
     const wasDragging = clearGesture();
     if (!wasDragging) return;
     if (snapPoints.length === 0) return;
@@ -236,7 +238,6 @@ export function DraggableSheet({
       .sort((a, b) => a.px - b.px);
 
     const current = sizePxRef.current;
-    const velocity = lastMove.current?.v ?? 0;
 
     let targetIdx = 0;
     let nearestDist = Infinity;
@@ -260,9 +261,14 @@ export function DraggableSheet({
     if (!isControlled) {
       setSizeBoth(target.px);
       setSnapBoth(target.point);
+    } else {
+      // In controlled mode, snap back to the controlled prop value so the
+      // sheet doesn't stay at the transient dragged size when the parent
+      // doesn't change the snap prop.
+      setSizeBoth(resolveSnap(controlledSnap!, vpSize));
     }
     onSnapChange?.(target.point, target.px);
-  }, [clearGesture, edge, isControlled, onSnapChange, setSizeBoth, setSnapBoth, snapPoints, velocityThreshold]);
+  }, [clearGesture, controlledSnap, edge, isControlled, onSnapChange, setSizeBoth, setSnapBoth, snapPoints, velocityThreshold]);
 
   // Aborted gesture (pointercancel / lost capture): restore the last
   // committed stop instead of leaving the sheet at whatever intermediate

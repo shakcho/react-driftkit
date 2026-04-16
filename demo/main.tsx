@@ -569,7 +569,7 @@ const sheetHandle = `// Restrict dragging to a handle strip so inner content
 >
   <div data-handle className="handle-strip" />
   <div className="scroll-area">
-    <!-- long content here, scrolls normally -->
+    {/* long content here, scrolls normally */}
   </div>
 </DraggableSheet>`;
 
