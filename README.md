@@ -28,6 +28,7 @@ Building a chat widget, floating toolbar, debug panel, or side dock? You want th
 |-----------|--------------|
 | [`<MovableLauncher>`](#movablelauncher) | A draggable floating wrapper that pins to any viewport corner or lives at custom `{x, y}` — drop-anywhere with optional snap-on-release. |
 | [`<SnapDock>`](#snapdock) | An edge-pinned dock that slides along any side of the viewport and flips orientation automatically between horizontal and vertical. |
+| [`<PinnableTooltip>`](#pinnabletooltip) | A tooltip anchored to any element — hover/focus/click to reveal, then drag to tear off into a persistent draggable card. |
 
 ## Installation
 
@@ -278,12 +279,140 @@ The wrapper element exposes these attributes so you can drive CSS without re-ren
 
 ---
 
+## PinnableTooltip
+
+A tooltip that behaves like a normal hover/focus/click tooltip — until the user drags it. Past a 5 px threshold the tooltip tears off its anchor and becomes a persistent draggable card that stays put across renders. Useful for debug overlays, inspector panels, and power-user hints.
+
+### Features
+
+- **Anchored placement** — `top`, `bottom`, `left`, `right`, viewport-clamped
+- **Trigger modes** — `hover`, `focus`, `click`, or fully `manual` via the `open` prop
+- **Tear-off** — dragging the tooltip past 5 px pins it at the current pointer position; unpinning is controlled (render-prop `unpin` callback exposed via content)
+- **Controlled & uncontrolled** — `pinned` / `defaultPinned`, `pinPosition` / `defaultPinPosition`, `open` / `defaultOpen`
+- **Render-prop content** — receive `{ pinned, unpin, position }` to render pin-aware UI
+- **Zero built-in visuals** — you control background, border, padding, shadow, etc.
+- **`data-placement` / `data-pinned` / `data-dragging` attributes** — drive CSS without re-rendering
+
+### Examples
+
+#### Basic
+
+```tsx
+<PinnableTooltip content="Drag me to tear off">
+  <button>Hover me</button>
+</PinnableTooltip>
+```
+
+#### Debug overlay with render-prop
+
+```tsx
+<PinnableTooltip
+  placement="right"
+  content={({ pinned, unpin }) => (
+    <div className="debug-card">
+      <header>
+        <span>debug</span>
+        {pinned && <button onClick={unpin}>×</button>}
+      </header>
+      <pre>{JSON.stringify(state, null, 2)}</pre>
+    </div>
+  )}
+>
+  <button>state</button>
+</PinnableTooltip>
+```
+
+#### Controlled pin state
+
+```tsx
+import { useState } from 'react';
+import { PinnableTooltip, type TooltipPosition } from 'react-driftkit';
+
+function App() {
+  const [pinned, setPinned] = useState(false);
+  const [position, setPosition] = useState<TooltipPosition | null>(null);
+
+  return (
+    <PinnableTooltip
+      pinned={pinned}
+      pinPosition={position ?? undefined}
+      onPinnedChange={(next, pos) => {
+        setPinned(next);
+        if (pos) setPosition(pos);
+      }}
+      onPinPositionChange={setPosition}
+      content="Persistent note"
+    >
+      <button>Target</button>
+    </PinnableTooltip>
+  );
+}
+```
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactElement` | *required* | Single element to anchor to. Cloned with a merged ref. |
+| `content` | `ReactNode \| ((api) => ReactNode)` | *required* | Tooltip body. Function form receives `{ pinned, unpin, position }`. |
+| `placement` | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'` | Side of the anchor. Clamped to the viewport. |
+| `trigger` | `'hover' \| 'focus' \| 'click' \| 'manual'` | `'hover'` | Open trigger for the unpinned tooltip. `'manual'` requires `open`. |
+| `offset` | `number` | `8` | Gap in pixels between anchor and tooltip. |
+| `open` | `boolean` | — | Controlled open state. |
+| `defaultOpen` | `boolean` | `false` | Uncontrolled initial open state. |
+| `onOpenChange` | `(open: boolean) => void` | — | Fires when the unpinned open state changes. |
+| `pinned` | `boolean` | — | Controlled pin state. |
+| `defaultPinned` | `boolean` | `false` | Uncontrolled initial pin state. |
+| `onPinnedChange` | `(pinned, position) => void` | — | Fires on tear-off or unpin. |
+| `pinPosition` | `{ x, y }` | — | Controlled free position while pinned. |
+| `defaultPinPosition` | `{ x, y }` | — | Uncontrolled initial pinned position. |
+| `onPinPositionChange` | `(position) => void` | — | Fires while the pinned tooltip is dragged. |
+| `tooltipStyle` | `CSSProperties` | `{}` | Additional inline styles for the tooltip wrapper. |
+| `tooltipClassName` | `string` | `''` | Additional CSS class for the tooltip wrapper. |
+
+### Types
+
+```typescript
+type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right';
+type TooltipTrigger = 'hover' | 'focus' | 'click' | 'manual';
+
+interface TooltipPosition {
+  x: number;
+  y: number;
+}
+
+interface PinnableTooltipContentApi {
+  pinned: boolean;
+  unpin: () => void;
+  position: TooltipPosition | null;
+}
+```
+
+### Data attributes
+
+| Attribute | Values |
+|-----------|--------|
+| `data-placement` | `top`, `bottom`, `left`, `right` |
+| `data-pinned` | present while the tooltip is pinned |
+| `data-dragging` | present while the user is actively dragging |
+
+### CSS classes
+
+| Class | When |
+|-------|------|
+| `pinnable-tooltip` | Always present on the tooltip wrapper |
+| `pinnable-tooltip--pinned` | While pinned |
+| `pinnable-tooltip--dragging` | While actively dragging |
+
+---
+
 ## Use Cases
 
 - **Chat widgets** — floating support buttons that stay accessible
 - **Floating toolbars** — draggable formatting bars or quick-action panels
 - **Side docks** — VS Code / Figma-style side rails that snap to any edge
 - **Debug panels** — dev tool overlays that can be moved out of the way
+- **Inspector tooltips** — hover to preview, tear off to keep on screen
 - **Media controls** — picture-in-picture style video or audio controls
 - **Notification centers** — persistent notification panels users can reposition
 - **Accessibility helpers** — movable assistive overlays
