@@ -6,7 +6,14 @@ import 'prismjs/components/prism-jsx';
 import 'prismjs/components/prism-typescript';
 import 'prismjs/components/prism-tsx';
 import 'prismjs/themes/prism-tomorrow.css';
-import { MovableLauncher, SnapDock, type Edge } from '../src/index';
+import {
+  MovableLauncher,
+  SnapDock,
+  PinnableTooltip,
+  type Edge,
+  type TooltipPlacement,
+  type TooltipTrigger,
+} from '../src/index';
 import './styles.css';
 
 function CopyButton({ text }: { text: string }) {
@@ -154,6 +161,26 @@ function DockGlyphIcon({ size = 16, strokeWidth = 2 }: { size?: number; strokeWi
       <circle cx="16" cy="32.5" r="0.9" fill="currentColor" />
       <circle cx="20" cy="32.5" r="0.9" fill="currentColor" />
       <circle cx="24" cy="32.5" r="0.9" fill="currentColor" />
+    </svg>
+  );
+}
+
+function TooltipIcon({ size = 16, strokeWidth = 2 }: { size?: number; strokeWidth?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 40 40"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="6" y="10" width="22" height="14" rx="3" />
+      <path d="M14 24l3 4 3-4" />
+      <circle cx="31" cy="9" r="3" fill="currentColor" stroke="none" />
     </svg>
   );
 }
@@ -429,6 +456,137 @@ interface SnapDockProps {
   className?: string;
 }`;
 
+const tooltipBasic = `import { PinnableTooltip } from 'react-driftkit';
+
+function App() {
+  return (
+    <PinnableTooltip content="Drag me to tear off">
+      <button>Hover me</button>
+    </PinnableTooltip>
+  );
+}`;
+
+const tooltipDebug = `import { PinnableTooltip } from 'react-driftkit';
+
+// A hover-revealed debug panel that tears off into a movable card.
+<PinnableTooltip
+  placement="right"
+  trigger="hover"
+  content={
+    <pre style={{ margin: 0, padding: 12, background: '#111', color: '#0f0' }}>
+      {JSON.stringify(state, null, 2)}
+    </pre>
+  }
+>
+  <button>state</button>
+</PinnableTooltip>`;
+
+const tooltipControlled = `import { useState } from 'react';
+import { PinnableTooltip, type TooltipPosition } from 'react-driftkit';
+
+function App() {
+  const [pinned, setPinned] = useState(false);
+  const [position, setPosition] = useState<TooltipPosition | null>(null);
+
+  return (
+    <PinnableTooltip
+      pinned={pinned}
+      pinPosition={position ?? undefined}
+      onPinnedChange={(next, pos) => {
+        setPinned(next);
+        if (pos) setPosition(pos);
+      }}
+      onPinPositionChange={setPosition}
+      content={({ pinned: isPinned, unpin }) => (
+        <div>
+          {isPinned && <button onClick={unpin}>×</button>}
+          <p>Persistent note</p>
+        </div>
+      )}
+    >
+      <button>Target</button>
+    </PinnableTooltip>
+  );
+}`;
+
+const tooltipRenderProp = `// Use a render-prop to expose an unpin control inside content.
+<PinnableTooltip
+  content={({ pinned, unpin }) => (
+    <div className="debug-card">
+      <header>
+        <span>debug</span>
+        {pinned && <button onClick={unpin}>close</button>}
+      </header>
+      <DebugInfo />
+    </div>
+  )}
+>
+  <DebugBadge />
+</PinnableTooltip>`;
+
+const tooltipTriggers = `// Hover (default)
+<PinnableTooltip trigger="hover" content="..."><button /></PinnableTooltip>
+
+// Keyboard focus
+<PinnableTooltip trigger="focus" content="..."><button /></PinnableTooltip>
+
+// Click to toggle
+<PinnableTooltip trigger="click" content="..."><button /></PinnableTooltip>
+
+// Manual — pair with the \`open\` prop
+<PinnableTooltip trigger="manual" open={isOpen} content="...">
+  <button />
+</PinnableTooltip>`;
+
+const tooltipTypes = `type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right';
+type TooltipTrigger = 'hover' | 'focus' | 'click' | 'manual';
+
+interface TooltipPosition { x: number; y: number; }
+
+interface PinnableTooltipContentApi {
+  pinned: boolean;
+  unpin: () => void;
+  position: TooltipPosition | null;
+}
+
+interface PinnableTooltipProps {
+  children: ReactElement;
+  content: ReactNode | ((api: PinnableTooltipContentApi) => ReactNode);
+  placement?: TooltipPlacement;     // default 'top'
+  trigger?: TooltipTrigger;         // default 'hover'
+  offset?: number;                  // default 8
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  pinned?: boolean;
+  defaultPinned?: boolean;
+  onPinnedChange?: (pinned: boolean, position: TooltipPosition | null) => void;
+  pinPosition?: TooltipPosition;
+  defaultPinPosition?: TooltipPosition;
+  onPinPositionChange?: (position: TooltipPosition) => void;
+  tooltipStyle?: CSSProperties;
+  tooltipClassName?: string;
+}`;
+
+const tooltipApiRows: ApiRow[] = [
+  { prop: 'children', type: 'ReactElement', default: <>&mdash;</>, description: 'Single element to anchor the tooltip to. Cloned with a merged ref.' },
+  { prop: 'content', type: <code>ReactNode | ((api) =&gt; ReactNode)</code>, default: <>&mdash;</>, description: <>Tooltip body. Pass a function to receive <code>{'{ pinned, unpin, position }'}</code>.</> },
+  { prop: 'placement', type: "'top' | 'bottom' | 'left' | 'right'", default: "'top'", description: 'Which side of the anchor the tooltip sits on. Clamped to the viewport.' },
+  { prop: 'trigger', type: "'hover' | 'focus' | 'click' | 'manual'", default: "'hover'", description: <>Open trigger while unpinned. <code>'manual'</code> requires the <code>open</code> prop.</> },
+  { prop: 'offset', type: 'number', default: '8', description: 'Gap in pixels between anchor and tooltip.' },
+  { prop: 'open', type: 'boolean', default: <>&mdash;</>, description: 'Controlled open state for the unpinned tooltip.' },
+  { prop: 'defaultOpen', type: 'boolean', default: 'false', description: 'Uncontrolled initial open state.' },
+  { prop: 'onOpenChange', type: <code>(open: boolean) =&gt; void</code>, default: <>&mdash;</>, description: 'Fires when the unpinned open state changes.' },
+  { prop: 'pinned', type: 'boolean', default: <>&mdash;</>, description: 'Controlled pin state. Overrides internal state if provided.' },
+  { prop: 'defaultPinned', type: 'boolean', default: 'false', description: 'Uncontrolled initial pin state.' },
+  { prop: 'onPinnedChange', type: <code>(pinned, position) =&gt; void</code>, default: <>&mdash;</>, description: 'Fires when the tooltip is torn off or unpinned.' },
+  { prop: 'pinPosition', type: <code>{'{ x, y }'}</code>, default: <>&mdash;</>, description: 'Controlled free position while pinned.' },
+  { prop: 'defaultPinPosition', type: <code>{'{ x, y }'}</code>, default: <>&mdash;</>, description: 'Uncontrolled initial pinned position.' },
+  { prop: 'onPinPositionChange', type: <code>(position) =&gt; void</code>, default: <>&mdash;</>, description: 'Fires while the pinned tooltip is dragged.' },
+  { prop: 'tooltipStyle', type: 'CSSProperties', default: '{}', description: 'Additional inline styles for the tooltip wrapper.' },
+  { prop: 'tooltipClassName', type: 'string', default: "''", description: 'Additional CSS class for the tooltip wrapper.' },
+];
+
 const launcherApiRows: ApiRow[] = [
   { prop: 'children', type: 'ReactNode', default: <>&mdash;</>, description: 'Content rendered inside the draggable container.' },
   {
@@ -469,7 +627,7 @@ const dockApiRows: ApiRow[] = [
 ];
 
 type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-type ActiveComponent = 'launcher' | 'dock';
+type ActiveComponent = 'launcher' | 'dock' | 'tooltip';
 type SubView = 'install' | 'demo' | 'api' | 'examples';
 
 function SubNav({ prefix }: { prefix: string }) {
@@ -514,6 +672,12 @@ function App() {
    *  bump this, otherwise the dock remounts mid-drop and loses its offset. */
   const [dockRemountKey, setDockRemountKey] = useState(0);
 
+  // Tooltip state
+  const [tooltipExample, setTooltipExample] = useState(0);
+  const [tooltipPlacement, setTooltipPlacement] = useState<TooltipPlacement>('top');
+  const [tooltipTrigger, setTooltipTrigger] = useState<TooltipTrigger>('hover');
+  const [tooltipRemountKey, setTooltipRemountKey] = useState(0);
+
   const launcherExamples = [
     { label: 'Basic Usage', code: launcherBasic },
     { label: 'Snap to Corners', code: launcherSnap },
@@ -528,6 +692,16 @@ function App() {
     { label: 'Styling', code: dockStyled },
     { label: 'Events', code: dockEvents },
   ];
+
+  const tooltipExamples = [
+    { label: 'Basic Usage', code: tooltipBasic },
+    { label: 'Debug Overlay', code: tooltipDebug },
+    { label: 'Triggers', code: tooltipTriggers },
+    { label: 'Controlled', code: tooltipControlled },
+    { label: 'Render Prop', code: tooltipRenderProp },
+  ];
+  const tooltipPlacementOptions: TooltipPlacement[] = ['top', 'bottom', 'left', 'right'];
+  const tooltipTriggerOptions: TooltipTrigger[] = ['hover', 'focus', 'click', 'manual'];
 
   const corners: Corner[] = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
   const edges: Edge[] = ['left', 'right', 'top', 'bottom'];
@@ -556,6 +730,14 @@ function App() {
             >
               <DockGlyphIcon size={16} />
               SnapDock
+            </button>
+            <button
+              className={`nav-component-btn ${activeComponent === 'tooltip' ? 'nav-component-btn--active' : ''}`}
+              onClick={() => setActiveComponent('tooltip')}
+              aria-pressed={activeComponent === 'tooltip'}
+            >
+              <TooltipIcon size={16} strokeWidth={2.2} />
+              PinnableTooltip
             </button>
           </div>
         </div>
@@ -746,6 +928,159 @@ function App() {
               activeIndex={dockExample}
               onSelect={setDockExample}
               typesCode={dockTypes}
+            />
+          </>
+        )}
+
+        {activeComponent === 'tooltip' && (
+          <>
+            <WidgetHeader
+              prefix="tooltip"
+              icon={<TooltipIcon size={28} />}
+              title="PinnableTooltip"
+              description={
+                <>
+                  A tooltip anchored to any element — hover, focus, or click to reveal, then drag
+                  the tooltip itself to tear it off into a persistent draggable card. Great for
+                  debug overlays and inspector panels.
+                </>
+              }
+            />
+
+            <InstallSection id="tooltip-install" />
+
+            <section id="tooltip-demo" className="section" style={{ paddingTop: 16 }}>
+              <div className="section-label">Interactive Demo</div>
+
+              <div className="demo-row">
+                <span className="demo-row-label">Placement</span>
+                <div className="demo-row-controls">
+                  {tooltipPlacementOptions.map((p) => (
+                    <button
+                      key={p}
+                      className={`pill-btn ${tooltipPlacement === p ? 'pill-btn--active' : ''}`}
+                      onClick={() => {
+                        setTooltipPlacement(p);
+                        setTooltipRemountKey((k) => k + 1);
+                      }}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="demo-row" style={{ borderBottom: 'none' }}>
+                <span className="demo-row-label">Trigger</span>
+                <div className="demo-row-controls">
+                  {tooltipTriggerOptions.map((t) => (
+                    <button
+                      key={t}
+                      className={`pill-btn ${tooltipTrigger === t ? 'pill-btn--active' : ''}`}
+                      onClick={() => {
+                        setTooltipTrigger(t);
+                        setTooltipRemountKey((k) => k + 1);
+                      }}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div
+                style={{
+                  marginTop: 32,
+                  padding: '48px 24px',
+                  border: '1px dashed #d1d5db',
+                  borderRadius: 12,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  minHeight: 160,
+                  background: '#fafafa',
+                }}
+              >
+                <PinnableTooltip
+                  key={`tooltip-${tooltipRemountKey}`}
+                  placement={tooltipPlacement}
+                  trigger={tooltipTrigger}
+                  open={tooltipTrigger === 'manual' ? true : undefined}
+                  content={({ pinned, unpin }) => (
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        padding: '10px 14px',
+                        background: 'rgba(17, 24, 39, 0.96)',
+                        color: 'white',
+                        borderRadius: 8,
+                        fontSize: '0.85rem',
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
+                        maxWidth: 260,
+                      }}
+                    >
+                      <span>
+                        {pinned ? 'Pinned — drag me around' : 'Drag me to tear off'}
+                      </span>
+                      {pinned && (
+                        <button
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={unpin}
+                          style={{
+                            background: 'transparent',
+                            color: 'white',
+                            border: '1px solid rgba(255,255,255,0.4)',
+                            borderRadius: 4,
+                            padding: '2px 6px',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  )}
+                >
+                  <button
+                    style={{
+                      padding: '10px 18px',
+                      background: '#6366f1',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 8,
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {tooltipTrigger === 'click' ? 'Click me' : tooltipTrigger === 'focus' ? 'Tab to me' : 'Hover me'}
+                  </button>
+                </PinnableTooltip>
+              </div>
+            </section>
+
+            <section id="tooltip-api" className="section" style={{ paddingTop: 0 }}>
+              <div className="section-label">API Reference</div>
+              <ApiTable
+                rows={tooltipApiRows}
+                footnote={
+                  <>
+                    The tooltip exposes <code>data-placement</code>, <code>data-pinned</code>, and
+                    <code> data-dragging</code> attributes so you can drive CSS from state without
+                    re-rendering.
+                  </>
+                }
+              />
+            </section>
+
+            <CodeExamplesSection
+              id="tooltip-examples"
+              examples={tooltipExamples}
+              activeIndex={tooltipExample}
+              onSelect={setTooltipExample}
+              typesCode={tooltipTypes}
             />
           </>
         )}
