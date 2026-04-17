@@ -1,4 +1,4 @@
-import { useState, useMemo, type ReactNode } from 'react';
+import { useState, useRef, useEffect, useMemo, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-javascript';
@@ -6,7 +6,7 @@ import 'prismjs/components/prism-jsx';
 import 'prismjs/components/prism-typescript';
 import 'prismjs/components/prism-tsx';
 import 'prismjs/themes/prism-tomorrow.css';
-import { MovableLauncher, SnapDock, DraggableSheet, type Edge, type SheetEdge, type SnapPoint } from '../src/index';
+import { MovableLauncher, SnapDock, DraggableSheet, ResizableSplitPane, type Edge, type SheetEdge, type SnapPoint, type SplitOrientation } from '../src/index';
 import './styles.css';
 
 function CopyButton({ text }: { text: string }) {
@@ -261,6 +261,35 @@ function SheetIcon({ size = 16, strokeWidth = 2 }: { size?: number; strokeWidth?
       <rect x="6" y="6" width="28" height="28" rx="3" opacity="0.35" />
       <rect x="8" y="22" width="24" height="12" rx="2" />
       <path d="M16 26h8" strokeWidth={strokeWidth + 0.4} />
+    </svg>
+  );
+}
+
+function SplitterIcon({ size = 16, strokeWidth = 2 }: { size?: number; strokeWidth?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 40 40"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="6" y="6" width="28" height="28" rx="3" opacity="0.35" />
+      <line x1="20" y1="8" x2="20" y2="32" strokeWidth={strokeWidth + 0.5} />
+      <path d="M16 17l-3 3 3 3" />
+      <path d="M24 17l3 3-3 3" />
+    </svg>
+  );
+}
+
+function ChevronDownIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 9l6 6 6-6" />
     </svg>
   );
 }
@@ -709,8 +738,146 @@ const dockApiRows: ApiRow[] = [
   { prop: 'className', type: 'string', default: "''", description: 'Additional CSS class for the wrapper.' },
 ];
 
+const splitterBasic = `import { ResizableSplitPane } from 'react-driftkit';
+
+function App() {
+  return (
+    <ResizableSplitPane style={{ height: 400 }}>
+      <div>Left pane</div>
+      <div>Right pane</div>
+    </ResizableSplitPane>
+  );
+}`;
+
+const splitterMultiPane = `import { ResizableSplitPane } from 'react-driftkit';
+
+// Any number of panes — handles are inserted automatically.
+function App() {
+  return (
+    <ResizableSplitPane
+      defaultSizes={[0.2, 0.5, 0.3]}
+      style={{ height: 400 }}
+    >
+      <Sidebar />
+      <Editor />
+      <Preview />
+    </ResizableSplitPane>
+  );
+}`;
+
+const splitterCustomHandle = `import { ResizableSplitPane, type HandleInfo } from 'react-driftkit';
+
+// One render prop, called for each boundary.
+function App() {
+  return (
+    <ResizableSplitPane
+      defaultSizes={[0.25, 0.5, 0.25]}
+      handle={({ index, isDragging, orientation }) => (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          width: '100%',
+          background: isDragging ? '#6366f1' : '#e5e7eb',
+        }}>
+          <span style={{ fontSize: 10 }}>{index}</span>
+        </div>
+      )}
+      style={{ height: 400 }}
+    >
+      <div>A</div>
+      <div>B</div>
+      <div>C</div>
+    </ResizableSplitPane>
+  );
+}`;
+
+const splitterPersisted = `import { ResizableSplitPane } from 'react-driftkit';
+
+// Sizes are saved to localStorage under the given key
+// and restored automatically on next mount.
+function App() {
+  return (
+    <ResizableSplitPane persistKey="editor-split" style={{ height: '100vh' }}>
+      <FileTree />
+      <Editor />
+    </ResizableSplitPane>
+  );
+}`;
+
+const splitterControlled = `import { useState } from 'react';
+import { ResizableSplitPane } from 'react-driftkit';
+
+function App() {
+  const [sizes, setSizes] = useState([0.3, 0.7]);
+
+  return (
+    <>
+      <button onClick={() => setSizes([0.5, 0.5])}>Reset</button>
+      <ResizableSplitPane
+        sizes={sizes}
+        onSizesChange={setSizes}
+        style={{ height: 400 }}
+      >
+        <Sidebar />
+        <MainContent />
+      </ResizableSplitPane>
+    </>
+  );
+}`;
+
+const splitterTypes = `type SplitOrientation = 'horizontal' | 'vertical';
+
+interface HandleInfo {
+  index: number;
+  isDragging: boolean;
+  orientation: SplitOrientation;
+}
+
+interface ResizableSplitPaneProps {
+  children: ReactNode[];
+  orientation?: SplitOrientation;
+  defaultSizes?: number[];
+  sizes?: number[];
+  onSizesChange?: (sizes: number[]) => void;
+  onDrag?: (sizes: number[]) => void;
+  minSize?: number;
+  maxSize?: number;
+  handleSize?: number;
+  handle?: (info: HandleInfo) => ReactNode;
+  persistKey?: string;
+  draggable?: boolean;
+  doubleClickReset?: boolean;
+  style?: CSSProperties;
+  className?: string;
+}`;
+
+const splitterApiRows: ApiRow[] = [
+  { prop: 'children', type: 'ReactNode[]', default: <>&mdash;</>, description: 'Two or more child elements to render in the split panes.' },
+  { prop: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: "Split direction. 'horizontal' puts panes side-by-side; 'vertical' stacks them." },
+  { prop: 'defaultSizes', type: 'number[]', default: 'equal split', description: 'Uncontrolled initial sizes as ratios summing to 1 (e.g. [0.25, 0.5, 0.25]).' },
+  { prop: 'sizes', type: 'number[]', default: <>&mdash;</>, description: 'Controlled sizes. When set, parent drives all pane sizes.' },
+  { prop: 'onSizesChange', type: <code>(sizes: number[]) =&gt; void</code>, default: <>&mdash;</>, description: 'Fires after a drag release with the committed sizes array.' },
+  { prop: 'onDrag', type: <code>(sizes: number[]) =&gt; void</code>, default: <>&mdash;</>, description: 'Fires continuously while dragging with the live sizes array.' },
+  { prop: 'minSize', type: 'number', default: '50', description: 'Minimum size in pixels for any pane.' },
+  { prop: 'maxSize', type: 'number', default: <>&mdash;</>, description: 'Maximum size in pixels for any pane. No limit when omitted.' },
+  { prop: 'handleSize', type: 'number', default: '8', description: 'Thickness of each drag handle in pixels.' },
+  {
+    prop: 'handle',
+    type: <code>(info: HandleInfo) =&gt; ReactNode</code>,
+    default: <>&mdash;</>,
+    description: 'Render prop called once per boundary. Receives { index, isDragging, orientation }. Default empty div when omitted.',
+  },
+  { prop: 'persistKey', type: 'string', default: <>&mdash;</>, description: 'localStorage key to persist sizes across sessions. Omit to disable.' },
+  { prop: 'draggable', type: 'boolean', default: 'true', description: 'Whether the user can drag the handles.' },
+  { prop: 'doubleClickReset', type: 'boolean', default: 'true', description: 'Double-click a handle to reset to defaultSizes (or equal split).' },
+  { prop: 'style', type: 'CSSProperties', default: '{}', description: 'Additional inline styles for the container.' },
+  { prop: 'className', type: 'string', default: "''", description: 'Additional CSS class for the container.' },
+];
+
 type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-type ActiveComponent = 'launcher' | 'dock' | 'sheet';
+type ActiveComponent = 'launcher' | 'dock' | 'sheet' | 'splitter';
 type SubView = 'install' | 'demo' | 'api' | 'examples';
 
 function SubNav({ prefix }: { prefix: string }) {
@@ -735,6 +902,71 @@ function SubNav({ prefix }: { prefix: string }) {
   );
 }
 
+const componentItems: { key: ActiveComponent; label: string; icon: ReactNode }[] = [
+  { key: 'launcher', label: 'MovableLauncher', icon: <MoveIcon size={16} strokeWidth={2.2} /> },
+  { key: 'dock', label: 'SnapDock', icon: <DockGlyphIcon size={16} /> },
+  { key: 'sheet', label: 'DraggableSheet', icon: <SheetIcon size={16} /> },
+  { key: 'splitter', label: 'ResizableSplitPane', icon: <SplitterIcon size={16} /> },
+];
+
+function ComponentDropdown({ active, onChange }: { active: ActiveComponent; onChange: (c: ActiveComponent) => void }) {
+  const [open, setOpen] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const closeMenu = () => {
+    if (!open) return;
+    setClosing(true);
+    setTimeout(() => {
+      setOpen(false);
+      setVisible(false);
+      setClosing(false);
+    }, 120);
+  };
+
+  const openMenu = () => {
+    setOpen(true);
+    setVisible(true);
+    setClosing(false);
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) closeMenu();
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const current = componentItems.find((c) => c.key === active)!;
+
+  return (
+    <div className="nav-dropdown" ref={ref}>
+      <button className="nav-dropdown-trigger" onClick={() => visible ? closeMenu() : openMenu()} aria-expanded={visible}>
+        {current.icon}
+        <span>{current.label}</span>
+        <ChevronDownIcon size={14} />
+      </button>
+      {open && (
+        <div className={`nav-dropdown-menu ${closing ? 'nav-dropdown-menu--closing' : ''}`}>
+          {componentItems.map(({ key, label, icon }) => (
+            <button
+              key={key}
+              className={`nav-dropdown-item ${active === key ? 'nav-dropdown-item--active' : ''}`}
+              onClick={() => { onChange(key); closeMenu(); }}
+            >
+              {icon}
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function App() {
   const [activeComponent, setActiveComponent] = useState<ActiveComponent>('launcher');
 
@@ -749,6 +981,13 @@ function App() {
   const [sheetSnap, setSheetSnap] = useState<SnapPoint>('half');
   const [sheetCloseOnOutside, setSheetCloseOnOutside] = useState(true);
   const sheetSnapPoints: SnapPoint[] = ['closed', 'peek', 'half', 'full'];
+
+  // Splitter state
+  const [splitterExample, setSplitterExample] = useState(0);
+  const [splitterOrientation, setSplitterOrientation] = useState<SplitOrientation>('horizontal');
+  const [splitterSizes, setSplitterSizes] = useState([0.25, 0.5, 0.25]);
+  const [splitterDraggable, setSplitterDraggable] = useState(true);
+  const [splitterPaneCount, setSplitterPaneCount] = useState(3);
 
   // Dock state
   const [dockExample, setDockExample] = useState(0);
@@ -786,6 +1025,14 @@ function App() {
     { label: 'All Edges', code: sheetEdges },
   ];
 
+  const splitterExamples = [
+    { label: 'Basic Usage', code: splitterBasic },
+    { label: 'Multi-Pane', code: splitterMultiPane },
+    { label: 'Custom Handle', code: splitterCustomHandle },
+    { label: 'Persisted', code: splitterPersisted },
+    { label: 'Controlled', code: splitterControlled },
+  ];
+
   const sheetEdgeOptions: SheetEdge[] = ['bottom', 'top', 'left', 'right'];
 
   const corners: Corner[] = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
@@ -799,32 +1046,7 @@ function App() {
           <a href="/" className="nav-logo">
             react-<span className="accent">driftkit</span>
           </a>
-          <div className="nav-links">
-            <button
-              className={`nav-component-btn ${activeComponent === 'launcher' ? 'nav-component-btn--active' : ''}`}
-              onClick={() => setActiveComponent('launcher')}
-              aria-pressed={activeComponent === 'launcher'}
-            >
-              <MoveIcon size={16} strokeWidth={2.2} />
-              MovableLauncher
-            </button>
-            <button
-              className={`nav-component-btn ${activeComponent === 'dock' ? 'nav-component-btn--active' : ''}`}
-              onClick={() => setActiveComponent('dock')}
-              aria-pressed={activeComponent === 'dock'}
-            >
-              <DockGlyphIcon size={16} />
-              SnapDock
-            </button>
-            <button
-              className={`nav-component-btn ${activeComponent === 'sheet' ? 'nav-component-btn--active' : ''}`}
-              onClick={() => setActiveComponent('sheet')}
-              aria-pressed={activeComponent === 'sheet'}
-            >
-              <SheetIcon size={16} />
-              DraggableSheet
-            </button>
-          </div>
+          <ComponentDropdown active={activeComponent} onChange={setActiveComponent} />
         </div>
       </nav>
 
@@ -1097,6 +1319,165 @@ function App() {
               activeIndex={sheetExample}
               onSelect={setSheetExample}
               typesCode={sheetTypes}
+            />
+          </>
+        )}
+
+        {activeComponent === 'splitter' && (
+          <>
+            <WidgetHeader
+              prefix="splitter"
+              icon={<SplitterIcon size={28} />}
+              title="ResizableSplitPane"
+              description={
+                <>
+                  An N-pane split view with draggable handles and a single render prop for
+                  custom handle UI. Supports min/max constraints, persisted sizes, and both
+                  horizontal and vertical layouts.
+                </>
+              }
+            />
+
+            <InstallSection id="splitter-install" />
+
+            <section id="splitter-demo" className="section" style={{ paddingTop: 16 }}>
+              <div className="section-label">Interactive Demo</div>
+
+              <div className="demo-row">
+                <span className="demo-row-label">Panes</span>
+                <div className="demo-row-controls">
+                  {[2, 3, 4].map((n) => (
+                    <button
+                      key={n}
+                      className={`pill-btn ${splitterPaneCount === n ? 'pill-btn--active' : ''}`}
+                      onClick={() => {
+                        setSplitterPaneCount(n);
+                        setSplitterSizes(Array.from({ length: n }, () => 1 / n));
+                      }}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="demo-row">
+                <span className="demo-row-label">Orientation</span>
+                <div className="demo-row-controls">
+                  {(['horizontal', 'vertical'] as SplitOrientation[]).map((o) => (
+                    <button
+                      key={o}
+                      className={`pill-btn ${splitterOrientation === o ? 'pill-btn--active' : ''}`}
+                      onClick={() => setSplitterOrientation(o)}
+                    >
+                      {o}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="demo-row">
+                <span className="demo-row-label">Draggable</span>
+                <div className="demo-row-controls">
+                  <button
+                    className={`toggle ${splitterDraggable ? 'toggle--on' : ''}`}
+                    onClick={() => setSplitterDraggable((d) => !d)}
+                  />
+                  <span className="toggle-label">{splitterDraggable ? 'on' : 'off'}</span>
+                </div>
+              </div>
+
+              <div className="demo-row" style={{ borderBottom: 'none' }}>
+                <span className="demo-row-label">Sizes</span>
+                <div className="demo-row-controls">
+                  <span style={{ fontSize: '0.85rem', color: '#6366f1', fontVariantNumeric: 'tabular-nums' }}>
+                    {splitterSizes.map((s) => `${(s * 100).toFixed(0)}%`).join(' / ')}
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ marginTop: 16 }}>
+                <ResizableSplitPane
+                  key={`${splitterOrientation}-${splitterPaneCount}`}
+                  orientation={splitterOrientation}
+                  defaultSizes={splitterSizes}
+                  onSizesChange={setSplitterSizes}
+                  onDrag={setSplitterSizes}
+                  draggable={splitterDraggable}
+                  minSize={60}
+                  handle={({ index, isDragging }) => (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '100%',
+                      height: '100%',
+                      fontSize: '0.7rem',
+                      fontFamily: 'var(--font-mono)',
+                      color: isDragging ? 'white' : 'var(--text-muted)',
+                      transition: 'color 0.15s',
+                    }}>
+                      {index}
+                    </div>
+                  )}
+                  style={{
+                    height: 320,
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius)',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {Array.from({ length: splitterPaneCount }, (_, i) => {
+                    const colors = [
+                      { bg: 'var(--accent-light)', fg: 'var(--accent)' },
+                      { bg: 'var(--bg-section)', fg: 'var(--text)' },
+                      { bg: '#fef3c7', fg: '#92400e' },
+                      { bg: '#ecfdf5', fg: '#065f46' },
+                    ];
+                    const { bg, fg } = colors[i % colors.length];
+                    return (
+                      <div
+                        key={i}
+                        style={{
+                          padding: 16,
+                          background: bg,
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 4,
+                        }}
+                      >
+                        <strong style={{ color: fg }}>Pane {i}</strong>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                          {i === 0 ? 'Drag handles to resize. Double-click to reset.' : `Pane ${i} content`}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </ResizableSplitPane>
+              </div>
+            </section>
+
+            <section id="splitter-api" className="section" style={{ paddingTop: 0 }}>
+              <div className="section-label">API Reference</div>
+              <ApiTable
+                rows={splitterApiRows}
+                footnote={
+                  <>
+                    The container exposes <code>data-orientation</code> and <code>data-dragging</code> attributes.
+                    Panes expose <code>data-pane=&#123;index&#125;</code>. Handles expose{' '}
+                    <code>data-handle=&#123;index&#125;</code> and <code>data-dragging</code> when active.
+                  </>
+                }
+              />
+            </section>
+
+            <CodeExamplesSection
+              id="splitter-examples"
+              examples={splitterExamples}
+              activeIndex={splitterExample}
+              onSelect={setSplitterExample}
+              typesCode={splitterTypes}
             />
           </>
         )}

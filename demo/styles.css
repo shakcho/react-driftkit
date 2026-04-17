@@ -83,19 +83,6 @@ code {
   color: var(--accent);
 }
 
-.nav-links {
-  display: flex;
-  gap: 28px;
-  font-size: 0.9rem;
-}
-.nav-links a {
-  color: var(--text-muted);
-  font-weight: 500;
-  transition: color 0.15s;
-}
-.nav-links a:hover {
-  color: var(--text);
-}
 
 /* ── Content ──────────────────────────────────── */
 .content {
@@ -879,41 +866,149 @@ code {
 #dock-install,
 #dock-demo,
 #dock-api,
-#dock-examples {
+#dock-examples,
+#sheet-install,
+#sheet-demo,
+#sheet-api,
+#sheet-examples,
+#splitter-install,
+#splitter-demo,
+#splitter-api,
+#splitter-examples {
   scroll-margin-top: 240px;
 }
 
+/* ── ResizableSplitter handle styling ────────── */
+.resizable-split-pane__handle {
+  background: var(--border);
+  transition: background 0.15s ease;
+  position: relative;
+}
+
+.resizable-split-pane__handle:hover {
+  background: var(--accent-border);
+}
+
+.resizable-split-pane--dragging .resizable-split-pane__handle {
+  background: var(--accent);
+}
+
 /* ── Nav component buttons ─────────────────────── */
-.nav-component-btn {
+/* ── Component Dropdown ──────────────────────────── */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  background: transparent;
-  color: #6b7280;
-  border: 1px solid transparent;
+  gap: 8px;
+  padding: 7px 14px;
+  background: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
   border-radius: 8px;
   font-family: inherit;
-  font-size: 0.82rem;
-  font-weight: 500;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
   line-height: 1;
 }
 
-.nav-component-btn:hover {
-  color: #111827;
+.nav-dropdown-trigger:hover {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+}
+
+.nav-dropdown-trigger svg:last-child {
+  margin-left: 2px;
+  opacity: 0.6;
+  transition: transform 0.2s ease;
+}
+
+.nav-dropdown-trigger[aria-expanded="true"] svg:last-child {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  z-index: 150;
+  animation: dropdown-in 0.15s ease;
+}
+
+.nav-dropdown-menu--closing {
+  animation: dropdown-out 0.12s ease forwards;
+}
+
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropdown-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.nav-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+  text-align: left;
+}
+
+.nav-dropdown-item:hover {
   background: #f3f4f6;
+  color: var(--text);
 }
 
-.nav-component-btn--active {
-  color: #6366f1;
-  background: #eef2ff;
-  border-color: #c7d2fe;
+.nav-dropdown-item--active {
+  background: var(--accent-light);
+  color: var(--accent);
+  font-weight: 600;
 }
 
-.nav-component-btn svg {
-  color: currentColor;
+.nav-dropdown-item--active:hover {
+  background: #e0e7ff;
+}
+
+.nav-dropdown-item svg {
+  flex-shrink: 0;
 }
 
 /* ── Diagonal GitHub ribbon (top-right) ────────── */
@@ -972,12 +1067,12 @@ code {
     padding: 10px 14px;
     font-size: 0.82rem;
   }
-  .nav-component-btn {
-    padding: 5px 8px;
-    font-size: 0.72rem;
+  .nav-dropdown-trigger {
+    padding: 6px 10px;
+    font-size: 0.78rem;
   }
-  .nav-links {
-    gap: 6px;
+  .nav-dropdown-menu {
+    min-width: 100%;
   }
 }
 
