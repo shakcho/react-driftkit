@@ -29,6 +29,7 @@ Building a chat widget, floating toolbar, debug panel, or side dock? You want th
 | [`<MovableLauncher>`](#movablelauncher) | A draggable floating wrapper that pins to any viewport corner or lives at custom `{x, y}` — drop-anywhere with optional snap-on-release. |
 | [`<SnapDock>`](#snapdock) | An edge-pinned dock that slides along any side of the viewport and flips orientation automatically between horizontal and vertical. |
 | [`<DraggableSheet>`](#draggablesheet) | A pull-up / pull-down sheet pinned to an edge with named snap points (`peek`, `half`, `full`) or arbitrary pixel / percentage stops. |
+| [`<ResizableSplitPane>`](#resizablesplitter) | An N-pane resizable split layout with draggable handles, min/max constraints, and localStorage-persisted ratios. |
 
 ## Installation
 
@@ -56,7 +57,7 @@ bun add react-driftkit
 ## Quick Start
 
 ```tsx
-import { MovableLauncher, SnapDock } from 'react-driftkit';
+import { MovableLauncher, SnapDock, ResizableSplitPane } from 'react-driftkit';
 
 function App() {
   return (
@@ -70,12 +71,17 @@ function App() {
         <button>Search</button>
         <button>Settings</button>
       </SnapDock>
+
+      <ResizableSplitPane defaultSizes={[0.3, 0.7]} persistKey="app-split">
+        <Sidebar />
+        <MainContent />
+      </ResizableSplitPane>
     </>
   );
 }
 ```
 
-Both components are tree-shakable — import only what you use.
+All components are tree-shakable — import only what you use.
 
 ---
 
@@ -428,6 +434,157 @@ interface DraggableSheetProps {
 
 ---
 
+## ResizableSplitPane
+
+An N-pane resizable split layout. Drag the handles between panes to redistribute space. Supports horizontal and vertical orientations, min/max size constraints, localStorage persistence, and a render prop for fully custom handles.
+
+### Features
+
+- **N panes** — pass 2 or more children; each adjacent pair gets a drag handle
+- **Single handle render prop** — define `handle` once, it's called per boundary with `{ index, isDragging, orientation }`
+- **Min / max constraints** — clamp each pane's pixel size; conflicts are resolved gracefully
+- **Persisted layout** — pass `persistKey` to save the split ratios to localStorage across sessions
+- **Controlled & uncontrolled** — omit `sizes` for uncontrolled, pass it for parent-driven layouts
+- **Double-click reset** — double-click any handle to reset to `defaultSizes` (or equal split)
+- **Pointer-based** — works with mouse, touch, and pen; 3 px drag threshold
+
+### Examples
+
+#### Basic two-pane split
+
+```tsx
+<ResizableSplitPane defaultSizes={[0.3, 0.7]}>
+  <Sidebar />
+  <MainContent />
+</ResizableSplitPane>
+```
+
+#### Three panes with custom handle
+
+```tsx
+<ResizableSplitPane
+  defaultSizes={[0.25, 0.5, 0.25]}
+  handle={({ index, isDragging }) => (
+    <div style={{ background: isDragging ? '#6366f1' : '#e5e7eb' }}>
+      {index}
+    </div>
+  )}
+>
+  <FileTree />
+  <Editor />
+  <Preview />
+</ResizableSplitPane>
+```
+
+#### Vertical with constraints and persistence
+
+```tsx
+<ResizableSplitPane
+  orientation="vertical"
+  minSize={100}
+  maxSize={600}
+  persistKey="my-editor-split"
+>
+  <CodeEditor />
+  <Terminal />
+</ResizableSplitPane>
+```
+
+#### Controlled mode
+
+```tsx
+import { useState } from 'react';
+import { ResizableSplitPane } from 'react-driftkit';
+
+function App() {
+  const [sizes, setSizes] = useState([0.5, 0.5]);
+
+  return (
+    <ResizableSplitPane
+      sizes={sizes}
+      onSizesChange={setSizes}
+    >
+      <PanelA />
+      <PanelB />
+    </ResizableSplitPane>
+  );
+}
+```
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode[]` | *required* | Two or more child elements to render in the split panes. |
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Split direction. Horizontal puts panes side-by-side; vertical stacks them. |
+| `defaultSizes` | `number[]` | equal split | Uncontrolled initial sizes as ratios summing to 1. |
+| `sizes` | `number[]` | — | Controlled sizes. When provided, the splitter is fully controlled by the parent. |
+| `onSizesChange` | `(sizes: number[]) => void` | — | Fires after a drag release with the committed sizes array. |
+| `onDrag` | `(sizes: number[]) => void` | — | Fires continuously while dragging with the live sizes array. |
+| `minSize` | `number` | `50` | Minimum size in pixels for any pane. |
+| `maxSize` | `number` | — | Maximum size in pixels for any pane. No limit when omitted. |
+| `handleSize` | `number` | `8` | Thickness of each drag handle in pixels. |
+| `handle` | `(info: HandleInfo) => ReactNode` | — | Render prop for each drag handle. Called once per boundary. |
+| `persistKey` | `string` | — | localStorage key to persist the sizes across sessions. |
+| `draggable` | `boolean` | `true` | Whether the user can drag the handles. |
+| `doubleClickReset` | `boolean` | `true` | Double-click a handle to reset to `defaultSizes` (or equal split). |
+| `style` | `CSSProperties` | `{}` | Inline styles merged with the wrapper. |
+| `className` | `string` | `''` | CSS class added to the wrapper. |
+
+### Types
+
+```typescript
+type SplitOrientation = 'horizontal' | 'vertical';
+
+interface HandleInfo {
+  /** Boundary index (0 = between pane 0 and pane 1). */
+  index: number;
+  /** Whether this specific handle is being dragged. */
+  isDragging: boolean;
+  /** Current orientation of the splitter. */
+  orientation: SplitOrientation;
+}
+
+interface ResizableSplitPaneProps {
+  children: ReactNode[];
+  orientation?: SplitOrientation;
+  defaultSizes?: number[];
+  sizes?: number[];
+  onSizesChange?: (sizes: number[]) => void;
+  onDrag?: (sizes: number[]) => void;
+  minSize?: number;
+  maxSize?: number;
+  handleSize?: number;
+  handle?: (info: HandleInfo) => ReactNode;
+  persistKey?: string;
+  draggable?: boolean;
+  doubleClickReset?: boolean;
+  style?: CSSProperties;
+  className?: string;
+}
+```
+
+### Data attributes
+
+| Attribute | Values |
+|-----------|--------|
+| `data-orientation` | `horizontal`, `vertical` |
+| `data-dragging` | present while any handle is being dragged |
+| `data-pane` | numeric pane index (`0`, `1`, `2`, ...) |
+| `data-handle` | numeric handle index (`0`, `1`, ...) |
+
+### CSS classes
+
+| Class | When |
+|-------|------|
+| `resizable-split-pane` | Always present |
+| `resizable-split-pane--dragging` | While any handle is being dragged |
+| `resizable-split-pane__pane` | On each pane wrapper |
+| `resizable-split-pane__handle` | On each handle wrapper |
+| `resizable-split-pane__handle--dragging` | On the specific handle being dragged |
+
+---
+
 ## Use Cases
 
 - **Chat widgets** — floating support buttons that stay accessible
@@ -435,6 +592,8 @@ interface DraggableSheetProps {
 - **Side docks** — VS Code / Figma-style side rails that snap to any edge
 - **Mobile detail sheets** — pull-up drawers for details, filters, or carts
 - **Inspector panels** — developer tool drawers that expand between peek and full
+- **Code editors** — resizable file tree + editor + preview split layouts
+- **Admin dashboards** — adjustable sidebar and content regions
 - **Debug panels** — dev tool overlays that can be moved out of the way
 - **Media controls** — picture-in-picture style video or audio controls
 - **Notification centers** — persistent notification panels users can reposition
@@ -442,9 +601,11 @@ interface DraggableSheetProps {
 
 ## How it works
 
-Under the hood both components use the [Pointer Events API](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events) for universal input handling and a `ResizeObserver` to stay pinned when their content changes size. They render as `position: fixed` elements at the top of the z-index stack (`2147483647`), so they float above everything without interfering with your layout.
+Under the hood all components use the [Pointer Events API](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events) for universal input handling. `MovableLauncher`, `SnapDock`, and `DraggableSheet` render as `position: fixed` elements at the top of the z-index stack (`2147483647`) and use a `ResizeObserver` to stay pinned when their content changes size.
 
 `SnapDock`'s orientation flip uses a FLIP-style animation: it captures the old wrapper rect before the orientation changes, applies an inverse `scale()` anchored to the active edge, and animates back to identity in the next frame — so the dock glides between horizontal and vertical layouts instead of snapping.
+
+`ResizableSplitPane` uses a flexbox layout with `calc()` sizing. Dragging a handle only redistributes space between the two adjacent panes, leaving all others unchanged. Window resize events trigger re-clamping against min/max constraints.
 
 ## Contributing
 

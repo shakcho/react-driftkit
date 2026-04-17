@@ -4,3 +4,5 @@ export { SnapDock } from './SnapDock';
 export type { SnapDockProps, Edge, Orientation } from './SnapDock';
 export { DraggableSheet } from './DraggableSheet';
 export type { DraggableSheetProps, SheetEdge, SnapPoint } from './DraggableSheet';
+export { ResizableSplitPane } from './ResizableSplitPane';
+export type { ResizableSplitPaneProps, SplitOrientation, HandleInfo } from './ResizableSplitPane';
