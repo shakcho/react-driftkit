@@ -1,0 +1,58 @@
+---
+import Layout from '../layouts/Layout.astro';
+import WidgetHeader from '../components/WidgetHeader.astro';
+import InstallSection from '../components/InstallSection.astro';
+import ApiTable from '../components/ApiTable.astro';
+import CodeExamplesSection from '../components/CodeExamplesSection.astro';
+import GitHubCTA from '../components/GitHubCTA.astro';
+import { SplitterIcon } from '../components/islands/Icons';
+import SplitterDemo from '../components/islands/SplitterDemo';
+import { splitterMeta } from '../data/splitter';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareSourceCode',
+  name: 'react-driftkit / ResizableSplitPane',
+  description: splitterMeta.tagline,
+  codeRepository: 'https://github.com/shakcho/react-drift',
+  programmingLanguage: 'TypeScript',
+  runtimePlatform: 'React 18, React 19',
+  url: 'https://react-driftkit.saktichourasia.dev/resizable-split-pane',
+};
+---
+
+<Layout
+  title={`${splitterMeta.title} — react-driftkit`}
+  description={splitterMeta.metaDescription}
+  path={`/${splitterMeta.slug}`}
+  jsonLd={jsonLd}
+  activeComponent="splitter"
+  ogSlug={splitterMeta.slug}
+>
+  <WidgetHeader
+    prefix="splitter"
+    icon={SplitterIcon}
+    title={splitterMeta.title}
+    description={splitterMeta.tagline}
+  />
+
+  <InstallSection id="splitter-install" />
+
+  <section id="splitter-demo" class="section" style="padding-top: 16px;">
+    <div class="section-label">Interactive Demo</div>
+    <SplitterDemo client:load />
+  </section>
+
+  <section id="splitter-api" class="section" style="padding-top: 0;">
+    <div class="section-label">API Reference</div>
+    <ApiTable rows={splitterMeta.apiRows} footnoteHtml={splitterMeta.apiFootnoteHtml} />
+  </section>
+
+  <CodeExamplesSection
+    id="splitter-examples"
+    examples={splitterMeta.codeExamples}
+    typesCode={splitterMeta.typesCode}
+  />
+
+  <GitHubCTA />
+</Layout>

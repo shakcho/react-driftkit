@@ -1,0 +1,12 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "baseUrl": ".",
+    "paths": {
+      "react-driftkit": ["../src/index.ts"]
+    }
+  },
+  "include": ["src", ".astro/types.d.ts"]
+}

@@ -1,0 +1,37 @@
+---
+import { codeToHtml } from 'shiki';
+import CodeTabs, { type HighlightedTab } from './islands/CodeTabs';
+import CodeStatic from './CodeStatic.astro';
+import type { CodeExample } from '../data/types';
+
+export interface Props {
+  id?: string;
+  examples: CodeExample[];
+  typesCode: string;
+}
+
+const { id = 'examples', examples, typesCode } = Astro.props;
+
+const theme = 'github-dark';
+
+const tabs: HighlightedTab[] = await Promise.all(
+  examples.map(async (ex) => ({
+    label: ex.label,
+    raw: ex.code,
+    lang: ex.lang ?? 'tsx',
+    html: await codeToHtml(ex.code, { lang: ex.lang ?? 'tsx', theme }),
+  })),
+);
+
+const typesHtml = await codeToHtml(typesCode, { lang: 'typescript', theme });
+---
+
+<section id={id} class="section" style="padding-top: 0;">
+  <div class="section-label">Code Examples</div>
+  <CodeTabs client:visible tabs={tabs} />
+
+  <div style="margin-top: 32px;">
+    <div class="section-label">Types</div>
+    <CodeStatic html={typesHtml} raw={typesCode} lang="typescript" />
+  </div>
+</section>

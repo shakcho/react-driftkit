@@ -1,0 +1,58 @@
+---
+import Layout from '../layouts/Layout.astro';
+import WidgetHeader from '../components/WidgetHeader.astro';
+import InstallSection from '../components/InstallSection.astro';
+import ApiTable from '../components/ApiTable.astro';
+import CodeExamplesSection from '../components/CodeExamplesSection.astro';
+import GitHubCTA from '../components/GitHubCTA.astro';
+import { MoveIcon } from '../components/islands/Icons';
+import LauncherDemo from '../components/islands/LauncherDemo';
+import { launcherMeta } from '../data/launcher';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareSourceCode',
+  name: 'react-driftkit / MovableLauncher',
+  description: launcherMeta.tagline,
+  codeRepository: 'https://github.com/shakcho/react-drift',
+  programmingLanguage: 'TypeScript',
+  runtimePlatform: 'React 18, React 19',
+  url: 'https://react-driftkit.saktichourasia.dev/movable-launcher',
+};
+---
+
+<Layout
+  title={`${launcherMeta.title} — react-driftkit`}
+  description={launcherMeta.metaDescription}
+  path={`/${launcherMeta.slug}`}
+  jsonLd={jsonLd}
+  activeComponent="launcher"
+  ogSlug={launcherMeta.slug}
+>
+  <WidgetHeader
+    prefix="launcher"
+    icon={MoveIcon}
+    title={launcherMeta.title}
+    description={launcherMeta.tagline}
+  />
+
+  <InstallSection id="launcher-install" />
+
+  <section id="launcher-demo" class="section" style="padding-top: 16px;">
+    <div class="section-label">Interactive Demo</div>
+    <LauncherDemo client:load />
+  </section>
+
+  <section id="launcher-api" class="section" style="padding-top: 0;">
+    <div class="section-label">API Reference</div>
+    <ApiTable rows={launcherMeta.apiRows} footnoteHtml={launcherMeta.apiFootnoteHtml} />
+  </section>
+
+  <CodeExamplesSection
+    id="launcher-examples"
+    examples={launcherMeta.codeExamples}
+    typesCode={launcherMeta.typesCode}
+  />
+
+  <GitHubCTA />
+</Layout>

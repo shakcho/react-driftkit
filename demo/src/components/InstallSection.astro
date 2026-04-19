@@ -1,0 +1,14 @@
+---
+import InstallTabs from './islands/InstallTabs';
+
+export interface Props {
+  id?: string;
+}
+
+const { id = 'install' } = Astro.props;
+---
+
+<section id={id} class="section section--subtle" style="padding-top: 32px; padding-bottom: 64px;">
+  <div class="section-label">Installation</div>
+  <InstallTabs client:load />
+</section>

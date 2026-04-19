@@ -1,0 +1,19 @@
+---
+export interface Props {
+  badge?: string;
+  title: string;
+  taglineHtml: string;
+}
+
+const {
+  badge = 'React + TypeScript · Floating UI primitives',
+  title,
+  taglineHtml,
+} = Astro.props;
+---
+
+<section class="hero">
+  <div class="hero-badge">{badge}</div>
+  <h1 class="hero-title">{title}</h1>
+  <p class="hero-tagline" set:html={taglineHtml} />
+</section>

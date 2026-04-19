@@ -1,0 +1,143 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import InstallSection from '../components/InstallSection.astro';
+import GitHubCTA from '../components/GitHubCTA.astro';
+import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, InspectorIcon } from '../components/islands/Icons';
+import { allComponents } from '../data/components';
+
+const title = 'react-driftkit — Floating UI primitives for React';
+const description =
+  'react-driftkit is a small, tree-shakable React library of floating UI primitives: MovableLauncher (draggable corner widget), SnapDock (edge-pinned dock), DraggableSheet (pull-up sheet), ResizableSplitPane (N-pane resizable layout), and InspectorBubble (Chrome-DevTools-style element picker). Unstyled, TypeScript-first, React 18 and 19.';
+
+const icons: Record<string, typeof MoveIcon> = {
+  launcher: MoveIcon,
+  dock: DockGlyphIcon,
+  sheet: SheetIcon,
+  splitter: SplitterIcon,
+  inspector: InspectorIcon,
+};
+
+const softwareJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareSourceCode',
+  name: 'react-driftkit',
+  description,
+  codeRepository: 'https://github.com/shakcho/react-drift',
+  programmingLanguage: 'TypeScript',
+  runtimePlatform: 'React 18, React 19',
+  license: 'https://github.com/shakcho/react-drift/blob/main/LICENSE',
+  url: 'https://react-driftkit.saktichourasia.dev/',
+  author: {
+    '@type': 'Person',
+    name: 'Sakti Kumar Chourasia',
+    url: 'https://saktichourasia.dev',
+  },
+  sameAs: ['https://www.npmjs.com/package/react-driftkit'],
+};
+
+const faq = [
+  {
+    q: 'What is react-driftkit?',
+    a: 'react-driftkit is a small, tree-shakable React library of floating UI primitives — draggable launchers, edge-pinned docks, pull-up sheets, resizable split panes, and a Chrome-DevTools-style element picker overlay. It ships unstyled so it works with Tailwind, CSS Modules, or any design system, and has zero runtime dependencies.',
+  },
+  {
+    q: 'Does react-driftkit support React 19?',
+    a: 'Yes. react-driftkit declares peer dependencies of react@^18 || ^19 and react-dom@^18 || ^19, so it works with React 18 and React 19 without changes.',
+  },
+  {
+    q: 'What components does react-driftkit include?',
+    a: 'Five components: MovableLauncher (draggable corner widget with snap-to-corners), SnapDock (edge-pinned dock that flips orientation), DraggableSheet (pull-up/pull-down sheet with peek/half/full snap points), ResizableSplitPane (N-pane split layout with draggable handles and localStorage persistence), and InspectorBubble (Chrome-DevTools-style element picker with tag, selector, font, WCAG contrast, ARIA role and accessible name).',
+  },
+  {
+    q: 'How do I install react-driftkit?',
+    a: 'Install with npm install react-driftkit, yarn add react-driftkit, or pnpm add react-driftkit. It has zero runtime dependencies and tree-shakes — only the components you import are bundled.',
+  },
+  {
+    q: 'Is react-driftkit styled?',
+    a: 'No. react-driftkit ships unstyled primitives — you bring your own CSS, Tailwind, CSS Modules, or design system. Each component exposes data attributes (like data-edge, data-orientation, data-dragging) so you can drive styles from CSS without re-rendering.',
+  },
+  {
+    q: 'Does react-driftkit work on touch devices?',
+    a: 'Yes. All components use Pointer Events and lock each gesture to the initiating pointer, so mouse, touch, and pen input all work without extra wiring. Fast drags, pointer cancellation, and lost capture are handled.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+---
+
+<Layout
+  title={title}
+  description={description}
+  path="/"
+  jsonLd={[softwareJsonLd, faqJsonLd]}
+>
+  <Hero
+    title="react-driftkit"
+    taglineHtml="Small, focused building blocks for floating UI in React. Tree-shakable, unstyled, one component per job."
+  />
+
+  <section class="section" style="padding-top: 16px;">
+    <div class="section-label">What's inside</div>
+    <div class="component-grid">
+      {allComponents.map((c) => {
+        const Icon = icons[c.key];
+        return (
+          <a href={`/${c.slug}`} class="component-card">
+            <span class="component-card-icon" aria-hidden="true">
+              <Icon size={28} />
+            </span>
+            <h3 class="component-card-title">{c.title}</h3>
+            <p class="component-card-description">{c.tagline}</p>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  <InstallSection id="install" />
+
+  <section id="why" class="section">
+    <div class="section-label">Why react-driftkit</div>
+    <div class="why-grid">
+      <div class="why-item">
+        <h3>Tree-shakable</h3>
+        <p>Each component is independently exported. Import only what you use and the rest is dropped from your bundle.</p>
+      </div>
+      <div class="why-item">
+        <h3>Unstyled</h3>
+        <p>Zero opinions about how your UI looks. Style with CSS, Tailwind, CSS Modules, or any design system. Data attributes drive layout state.</p>
+      </div>
+      <div class="why-item">
+        <h3>Zero dependencies</h3>
+        <p>No runtime dependencies. Small footprint. React 18 and React 19 supported out of the box.</p>
+      </div>
+      <div class="why-item">
+        <h3>Pointer-first</h3>
+        <p>Mouse, touch, and pen input all work the same way. Each gesture is locked to its pointer, with fast drags and cancellation handled.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="section section--subtle">
+    <div class="section-label">Frequently asked</div>
+    <div class="faq-list">
+      {faq.map((item) => (
+        <details class="faq-item">
+          <summary>{item.q}</summary>
+          <p>{item.a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <GitHubCTA />
+</Layout>

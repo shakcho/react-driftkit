@@ -1,0 +1,58 @@
+---
+import Layout from '../layouts/Layout.astro';
+import WidgetHeader from '../components/WidgetHeader.astro';
+import InstallSection from '../components/InstallSection.astro';
+import ApiTable from '../components/ApiTable.astro';
+import CodeExamplesSection from '../components/CodeExamplesSection.astro';
+import GitHubCTA from '../components/GitHubCTA.astro';
+import { DockGlyphIcon } from '../components/islands/Icons';
+import DockDemo from '../components/islands/DockDemo';
+import { dockMeta } from '../data/dock';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareSourceCode',
+  name: 'react-driftkit / SnapDock',
+  description: dockMeta.tagline,
+  codeRepository: 'https://github.com/shakcho/react-drift',
+  programmingLanguage: 'TypeScript',
+  runtimePlatform: 'React 18, React 19',
+  url: 'https://react-driftkit.saktichourasia.dev/snap-dock',
+};
+---
+
+<Layout
+  title={`${dockMeta.title} — react-driftkit`}
+  description={dockMeta.metaDescription}
+  path={`/${dockMeta.slug}`}
+  jsonLd={jsonLd}
+  activeComponent="dock"
+  ogSlug={dockMeta.slug}
+>
+  <WidgetHeader
+    prefix="dock"
+    icon={DockGlyphIcon}
+    title={dockMeta.title}
+    description={dockMeta.tagline}
+  />
+
+  <InstallSection id="dock-install" />
+
+  <section id="dock-demo" class="section" style="padding-top: 16px;">
+    <div class="section-label">Interactive Demo</div>
+    <DockDemo client:load />
+  </section>
+
+  <section id="dock-api" class="section" style="padding-top: 0;">
+    <div class="section-label">API Reference</div>
+    <ApiTable rows={dockMeta.apiRows} footnoteHtml={dockMeta.apiFootnoteHtml} />
+  </section>
+
+  <CodeExamplesSection
+    id="dock-examples"
+    examples={dockMeta.codeExamples}
+    typesCode={dockMeta.typesCode}
+  />
+
+  <GitHubCTA />
+</Layout>

@@ -19,7 +19,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && tsc --emitDeclarationOnly",
-    "build:demo": "vite build --config demo/vite.config.ts",
+    "build:demo": "astro build --root demo",
+    "dev:demo": "astro dev --root demo",
+    "og": "node demo/scripts/gen-og.mjs",
     "prepublishOnly": "npm run build",
     "preview": "vite preview",
     "test": "vitest run",
@@ -39,14 +41,18 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@astrojs/react": "^5.0.3",
+    "@astrojs/sitemap": "^3.7.2",
+    "@fontsource/inter": "^5.2.8",
+    "@resvg/resvg-js": "^2.6.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
-    "@types/prismjs": "^1.26.6",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "astro": "^6.1.8",
     "jsdom": "^29.0.1",
-    "prismjs": "^1.30.0",
+    "satori": "^0.26.0",
     "typescript": "^5.9.3",
     "vite": "^8.0.0",
     "vitest": "^4.1.2"
