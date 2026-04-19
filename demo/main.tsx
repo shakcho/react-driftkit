@@ -6,7 +6,7 @@ import 'prismjs/components/prism-jsx';
 import 'prismjs/components/prism-typescript';
 import 'prismjs/components/prism-tsx';
 import 'prismjs/themes/prism-tomorrow.css';
-import { MovableLauncher, SnapDock, DraggableSheet, ResizableSplitPane, type Edge, type SheetEdge, type SnapPoint, type SplitOrientation } from '../src/index';
+import { MovableLauncher, SnapDock, DraggableSheet, ResizableSplitPane, InspectorBubble, type Edge, type SheetEdge, type SnapPoint, type SplitOrientation, type ElementInfo } from '../src/index';
 import './styles.css';
 
 function CopyButton({ text }: { text: string }) {
@@ -282,6 +282,26 @@ function SplitterIcon({ size = 16, strokeWidth = 2 }: { size?: number; strokeWid
       <line x1="20" y1="8" x2="20" y2="32" strokeWidth={strokeWidth + 0.5} />
       <path d="M16 17l-3 3 3 3" />
       <path d="M24 17l3 3-3 3" />
+    </svg>
+  );
+}
+
+function InspectorIcon({ size = 16, strokeWidth = 2 }: { size?: number; strokeWidth?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 40 40"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="6" y="6" width="20" height="20" rx="2" opacity="0.35" />
+      <path d="M22 22l5 5 3-2-5-5z" />
+      <path d="M16 10v2M10 16h2" />
     </svg>
   );
 }
@@ -827,6 +847,158 @@ function App() {
   );
 }`;
 
+const inspectorBasic = `import { useState } from 'react';
+import { InspectorBubble } from 'react-driftkit';
+
+function App() {
+  const [active, setActive] = useState(false);
+
+  return (
+    <>
+      <button
+        data-inspector-bubble-ignore
+        onClick={() => setActive(a => !a)}
+      >
+        {active ? 'Stop inspecting' : 'Inspect element'}
+      </button>
+
+      <InspectorBubble
+        active={active}
+        behavior={{ hotkey: 'cmd+shift+c' }}
+        on={{
+          activeChange: setActive,
+          select: (el, info) => console.log('selected', el, info),
+        }}
+      />
+    </>
+  );
+}`;
+
+const inspectorConfigurable = `// Minimal — just a single outline, no info bubble:
+<InspectorBubble
+  highlight={{ boxModel: false }}
+  bubble={{ enabled: false }}
+/>
+
+// Rich default (everything on):
+<InspectorBubble />
+
+// Granular — pick the fields you want in the bubble:
+<InspectorBubble
+  bubble={{
+    fields: {
+      tag: true,
+      selector: true,
+      dimensions: true,
+      font: true,
+      colors: true,
+      spacing: false,      // hide padding/margin row
+      role: true,
+      accessibleName: true,
+      a11yState: false,    // hide tabindex / expanded / pressed …
+    },
+  }}
+/>
+
+// Take over the bubble entirely:
+<InspectorBubble
+  bubble={{
+    render: (info) => (
+      <MyDesignTokenCard
+        color={info.color}
+        bg={info.backgroundColor}
+        contrast={info.contrastRatio}
+      />
+    ),
+  }}
+/>`;
+
+const inspectorTypes = `interface ElementInfo {
+  element: Element;
+  tag: string;
+  selector: string;
+  rect: DOMRect;
+  font: {
+    family: string;    // declared font-family list
+    rendered: string;  // first family the browser actually has loaded
+    size: string;
+    weight: string;
+    lineHeight: string;
+  };
+  color: string;
+  backgroundColor: string;
+  contrastRatio: number | null;
+  padding: { top: number; right: number; bottom: number; left: number };
+  margin:  { top: number; right: number; bottom: number; left: number };
+  border:  { top: number; right: number; bottom: number; left: number };
+  a11y: {
+    role: string | null;              // explicit or implicit
+    explicitRole: boolean;
+    accessibleName: string | null;
+    ariaLabel: string | null;
+    ariaLabelledBy: string | null;
+    ariaDescribedBy: string | null;
+    tabIndex: number | null;
+    focusable: boolean;
+    disabled: boolean;
+    hidden: boolean;
+    expanded: boolean | null;
+    pressed: boolean | 'mixed' | null;
+    checked: boolean | 'mixed' | null;
+    selected: boolean | null;
+  };
+}
+
+interface InspectorBubbleProps {
+  active?: boolean;
+  defaultActive?: boolean;
+
+  on?: {
+    activeChange?: (active: boolean) => void;
+    select?: (element: Element, info: ElementInfo) => void;
+    hover?: (element: Element | null, info: ElementInfo | null) => void;
+  };
+
+  behavior?: {
+    hotkey?: string;
+    ignoreSelector?: string;
+    exitOnSelect?: boolean;   // default true
+    exitOnEscape?: boolean;   // default true
+  };
+
+  highlight?: {
+    boxModel?: boolean;       // default true — 4-layer DevTools model
+    outline?: boolean;        // defaults to !boxModel
+    colors?: {
+      margin?: string;
+      border?: string;
+      padding?: string;
+      content?: string;
+      outline?: string;
+    };
+  };
+
+  bubble?: {
+    enabled?: boolean;        // default true
+    fields?: {
+      tag?: boolean;
+      selector?: boolean;
+      dimensions?: boolean;
+      font?: boolean;
+      colors?: boolean;
+      spacing?: boolean;
+      role?: boolean;
+      accessibleName?: boolean;
+      a11yState?: boolean;
+    };
+    render?: (info: ElementInfo) => ReactNode;
+  };
+
+  zIndex?: number;
+  className?: string;
+  style?: CSSProperties;
+}`;
+
 const splitterTypes = `type SplitOrientation = 'horizontal' | 'vertical';
 
 interface HandleInfo {
@@ -876,8 +1048,42 @@ const splitterApiRows: ApiRow[] = [
   { prop: 'className', type: 'string', default: "''", description: 'Additional CSS class for the container.' },
 ];
 
+const inspectorApiRows: ApiRow[] = [
+  { prop: 'active', type: 'boolean', default: <>&mdash;</>, description: 'Controlled active state. Omit for uncontrolled.' },
+  { prop: 'defaultActive', type: 'boolean', default: 'false', description: 'Uncontrolled initial active state.' },
+  { prop: 'on', type: 'InspectorBubbleEvents', default: <>&mdash;</>, description: <>Event handlers: <code>activeChange</code>, <code>select</code>, <code>hover</code>. All optional.</> },
+  { prop: 'on.activeChange', type: <code>(active: boolean) =&gt; void</code>, default: <>&mdash;</>, description: 'Fires whenever active toggles — click-select, Escape, or the hotkey.' },
+  { prop: 'on.select', type: <code>(el: Element, info: ElementInfo) =&gt; void</code>, default: <>&mdash;</>, description: 'Fires on click with the selected element and its info snapshot.' },
+  { prop: 'on.hover', type: <code>(el: Element | null, info: ElementInfo | null) =&gt; void</code>, default: <>&mdash;</>, description: 'Fires whenever the hovered element changes while active.' },
+  { prop: 'behavior', type: 'InspectorBubbleBehavior', default: <>&mdash;</>, description: <>Behavior knobs: <code>hotkey</code>, <code>ignoreSelector</code>, <code>exitOnSelect</code>, <code>exitOnEscape</code>.</> },
+  { prop: 'behavior.hotkey', type: 'string', default: <>&mdash;</>, description: 'Keyboard shortcut to toggle active, e.g. "cmd+shift+c". Supports cmd/meta, ctrl, shift, alt/option + key.' },
+  { prop: 'behavior.ignoreSelector', type: 'string', default: <>&mdash;</>, description: 'CSS selector for elements the picker skips. Elements with [data-inspector-bubble-ignore] are always skipped.' },
+  { prop: 'behavior.exitOnSelect', type: 'boolean', default: 'true', description: 'Deactivate after a successful click-select.' },
+  { prop: 'behavior.exitOnEscape', type: 'boolean', default: 'true', description: 'Deactivate when Escape is pressed.' },
+  { prop: 'highlight', type: 'InspectorBubbleHighlight', default: <>&mdash;</>, description: <>Highlight layer: <code>boxModel</code>, <code>outline</code>, <code>colors</code>.</> },
+  { prop: 'highlight.boxModel', type: 'boolean', default: 'true', description: 'Render the 4-layer DevTools box model (margin / border / padding / content).' },
+  { prop: 'highlight.outline', type: 'boolean', default: <code>!boxModel</code>, description: 'Render a single outline around the element instead of the box model.' },
+  { prop: 'highlight.colors', type: 'InspectorBubbleColors', default: 'DevTools-like defaults', description: 'Override overlay colors: margin, border, padding, content, outline.' },
+  { prop: 'bubble', type: 'InspectorBubbleBubble', default: <>&mdash;</>, description: <>Info bubble: <code>enabled</code>, <code>fields</code>, <code>render</code>.</> },
+  { prop: 'bubble.enabled', type: 'boolean', default: 'true', description: 'Render the info bubble. Set false to show only the highlight.' },
+  { prop: 'bubble.render', type: <code>(info: ElementInfo) =&gt; ReactNode</code>, default: <>&mdash;</>, description: 'Full escape hatch — replaces the default bubble content.' },
+  { prop: 'bubble.fields', type: 'InspectorBubbleFields', default: 'all true', description: 'Per-field toggles for the default bubble.' },
+  { prop: 'bubble.fields.tag', type: 'boolean', default: 'true', description: 'Lowercase tag name.' },
+  { prop: 'bubble.fields.selector', type: 'boolean', default: 'true', description: 'Short CSS selector (#id, [data-testid], or tag.class1.class2).' },
+  { prop: 'bubble.fields.dimensions', type: 'boolean', default: 'true', description: "Rendered width × height." },
+  { prop: 'bubble.fields.font', type: 'boolean', default: 'true', description: 'Font size, rendered family (first loaded font from the declared list), and weight.' },
+  { prop: 'bubble.fields.colors', type: 'boolean', default: 'true', description: 'Foreground + effective background swatches and WCAG contrast ratio.' },
+  { prop: 'bubble.fields.spacing', type: 'boolean', default: 'true', description: 'Padding and margin values (T R B L).' },
+  { prop: 'bubble.fields.role', type: 'boolean', default: 'true', description: 'ARIA role (explicit or implicit from the tag).' },
+  { prop: 'bubble.fields.accessibleName', type: 'boolean', default: 'true', description: 'Computed accessible name (aria-labelledby → aria-label → alt → <label> → text content).' },
+  { prop: 'bubble.fields.a11yState', type: 'boolean', default: 'true', description: 'tabindex, focusable, disabled, hidden, expanded/pressed/checked/selected when set.' },
+  { prop: 'zIndex', type: 'number', default: '2147483647', description: 'z-index for the overlay and bubble.' },
+  { prop: 'style', type: 'CSSProperties', default: '{}', description: 'Inline styles merged with the default bubble wrapper.' },
+  { prop: 'className', type: 'string', default: "''", description: 'CSS class added to the default bubble wrapper.' },
+];
+
 type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-type ActiveComponent = 'launcher' | 'dock' | 'sheet' | 'splitter';
+type ActiveComponent = 'launcher' | 'dock' | 'sheet' | 'splitter' | 'inspector';
 type SubView = 'install' | 'demo' | 'api' | 'examples';
 
 function SubNav({ prefix }: { prefix: string }) {
@@ -907,6 +1113,7 @@ const componentItems: { key: ActiveComponent; label: string; icon: ReactNode }[]
   { key: 'dock', label: 'SnapDock', icon: <DockGlyphIcon size={16} /> },
   { key: 'sheet', label: 'DraggableSheet', icon: <SheetIcon size={16} /> },
   { key: 'splitter', label: 'ResizableSplitPane', icon: <SplitterIcon size={16} /> },
+  { key: 'inspector', label: 'InspectorBubble', icon: <InspectorIcon size={16} /> },
 ];
 
 function ComponentDropdown({ active, onChange }: { active: ActiveComponent; onChange: (c: ActiveComponent) => void }) {
@@ -988,6 +1195,15 @@ function App() {
   const [splitterSizes, setSplitterSizes] = useState([0.25, 0.5, 0.25]);
   const [splitterDraggable, setSplitterDraggable] = useState(true);
   const [splitterPaneCount, setSplitterPaneCount] = useState(3);
+
+  // Inspector state
+  const [inspectorActive, setInspectorActive] = useState(false);
+  const [inspectorInfo, setInspectorInfo] = useState<ElementInfo | null>(null);
+  const [inspectorBoxModel, setInspectorBoxModel] = useState(true);
+  const [inspectorShowColors, setInspectorShowColors] = useState(true);
+  const [inspectorShowSpacing, setInspectorShowSpacing] = useState(true);
+  const [inspectorShowA11y, setInspectorShowA11y] = useState(true);
+  const [inspectorExample, setInspectorExample] = useState(0);
 
   // Dock state
   const [dockExample, setDockExample] = useState(0);
@@ -1478,6 +1694,292 @@ function App() {
               activeIndex={splitterExample}
               onSelect={setSplitterExample}
               typesCode={splitterTypes}
+            />
+          </>
+        )}
+
+        {activeComponent === 'inspector' && (
+          <>
+            <WidgetHeader
+              prefix="inspector"
+              icon={<InspectorIcon size={28} />}
+              title="InspectorBubble"
+              description={
+                <>
+                  A Chrome-DevTools-style element picker overlay for design QA. Hover any
+                  element to see its tag, selector, dimensions, typography, effective colors
+                  with WCAG contrast, and box model. Click to select, Escape or a hotkey to exit.
+                  Everything is opt-in — bring as much or as little surface area as you want.
+                </>
+              }
+            />
+
+            <InstallSection id="inspector-install" />
+
+            <section id="inspector-demo" className="section" style={{ paddingTop: 16 }}>
+              <div className="section-label">Interactive Demo</div>
+
+              <div className="demo-row">
+                <span className="demo-row-label">Active</span>
+                <div className="demo-row-controls">
+                  <button
+                    data-inspector-bubble-ignore
+                    className={`toggle ${inspectorActive ? 'toggle--on' : ''}`}
+                    onClick={() => setInspectorActive((a) => !a)}
+                  />
+                  <span className="toggle-label">
+                    {inspectorActive ? 'picking' : 'off'} · ⌘⇧C toggles
+                  </span>
+                </div>
+              </div>
+
+              <div className="demo-row">
+                <span className="demo-row-label">Box model</span>
+                <div className="demo-row-controls">
+                  <button
+                    data-inspector-bubble-ignore
+                    className={`toggle ${inspectorBoxModel ? 'toggle--on' : ''}`}
+                    onClick={() => setInspectorBoxModel((b) => !b)}
+                  />
+                  <span className="toggle-label">{inspectorBoxModel ? 'on' : 'outline only'}</span>
+                </div>
+              </div>
+
+              <div className="demo-row">
+                <span className="demo-row-label">Colors + contrast</span>
+                <div className="demo-row-controls">
+                  <button
+                    data-inspector-bubble-ignore
+                    className={`toggle ${inspectorShowColors ? 'toggle--on' : ''}`}
+                    onClick={() => setInspectorShowColors((c) => !c)}
+                  />
+                </div>
+              </div>
+
+              <div className="demo-row">
+                <span className="demo-row-label">Spacing</span>
+                <div className="demo-row-controls">
+                  <button
+                    data-inspector-bubble-ignore
+                    className={`toggle ${inspectorShowSpacing ? 'toggle--on' : ''}`}
+                    onClick={() => setInspectorShowSpacing((s) => !s)}
+                  />
+                </div>
+              </div>
+
+              <div className="demo-row" style={{ borderBottom: 'none' }}>
+                <span className="demo-row-label">A11y (role + name + state)</span>
+                <div className="demo-row-controls">
+                  <button
+                    data-inspector-bubble-ignore
+                    className={`toggle ${inspectorShowA11y ? 'toggle--on' : ''}`}
+                    onClick={() => setInspectorShowA11y((a) => !a)}
+                  />
+                </div>
+              </div>
+
+              <div
+                style={{
+                  marginTop: 16,
+                  padding: 24,
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius)',
+                  background: 'var(--bg-section)',
+                  display: 'grid',
+                  gap: 16,
+                }}
+              >
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                  <button
+                    style={{
+                      background: '#6366f1',
+                      color: 'white',
+                      border: 'none',
+                      padding: '10px 18px',
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: 600,
+                    }}
+                  >
+                    Primary button
+                  </button>
+                  <button
+                    style={{
+                      background: '#fef3c7',
+                      color: '#92400e',
+                      border: '1px solid #f59e0b',
+                      padding: '10px 18px',
+                      borderRadius: 8,
+                      fontSize: 14,
+                    }}
+                  >
+                    Warning chip
+                  </button>
+                  <button
+                    style={{
+                      background: 'transparent',
+                      color: '#6366f1',
+                      border: '1px solid #c7d2fe',
+                      padding: '10px 18px',
+                      borderRadius: 8,
+                      fontSize: 14,
+                    }}
+                  >
+                    Ghost button
+                  </button>
+                </div>
+
+                <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                  Turn on the picker, then hover any of these elements — including this text.
+                  The overlay shows the box-model layers and the bubble reports the tag,
+                  selector, dimensions, font, color + background + WCAG contrast, and
+                  padding/margin.
+                </div>
+
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <div
+                    style={{
+                      flex: 1,
+                      padding: 16,
+                      background: 'var(--accent-light)',
+                      color: 'var(--accent)',
+                      borderRadius: 8,
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: 12,
+                    }}
+                  >
+                    card.accent
+                  </div>
+                  <div
+                    style={{
+                      flex: 1,
+                      padding: 16,
+                      background: '#1f2937',
+                      color: '#f9fafb',
+                      borderRadius: 8,
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: 12,
+                    }}
+                  >
+                    card.dark
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <button
+                    aria-label="Toggle menu"
+                    aria-expanded="false"
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 8,
+                      border: '1px solid var(--border)',
+                      background: 'white',
+                    }}
+                  >
+                    ☰
+                  </button>
+                  <button
+                    role="switch"
+                    aria-checked="true"
+                    aria-label="Dark mode"
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: 8,
+                      border: '1px solid var(--border)',
+                      background: 'white',
+                    }}
+                  >
+                    switch (checked)
+                  </button>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+                    <input type="checkbox" defaultChecked /> Labeled checkbox
+                  </label>
+                  <label style={{ fontSize: 13 }}>
+                    Email
+                    <input
+                      type="email"
+                      placeholder="you@example.com"
+                      style={{ marginLeft: 6, padding: '4px 8px' }}
+                    />
+                  </label>
+                  <button disabled aria-label="Disabled action" style={{ padding: '8px 12px' }}>
+                    Disabled
+                  </button>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  marginTop: 16,
+                  padding: 12,
+                  borderRadius: 'var(--radius)',
+                  border: '1px dashed var(--border)',
+                  fontSize: 12,
+                  fontFamily: 'var(--font-mono)',
+                  color: 'var(--text-muted)',
+                  minHeight: 48,
+                }}
+              >
+                {inspectorInfo ? (
+                  <>
+                    <span style={{ color: 'var(--accent)' }}>selected:</span>{' '}
+                    <span>{inspectorInfo.selector}</span>{' '}
+                    <span>
+                      · {Math.round(inspectorInfo.rect.width)}×{Math.round(inspectorInfo.rect.height)}
+                    </span>{' '}
+                    {inspectorInfo.contrastRatio !== null && (
+                      <span>· contrast {inspectorInfo.contrastRatio.toFixed(2)}:1</span>
+                    )}
+                  </>
+                ) : (
+                  'Nothing selected yet. Click an element while the picker is on.'
+                )}
+              </div>
+            </section>
+
+            <section id="inspector-api" className="section" style={{ paddingTop: 0 }}>
+              <div className="section-label">API Reference</div>
+              <ApiTable
+                rows={inspectorApiRows}
+                footnote={
+                  <>
+                    Overlay elements carry <code>data-inspector-bubble-ignore</code>, so the picker
+                    never highlights itself. Add this attribute to your own UI (toolbar buttons,
+                    the toggle that controls the picker, etc.) to exempt it from selection.
+                  </>
+                }
+              />
+            </section>
+
+            <CodeExamplesSection
+              id="inspector-examples"
+              examples={[
+                { label: 'Basic Usage', code: inspectorBasic },
+                { label: 'Configurable', code: inspectorConfigurable },
+              ]}
+              activeIndex={inspectorExample}
+              onSelect={setInspectorExample}
+              typesCode={inspectorTypes}
+            />
+
+            <InspectorBubble
+              active={inspectorActive}
+              behavior={{ hotkey: 'cmd+shift+c' }}
+              highlight={{ boxModel: inspectorBoxModel }}
+              bubble={{
+                fields: {
+                  colors: inspectorShowColors,
+                  spacing: inspectorShowSpacing,
+                  role: inspectorShowA11y,
+                  accessibleName: inspectorShowA11y,
+                  a11yState: inspectorShowA11y,
+                },
+              }}
+              on={{
+                activeChange: setInspectorActive,
+                select: (_, info) => setInspectorInfo(info),
+              }}
             />
           </>
         )}

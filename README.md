@@ -30,6 +30,7 @@ Building a chat widget, floating toolbar, debug panel, or side dock? You want th
 | [`<SnapDock>`](#snapdock) | An edge-pinned dock that slides along any side of the viewport and flips orientation automatically between horizontal and vertical. |
 | [`<DraggableSheet>`](#draggablesheet) | A pull-up / pull-down sheet pinned to an edge with named snap points (`peek`, `half`, `full`) or arbitrary pixel / percentage stops. |
 | [`<ResizableSplitPane>`](#resizablesplitter) | An N-pane resizable split layout with draggable handles, min/max constraints, and localStorage-persisted ratios. |
+| [`<InspectorBubble>`](#inspectorbubble) | A Chrome-DevTools-style element picker overlay for design QA — hover to see tag, selector, dimensions, font, colors + WCAG contrast, box model, ARIA role, and accessible name. |
 
 ## Installation
 
@@ -585,6 +586,288 @@ interface ResizableSplitPaneProps {
 
 ---
 
+## InspectorBubble
+
+A Chrome-DevTools-style element picker overlay for design QA. Turn it on, hover any DOM element, and the picker draws a highlight plus an info bubble showing tag, short CSS selector, dimensions, typography (including the actual rendered font), effective colors with WCAG contrast, padding/margin, ARIA role, computed accessible name, and a11y state flags. Click to select; Escape or a hotkey to exit.
+
+### Features
+
+- **DevTools-style box model** — 4-layer margin / border / padding / content overlay, or a single outline
+- **Rich info bubble** — tag, selector, dimensions, font + rendered family, fg/bg colors with WCAG contrast, spacing, ARIA role (explicit or implicit), computed accessible name, and a11y state flags
+- **Fully configurable** — each bubble field is its own toggle; disable the bubble entirely for a pure highlight
+- **Custom render** — take over the bubble with `bubble.render` and use the full `ElementInfo` however you want
+- **Hotkey toggle** — `cmd/meta`, `ctrl`, `shift`, `alt/option` + key
+- **Ignore rules** — skip elements matching `behavior.ignoreSelector`; overlays self-skip via `[data-inspector-bubble-ignore]` so the picker never highlights its own chrome
+- **Controlled & uncontrolled** — omit `active` for uncontrolled, pass it for parent-driven activation
+- **Portal + max z-index** — overlays always render above your app content
+
+### Examples
+
+#### Basic
+
+```tsx
+import { useState } from 'react';
+import { InspectorBubble } from 'react-driftkit';
+
+function App() {
+  const [active, setActive] = useState(false);
+
+  return (
+    <>
+      <button
+        data-inspector-bubble-ignore
+        onClick={() => setActive((a) => !a)}
+      >
+        {active ? 'Stop inspecting' : 'Inspect element'}
+      </button>
+
+      <InspectorBubble
+        active={active}
+        behavior={{ hotkey: 'cmd+shift+c' }}
+        on={{
+          activeChange: setActive,
+          select: (el, info) => console.log('selected', el, info),
+        }}
+      />
+    </>
+  );
+}
+```
+
+#### Minimal — single outline, no info bubble
+
+```tsx
+<InspectorBubble
+  highlight={{ boxModel: false }}
+  bubble={{ enabled: false }}
+/>
+```
+
+#### Granular bubble fields
+
+```tsx
+<InspectorBubble
+  bubble={{
+    fields: {
+      tag: true,
+      selector: true,
+      dimensions: true,
+      font: true,
+      colors: true,
+      spacing: false,     // hide padding/margin row
+      role: true,
+      accessibleName: true,
+      a11yState: false,   // hide tabindex / expanded / pressed …
+    },
+  }}
+/>
+```
+
+#### Custom bubble content
+
+```tsx
+<InspectorBubble
+  bubble={{
+    render: (info) => (
+      <MyDesignTokenCard
+        color={info.color}
+        bg={info.backgroundColor}
+        contrast={info.contrastRatio}
+      />
+    ),
+  }}
+/>
+```
+
+#### A11y audit workflow
+
+```tsx
+<InspectorBubble
+  defaultActive
+  behavior={{ hotkey: 'cmd+shift+a' }}
+  on={{
+    select: (_, info) =>
+      console.log(info.selector, {
+        role: info.a11y.role,
+        name: info.a11y.accessibleName,
+        contrast: info.contrastRatio,
+      }),
+  }}
+/>
+```
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `active` | `boolean` | — | Controlled active state. Omit for uncontrolled. |
+| `defaultActive` | `boolean` | `false` | Uncontrolled initial active state. |
+| `on` | `InspectorBubbleEvents` | — | Event handlers — `activeChange`, `select`, `hover`. |
+| `behavior` | `InspectorBubbleBehavior` | — | Hotkey, ignore rule, and exit rules. |
+| `highlight` | `InspectorBubbleHighlight` | — | Box-model vs. outline, and overlay colors. |
+| `bubble` | `InspectorBubbleBubble` | — | Info bubble — `enabled`, `fields`, `render`. |
+| `zIndex` | `number` | `2147483647` | z-index for overlay and bubble. |
+| `className` | `string` | `''` | CSS class on the default bubble wrapper. |
+| `style` | `CSSProperties` | `{}` | Inline styles merged with the default bubble wrapper. |
+
+#### `on`
+
+| Key | Signature | Fires when |
+|-----|-----------|------------|
+| `activeChange` | `(active: boolean) => void` | Active toggles via click-select, Escape, or the hotkey. |
+| `select` | `(el: Element, info: ElementInfo) => void` | User clicks an element while the picker is active. |
+| `hover` | `(el: Element \| null, info: ElementInfo \| null) => void` | The hovered element changes. `null` when no valid target (e.g. over ignored nodes). |
+
+#### `behavior`
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `hotkey` | `string` | — | Toggle shortcut, e.g. `'cmd+shift+c'`. Supports `cmd/meta`, `ctrl`, `shift`, `alt/option` + key. |
+| `ignoreSelector` | `string` | — | CSS selector for elements the picker should skip entirely. |
+| `exitOnSelect` | `boolean` | `true` | Deactivate after a successful click-select. |
+| `exitOnEscape` | `boolean` | `true` | Deactivate when Escape is pressed. |
+
+#### `highlight`
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `boxModel` | `boolean` | `true` | Render the 4-layer DevTools box model (margin / border / padding / content). |
+| `outline` | `boolean` | `!boxModel` | Render a single outline around the element instead of the box model. |
+| `colors` | `InspectorBubbleColors` | DevTools-like | Override overlay colors — `margin`, `border`, `padding`, `content`, `outline`. |
+
+#### `bubble`
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `enabled` | `boolean` | `true` | Render the info bubble. Set `false` to show only the highlight. |
+| `fields` | `InspectorBubbleFields` | all `true` | Per-field toggles for the default bubble. |
+| `render` | `(info: ElementInfo) => ReactNode` | — | Full escape hatch — replaces the default bubble content. Receives the live `ElementInfo`. |
+
+#### `bubble.fields`
+
+Every key defaults to `true`. Pass `false` to hide that row.
+
+| Key | Description |
+|-----|-------------|
+| `tag` | Lowercase tag name. |
+| `selector` | Short CSS selector — `tag#id`, `tag[data-testid="…"]`, or `tag.class1.class2`. |
+| `dimensions` | Rendered `width × height`. |
+| `font` | Font size, rendered family (first loaded font from the declared list), and weight. |
+| `colors` | Foreground + effective background swatches and WCAG contrast ratio. |
+| `spacing` | Padding and margin values (T R B L). |
+| `role` | ARIA role — explicit or implicit from the tag. |
+| `accessibleName` | Computed accessible name (aria-labelledby → aria-label → alt → `<label>` → text content). |
+| `a11yState` | `tabindex`, `focusable`, `disabled`, `hidden`, and `expanded`/`pressed`/`checked`/`selected` when set. |
+
+### Types
+
+```typescript
+interface ElementInfo {
+  element: Element;
+  tag: string;
+  selector: string;
+  rect: DOMRect;
+  font: {
+    family: string;    // full declared font-family list
+    rendered: string;  // first family the browser actually has loaded
+    size: string;
+    weight: string;
+    lineHeight: string;
+  };
+  color: string;
+  backgroundColor: string;         // effective bg — walks ancestors
+  contrastRatio: number | null;    // WCAG contrast; null if indeterminate
+  padding: { top: number; right: number; bottom: number; left: number };
+  margin:  { top: number; right: number; bottom: number; left: number };
+  border:  { top: number; right: number; bottom: number; left: number };
+  a11y: A11yInfo;
+}
+
+interface A11yInfo {
+  role: string | null;                     // explicit or inferred
+  explicitRole: boolean;                   // came from a role="..." attribute
+  accessibleName: string | null;
+  ariaLabel: string | null;
+  ariaLabelledBy: string | null;
+  ariaDescribedBy: string | null;
+  tabIndex: number | null;
+  focusable: boolean;
+  disabled: boolean;
+  hidden: boolean;
+  expanded: boolean | null;
+  pressed: boolean | 'mixed' | null;
+  checked: boolean | 'mixed' | null;
+  selected: boolean | null;
+}
+
+interface InspectorBubbleColors {
+  margin?: string;
+  border?: string;
+  padding?: string;
+  content?: string;
+  outline?: string;
+}
+
+interface InspectorBubbleEvents {
+  activeChange?: (active: boolean) => void;
+  select?: (element: Element, info: ElementInfo) => void;
+  hover?: (element: Element | null, info: ElementInfo | null) => void;
+}
+
+interface InspectorBubbleBehavior {
+  hotkey?: string;
+  ignoreSelector?: string;
+  exitOnSelect?: boolean;  // default true
+  exitOnEscape?: boolean;  // default true
+}
+
+interface InspectorBubbleHighlight {
+  boxModel?: boolean;      // default true
+  outline?: boolean;       // default !boxModel
+  colors?: InspectorBubbleColors;
+}
+
+interface InspectorBubbleFields {
+  tag?: boolean;
+  selector?: boolean;
+  dimensions?: boolean;
+  font?: boolean;
+  colors?: boolean;
+  spacing?: boolean;
+  role?: boolean;
+  accessibleName?: boolean;
+  a11yState?: boolean;
+}
+
+interface InspectorBubbleBubble {
+  enabled?: boolean;       // default true
+  fields?: InspectorBubbleFields;
+  render?: (info: ElementInfo) => ReactNode;
+}
+
+interface InspectorBubbleProps {
+  active?: boolean;
+  defaultActive?: boolean;
+  on?: InspectorBubbleEvents;
+  behavior?: InspectorBubbleBehavior;
+  highlight?: InspectorBubbleHighlight;
+  bubble?: InspectorBubbleBubble;
+  zIndex?: number;
+  className?: string;
+  style?: CSSProperties;
+}
+```
+
+### Attributes & CSS classes
+
+The overlay and the default bubble wrapper carry `data-inspector-bubble-ignore` so `document.elementFromPoint` will never return them. You can add the same attribute to your own toolbars, toggle buttons, or devtools chrome to exempt them from selection — or use `behavior.ignoreSelector` for the same effect without touching your markup.
+
+| Class | When |
+|-------|------|
+| `inspector-bubble__info` | Always present on the default bubble wrapper |
+
+---
+
 ## Use Cases
 
 - **Chat widgets** — floating support buttons that stay accessible
@@ -598,6 +881,8 @@ interface ResizableSplitPaneProps {
 - **Media controls** — picture-in-picture style video or audio controls
 - **Notification centers** — persistent notification panels users can reposition
 - **Accessibility helpers** — movable assistive overlays
+- **Design QA tooling** — hover-inspect contrast, typography, spacing, ARIA role, and accessible name on any element
+- **In-house devtools** — a built-in element picker for style audits, a11y audits, or click-to-log workflows
 
 ## How it works
 
@@ -606,6 +891,8 @@ Under the hood all components use the [Pointer Events API](https://developer.moz
 `SnapDock`'s orientation flip uses a FLIP-style animation: it captures the old wrapper rect before the orientation changes, applies an inverse `scale()` anchored to the active edge, and animates back to identity in the next frame — so the dock glides between horizontal and vertical layouts instead of snapping.
 
 `ResizableSplitPane` uses a flexbox layout with `calc()` sizing. Dragging a handle only redistributes space between the two adjacent panes, leaving all others unchanged. Window resize events trigger re-clamping against min/max constraints.
+
+`InspectorBubble` renders its overlay into `document.body` via a React portal. Pointer tracking uses `document.elementFromPoint` and skips anything with `pointer-events: none` — so the box-model layers, outline, and bubble never block hit-testing. Computed values come from `getComputedStyle`; WCAG contrast is computed from the element's own `color` and the first non-transparent `background-color` walking up its ancestors. The "rendered font" is the first entry from the declared `font-family` list that `document.fonts.check()` reports as loaded — the same heuristic tools like WhatFont use.
 
 ## Contributing
 
