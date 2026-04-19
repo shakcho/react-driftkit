@@ -1,0 +1,18 @@
+---
+import ComponentDropdown from './islands/ComponentDropdown';
+
+export interface Props {
+  activeComponent?: 'launcher' | 'dock' | 'sheet' | 'splitter' | 'inspector' | null;
+}
+
+const { activeComponent = null } = Astro.props;
+---
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      react-<span class="accent">driftkit</span>
+    </a>
+    <ComponentDropdown client:load active={activeComponent} />
+  </div>
+</nav>

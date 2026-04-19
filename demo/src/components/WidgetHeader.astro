@@ -1,0 +1,36 @@
+---
+import type { ComponentType } from 'react';
+
+export interface Props {
+  prefix: string;
+  icon: ComponentType<{ size?: number; strokeWidth?: number }>;
+  title: string;
+  description: string;
+}
+
+const { prefix, icon: Icon, title, description } = Astro.props;
+
+const subNavItems = [
+  { key: 'install', label: 'Install' },
+  { key: 'demo', label: 'Demo' },
+  { key: 'api', label: 'API' },
+  { key: 'examples', label: 'Examples' },
+];
+---
+
+<div class="sub-nav-wrap">
+  <div class="widget-header">
+    <div class="widget-title-row">
+      <span class="widget-icon" aria-hidden="true">
+        <Icon size={28} />
+      </span>
+      <h1 class="widget-title">{title}</h1>
+    </div>
+    <p class="widget-description">{description}</p>
+  </div>
+  <div class="sub-nav">
+    {subNavItems.map(({ key, label }) => (
+      <a href={`#${prefix}-${key}`} class="sub-nav-item">{label}</a>
+    ))}
+  </div>
+</div>

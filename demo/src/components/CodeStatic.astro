@@ -1,0 +1,19 @@
+---
+import CopyButton from './islands/CopyButton';
+
+export interface Props {
+  html: string;
+  raw: string;
+  lang: string;
+}
+
+const { html, raw, lang } = Astro.props;
+---
+
+<div class="code-block">
+  <div class="code-header">
+    <span class="code-lang">{lang}</span>
+    <CopyButton client:idle text={raw} />
+  </div>
+  <div class={`code-body language-${lang}`} set:html={html} />
+</div>

@@ -1,0 +1,58 @@
+---
+import Layout from '../layouts/Layout.astro';
+import WidgetHeader from '../components/WidgetHeader.astro';
+import InstallSection from '../components/InstallSection.astro';
+import ApiTable from '../components/ApiTable.astro';
+import CodeExamplesSection from '../components/CodeExamplesSection.astro';
+import GitHubCTA from '../components/GitHubCTA.astro';
+import { SheetIcon } from '../components/islands/Icons';
+import SheetDemo from '../components/islands/SheetDemo';
+import { sheetMeta } from '../data/sheet';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareSourceCode',
+  name: 'react-driftkit / DraggableSheet',
+  description: sheetMeta.tagline,
+  codeRepository: 'https://github.com/shakcho/react-drift',
+  programmingLanguage: 'TypeScript',
+  runtimePlatform: 'React 18, React 19',
+  url: 'https://react-driftkit.saktichourasia.dev/draggable-sheet',
+};
+---
+
+<Layout
+  title={`${sheetMeta.title} — react-driftkit`}
+  description={sheetMeta.metaDescription}
+  path={`/${sheetMeta.slug}`}
+  jsonLd={jsonLd}
+  activeComponent="sheet"
+  ogSlug={sheetMeta.slug}
+>
+  <WidgetHeader
+    prefix="sheet"
+    icon={SheetIcon}
+    title={sheetMeta.title}
+    description={sheetMeta.tagline}
+  />
+
+  <InstallSection id="sheet-install" />
+
+  <section id="sheet-demo" class="section" style="padding-top: 16px;">
+    <div class="section-label">Interactive Demo</div>
+    <SheetDemo client:load />
+  </section>
+
+  <section id="sheet-api" class="section" style="padding-top: 0;">
+    <div class="section-label">API Reference</div>
+    <ApiTable rows={sheetMeta.apiRows} footnoteHtml={sheetMeta.apiFootnoteHtml} />
+  </section>
+
+  <CodeExamplesSection
+    id="sheet-examples"
+    examples={sheetMeta.codeExamples}
+    typesCode={sheetMeta.typesCode}
+  />
+
+  <GitHubCTA />
+</Layout>
