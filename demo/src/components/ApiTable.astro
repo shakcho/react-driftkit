@@ -11,21 +11,27 @@ const { rows, footnoteHtml } = Astro.props;
 
 <div class="table-wrap">
   <table class="api-table">
+    <colgroup>
+      <col class="api-table__col-prop" />
+      <col class="api-table__col-type" />
+      <col class="api-table__col-default" />
+    </colgroup>
     <thead>
       <tr>
         <th>Prop</th>
         <th>Type</th>
         <th>Default</th>
-        <th>Description</th>
       </tr>
     </thead>
     <tbody>
       {rows.map((row) => (
         <tr>
-          <td><code>{row.prop}</code></td>
+          <td>
+            <code>{row.prop}</code>
+            <div class="api-table__desc" set:html={row.descriptionHtml} />
+          </td>
           <td set:html={row.typeHtml} />
           <td set:html={row.defaultHtml} />
-          <td set:html={row.descriptionHtml} />
         </tr>
       ))}
     </tbody>

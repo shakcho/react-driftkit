@@ -31,6 +31,7 @@ Building a chat widget, floating toolbar, debug panel, or side dock? You want th
 | [`<DraggableSheet>`](#draggablesheet) | A pull-up / pull-down sheet pinned to an edge with named snap points (`peek`, `half`, `full`) or arbitrary pixel / percentage stops. |
 | [`<ResizableSplitPane>`](#resizablesplitter) | An N-pane resizable split layout with draggable handles, min/max constraints, and localStorage-persisted ratios. |
 | [`<InspectorBubble>`](#inspectorbubble) | A Chrome-DevTools-style element picker overlay for design QA — hover to see tag, selector, dimensions, font, colors + WCAG contrast, box model, ARIA role, and accessible name. |
+| [`<ZoomLens>`](#zoomlens) | A draggable magnifier circle that zooms into whatever it hovers — free-drag over the whole page or scope it to one element (product-image-zoom style). Wheel to zoom, hotkey or Escape to dismiss. |
 
 ## Installation
 
@@ -58,25 +59,51 @@ bun add react-driftkit
 ## Quick Start
 
 ```tsx
-import { MovableLauncher, SnapDock, ResizableSplitPane } from 'react-driftkit';
+import { useRef } from 'react';
+import {
+  MovableLauncher,
+  SnapDock,
+  DraggableSheet,
+  ResizableSplitPane,
+  InspectorBubble,
+  ZoomLens,
+} from 'react-driftkit';
 
 function App() {
+  const productRef = useRef<HTMLImageElement>(null);
+
   return (
     <>
-      <MovableLauncher defaultPosition="bottom-right">
+      {/* Draggable corner widget that snaps to the nearest viewport corner. */}
+      <MovableLauncher defaultPosition="bottom-right" snapToCorners>
         <button>Chat with us</button>
       </MovableLauncher>
 
+      {/* Edge-pinned dock that flips between horizontal and vertical on drop. */}
       <SnapDock defaultEdge="bottom" shadow>
         <button>Home</button>
         <button>Search</button>
         <button>Settings</button>
       </SnapDock>
 
+      {/* Pull-up sheet with peek / half / full snap points and flick gestures. */}
+      <DraggableSheet snapPoints={['peek', 'half', 'full']} defaultSnap="half">
+        <div data-handle className="sheet-handle" />
+        <div className="sheet-body">Details, filters, cart…</div>
+      </DraggableSheet>
+
+      {/* N-pane resizable split layout with persisted ratios. */}
       <ResizableSplitPane defaultSizes={[0.3, 0.7]} persistKey="app-split">
         <Sidebar />
         <MainContent />
       </ResizableSplitPane>
+
+      {/* Chrome-DevTools-style element picker — press ⌘⇧C to inspect. */}
+      <InspectorBubble behavior={{ hotkey: 'cmd+shift+c' }} />
+
+      {/* Magnifier scoped to one element — hover to zoom. */}
+      <img ref={productRef} src="/product.jpg" alt="Product" />
+      <ZoomLens defaultActive target={productRef} defaultZoom={3} />
     </>
   );
 }
@@ -86,785 +113,127 @@ All components are tree-shakable — import only what you use.
 
 ---
 
+> **Full API, examples, and live demos are on the website.** Each section below is a short pitch — click through for the detailed docs.
+
 ## MovableLauncher
 
 A draggable floating wrapper that lets users pick up any widget and drop it anywhere on the viewport — or snap it to the nearest corner on release.
 
-### Features
-
-- **Drag anywhere** — pointer-based, works with mouse, touch, and pen
-- **Snap to corners** — optional bounce-animated snap to the nearest viewport corner
+- **Drag anywhere** with pointer events (mouse, touch, pen)
 - **Named or custom positioning** — `'top-left'`, `'bottom-right'`, or `{ x, y }`
-- **Viewport-aware** — auto-repositions on window resize and child size changes
-- **5 px drag threshold** — distinguishes clicks from drags so nested buttons still work
-
-### Examples
-
-#### Snap to corners
+- **Optional snap-to-corners** with a bounce-animated release
+- **Click vs. drag threshold** (5 px) so nested buttons still fire
 
 ```tsx
 <MovableLauncher defaultPosition="bottom-right" snapToCorners>
-  <div className="my-widget">Drag me!</div>
+  <button>Chat with us</button>
 </MovableLauncher>
 ```
 
-#### Free positioning
-
-```tsx
-<MovableLauncher defaultPosition={{ x: 100, y: 200 }}>
-  <div className="toolbar">Toolbar</div>
-</MovableLauncher>
-```
-
-#### Styled widget
-
-```tsx
-<MovableLauncher
-  defaultPosition="top-right"
-  snapToCorners
-  className="my-launcher"
-  style={{ borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}
->
-  <div className="floating-panel">
-    <h3>Quick Actions</h3>
-    <button>New Task</button>
-    <button>Settings</button>
-  </div>
-</MovableLauncher>
-```
-
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `children` | `ReactNode` | *required* | Content rendered inside the draggable container. |
-| `defaultPosition` | `Corner \| { x, y }` | `'bottom-right'` | Initial position — a named corner or pixel coordinates. |
-| `snapToCorners` | `boolean` | `false` | Snap to the nearest viewport corner on release. |
-| `style` | `CSSProperties` | `{}` | Inline styles merged with the wrapper. |
-| `className` | `string` | `''` | CSS class added to the wrapper. |
-
-### Types
-
-```typescript
-type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-
-interface Position {
-  x: number;
-  y: number;
-}
-```
-
-### CSS classes
-
-| Class | When |
-|-------|------|
-| `movable-launcher` | Always present |
-| `movable-launcher--dragging` | While the user is actively dragging |
+**Full API, more examples, and live demo →** <https://react-driftkit.saktichourasia.dev/movable-launcher>
 
 ---
 
 ## SnapDock
 
-An edge-pinned dock that slides along any side of the viewport. Drag it anywhere — on release it snaps to the nearest edge and automatically flips between horizontal (top/bottom) and vertical (left/right) layouts. The layout change animates via a FLIP-style transition anchored to the active edge.
-
-### Features
+An edge-pinned dock that slides along any side of the viewport. Drop it anywhere — on release it snaps to the nearest edge and flips between horizontal (top/bottom) and vertical (left/right) layouts via a FLIP-style animation anchored to the active edge.
 
 - **Edge pinning** — `left`, `right`, `top`, `bottom`, with a `0..1` offset along the edge
-- **Automatic orientation** — children lay out in a row or column based on the current edge
-- **Animated flip** — cross-edge drops animate smoothly from the old footprint to the new one
-- **Drag anywhere** — same 5 px pointer threshold as MovableLauncher
-- **`shadow` prop** — adds a sensible default drop shadow, overridable via `style.boxShadow`
-- **Zero built-in visuals** — you supply the background, padding, gap, etc. via `style` or `className`
-- **`data-edge` / `data-orientation` attributes** — flip your CSS layout without re-rendering
-
-### Examples
-
-#### Basic dock
+- **Automatic orientation** — `flex-direction` follows the active edge
+- **Unstyled** — `data-edge` and `data-orientation` attributes let you drive CSS without re-rendering
 
 ```tsx
-<SnapDock defaultEdge="left">
-  <MyToolbar />
-</SnapDock>
-```
-
-#### Styled dock with shadow
-
-```tsx
-<SnapDock defaultEdge="bottom" shadow className="my-dock">
+<SnapDock defaultEdge="bottom" shadow>
   <button>Home</button>
   <button>Search</button>
   <button>Settings</button>
 </SnapDock>
 ```
 
-```css
-.my-dock {
-  background: #111;
-  color: #fff;
-  padding: 8px;
-  border-radius: 12px;
-  gap: 6px;
-}
-```
-
-`SnapDock` already sets `display: flex` and `flex-direction` based on the active edge, so you don't need to write orientation CSS yourself — but if you want to, the wrapper exposes `data-orientation="vertical" | "horizontal"`.
-
-#### Tracking edge and offset changes
-
-```tsx
-import { useState } from 'react';
-import { SnapDock, type Edge } from 'react-driftkit';
-
-function App() {
-  const [edge, setEdge] = useState<Edge>('left');
-
-  return (
-    <SnapDock
-      defaultEdge={edge}
-      onEdgeChange={setEdge}
-      onOffsetChange={(offset) => console.log('offset', offset)}
-    >
-      <Toolbar />
-    </SnapDock>
-  );
-}
-```
-
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `children` | `ReactNode` | *required* | Content rendered inside the dock. |
-| `defaultEdge` | `'left' \| 'right' \| 'top' \| 'bottom'` | `'left'` | Which edge the dock pins to initially. |
-| `defaultOffset` | `number` | `0.5` | Position along the edge, from `0` (top/left) to `1` (bottom/right). |
-| `snap` | `boolean` | `true` | Snap to the nearest edge on release. |
-| `draggable` | `boolean` | `true` | Whether the user can drag the dock. |
-| `edgePadding` | `number` | `16` | Distance in pixels from the viewport edge. |
-| `shadow` | `boolean` | `false` | Adds a default drop shadow. Override via `style.boxShadow`. |
-| `onEdgeChange` | `(edge: Edge) => void` | — | Fires when the dock moves to a new edge. |
-| `onOffsetChange` | `(offset: number) => void` | — | Fires when the dock's offset along the edge changes. |
-| `style` | `CSSProperties` | `{}` | Inline styles merged with the wrapper. |
-| `className` | `string` | `''` | CSS class added to the wrapper. |
-
-### Types
-
-```typescript
-type Edge = 'left' | 'right' | 'top' | 'bottom';
-type Orientation = 'vertical' | 'horizontal';
-
-interface SnapDockProps {
-  children: ReactNode;
-  defaultEdge?: Edge;
-  defaultOffset?: number;
-  draggable?: boolean;
-  snap?: boolean;
-  edgePadding?: number;
-  shadow?: boolean;
-  onEdgeChange?: (edge: Edge) => void;
-  onOffsetChange?: (offset: number) => void;
-  style?: CSSProperties;
-  className?: string;
-}
-```
-
-### Data attributes
-
-The wrapper element exposes these attributes so you can drive CSS without re-rendering:
-
-| Attribute | Values |
-|-----------|--------|
-| `data-edge` | `left`, `right`, `top`, `bottom` |
-| `data-orientation` | `vertical`, `horizontal` |
-| `data-dragging` | present while the user is actively dragging |
-
-### CSS classes
-
-| Class | When |
-|-------|------|
-| `snap-dock` | Always present |
-| `snap-dock--dragging` | While the user is actively dragging |
+**Full API, more examples, and live demo →** <https://react-driftkit.saktichourasia.dev/snap-dock>
 
 ---
 
 ## DraggableSheet
 
-A pull-up / pull-down sheet pinned to an edge of the viewport, with snap points like `peek`, `half`, and `full`. Built for mobile-style detail drawers, filter panels, cart drawers, and inspector flyouts — but works at any edge on any screen size.
+A pull-up / pull-down sheet pinned to an edge, with snap points like `peek`, `half`, and `full`. Built for mobile detail drawers, filter panels, and inspector flyouts — but works at any edge on any screen size.
 
-### Features
-
-- **Named snap presets** — `'closed'`, `'peek'`, `'half'`, `'full'` resolve to sensible defaults against the viewport axis
-- **Arbitrary snap points** — mix presets with raw pixel `number`s and percentage strings like `'40%'` in a single `snapPoints` array
-- **Any edge** — pin to `bottom` (default), `top`, `left`, or `right`; percentage snaps resolve against the drag axis automatically
-- **Velocity-aware release** — a fast flick advances one stop in the flick direction, slow drags snap to the nearest stop
-- **Drag handle selector** — restrict drag to a nested handle so inner content stays scrollable and clickable
-- **Controlled & uncontrolled** — omit `snap` for uncontrolled, pass it for parent-driven transitions
-- **Data attributes** — `data-edge`, `data-snap`, `data-dragging` for CSS-only styling
-
-### Examples
-
-#### Basic bottom sheet
+- **Named presets + raw values** — mix `'peek'`, `'half'`, `'full'`, pixel numbers, and `'40%'` strings in one `snapPoints` list
+- **Any edge** — `bottom` (default), `top`, `left`, or `right`; percentages resolve against the drag axis
+- **Velocity-aware release** — a fast flick advances one stop; slow drags snap to the nearest
+- **Drag handle selector** — confine drag to a nested handle so inner content stays scrollable
 
 ```tsx
 <DraggableSheet snapPoints={['peek', 'half', 'full']} defaultSnap="half">
-  <div className="my-sheet">
-    <div data-handle className="sheet-handle" />
-    <div className="sheet-body">Details, filters, cart...</div>
-  </div>
+  <div data-handle className="sheet-handle" />
+  <div className="sheet-body">Details, filters, cart...</div>
 </DraggableSheet>
 ```
 
-#### Mixed snap points
-
-Presets, pixels, and percentages in the same list. Order doesn't matter — internally the values are resolved against the viewport and sorted at gesture time.
-
-```tsx
-<DraggableSheet
-  snapPoints={['peek', 200, '40%', 'full']}
-  defaultSnap="40%"
-/>
-```
-
-#### Drag handle
-
-Restrict drag to a handle strip so the rest of the sheet remains free for scrolling and clicks.
-
-```tsx
-<DraggableSheet
-  snapPoints={['peek', 'half', 'full']}
-  dragHandleSelector="[data-handle]"
->
-  <div data-handle className="handle-strip" />
-  <div className="scroll-area">{/* long content scrolls normally */}</div>
-</DraggableSheet>
-```
-
-#### Controlled mode
-
-```tsx
-import { useState } from 'react';
-import { DraggableSheet, type SnapPoint } from 'react-driftkit';
-
-function App() {
-  const [snap, setSnap] = useState<SnapPoint>('half');
-
-  return (
-    <>
-      <button onClick={() => setSnap('full')}>Expand</button>
-      <DraggableSheet
-        snap={snap}
-        snapPoints={['peek', 'half', 'full']}
-        onSnapChange={(next) => setSnap(next)}
-      >
-        <Sheet />
-      </DraggableSheet>
-    </>
-  );
-}
-```
-
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `children` | `ReactNode` | *required* | Content rendered inside the sheet. |
-| `edge` | `'bottom' \| 'top' \| 'left' \| 'right'` | `'bottom'` | Edge the sheet is pinned to. |
-| `snapPoints` | `SnapPoint[]` | `['peek', 'half', 'full']` | Ordered list of stops. Mix presets, pixel `number`s, and `'n%'` strings. |
-| `defaultSnap` | `SnapPoint` | middle of `snapPoints` | Uncontrolled initial stop. |
-| `snap` | `SnapPoint` | — | Controlled current stop. When set, parent drives transitions. |
-| `onSnapChange` | `(snap: SnapPoint, sizePx: number) => void` | — | Fires on drag release with the resolved stop and its pixel size. |
-| `draggable` | `boolean` | `true` | Whether the user can drag the sheet. |
-| `dragHandleSelector` | `string` | — | CSS selector for a nested handle. When set, drag only begins inside matching elements. |
-| `velocityThreshold` | `number` | `0.5` | Flick velocity (px/ms) above which a release advances one stop in the flick direction. |
-| `closeOnOutsideClick` | `boolean` | `false` | When true, a pointerdown outside the sheet collapses it to `0` and fires `onSnapChange('closed', 0)`. Ignored while already closed or mid-drag. |
-| `style` | `CSSProperties` | `{}` | Inline styles merged with the wrapper. |
-| `className` | `string` | `''` | CSS class added to the wrapper. |
-
-### Snap point resolution
-
-| Preset | Resolves to |
-|--------|-------------|
-| `'closed'` | `0` |
-| `'peek'` | `96` px (capped at the viewport axis) |
-| `'half'` | `50%` of the viewport along the drag axis |
-| `'full'` | `92%` of the viewport along the drag axis |
-| `number` | Raw pixels along the drag axis |
-| `` `${n}%` `` | `n%` of the viewport along the drag axis (height for top/bottom, width for left/right) |
-
-### Types
-
-```typescript
-type SheetEdge = 'bottom' | 'top' | 'left' | 'right';
-type SnapPoint =
-  | 'closed'
-  | 'peek'
-  | 'half'
-  | 'full'
-  | number
-  | `${number}%`;
-
-interface DraggableSheetProps {
-  children: ReactNode;
-  edge?: SheetEdge;
-  snapPoints?: SnapPoint[];
-  defaultSnap?: SnapPoint;
-  snap?: SnapPoint;
-  onSnapChange?: (snap: SnapPoint, sizePx: number) => void;
-  draggable?: boolean;
-  dragHandleSelector?: string;
-  velocityThreshold?: number;
-  closeOnOutsideClick?: boolean;
-  style?: CSSProperties;
-  className?: string;
-}
-```
-
-### Data attributes
-
-| Attribute | Values |
-|-----------|--------|
-| `data-edge` | `bottom`, `top`, `left`, `right` |
-| `data-snap` | the stringified current `SnapPoint` (e.g. `half`, `40%`, `200`) |
-| `data-dragging` | present while the user is actively dragging |
-
-### CSS classes
-
-| Class | When |
-|-------|------|
-| `draggable-sheet` | Always present |
-| `draggable-sheet--dragging` | While the user is actively dragging |
+**Full API, more examples, and live demo →** <https://react-driftkit.saktichourasia.dev/draggable-sheet>
 
 ---
 
 ## ResizableSplitPane
 
-An N-pane resizable split layout. Drag the handles between panes to redistribute space. Supports horizontal and vertical orientations, min/max size constraints, localStorage persistence, and a render prop for fully custom handles.
+An N-pane resizable split layout. Drag the handles between panes to redistribute space. Supports horizontal and vertical orientations, min/max constraints, localStorage persistence, and a render prop for fully custom handles.
 
-### Features
-
-- **N panes** — pass 2 or more children; each adjacent pair gets a drag handle
-- **Single handle render prop** — define `handle` once, it's called per boundary with `{ index, isDragging, orientation }`
-- **Min / max constraints** — clamp each pane's pixel size; conflicts are resolved gracefully
-- **Persisted layout** — pass `persistKey` to save the split ratios to localStorage across sessions
-- **Controlled & uncontrolled** — omit `sizes` for uncontrolled, pass it for parent-driven layouts
-- **Double-click reset** — double-click any handle to reset to `defaultSizes` (or equal split)
-- **Pointer-based** — works with mouse, touch, and pen; 3 px drag threshold
-
-### Examples
-
-#### Basic two-pane split
+- **N panes** — pass 2 or more children; each adjacent pair gets a handle
+- **Single handle render prop** — called per boundary with `{ index, isDragging, orientation }`
+- **Persisted layout** — `persistKey` saves split ratios to localStorage across sessions
+- **Double-click reset** to `defaultSizes`
 
 ```tsx
-<ResizableSplitPane defaultSizes={[0.3, 0.7]}>
+<ResizableSplitPane defaultSizes={[0.3, 0.7]} persistKey="app-split">
   <Sidebar />
   <MainContent />
 </ResizableSplitPane>
 ```
 
-#### Three panes with custom handle
-
-```tsx
-<ResizableSplitPane
-  defaultSizes={[0.25, 0.5, 0.25]}
-  handle={({ index, isDragging }) => (
-    <div style={{ background: isDragging ? '#6366f1' : '#e5e7eb' }}>
-      {index}
-    </div>
-  )}
->
-  <FileTree />
-  <Editor />
-  <Preview />
-</ResizableSplitPane>
-```
-
-#### Vertical with constraints and persistence
-
-```tsx
-<ResizableSplitPane
-  orientation="vertical"
-  minSize={100}
-  maxSize={600}
-  persistKey="my-editor-split"
->
-  <CodeEditor />
-  <Terminal />
-</ResizableSplitPane>
-```
-
-#### Controlled mode
-
-```tsx
-import { useState } from 'react';
-import { ResizableSplitPane } from 'react-driftkit';
-
-function App() {
-  const [sizes, setSizes] = useState([0.5, 0.5]);
-
-  return (
-    <ResizableSplitPane
-      sizes={sizes}
-      onSizesChange={setSizes}
-    >
-      <PanelA />
-      <PanelB />
-    </ResizableSplitPane>
-  );
-}
-```
-
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `children` | `ReactNode[]` | *required* | Two or more child elements to render in the split panes. |
-| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Split direction. Horizontal puts panes side-by-side; vertical stacks them. |
-| `defaultSizes` | `number[]` | equal split | Uncontrolled initial sizes as ratios summing to 1. |
-| `sizes` | `number[]` | — | Controlled sizes. When provided, the splitter is fully controlled by the parent. |
-| `onSizesChange` | `(sizes: number[]) => void` | — | Fires after a drag release with the committed sizes array. |
-| `onDrag` | `(sizes: number[]) => void` | — | Fires continuously while dragging with the live sizes array. |
-| `minSize` | `number` | `50` | Minimum size in pixels for any pane. |
-| `maxSize` | `number` | — | Maximum size in pixels for any pane. No limit when omitted. |
-| `handleSize` | `number` | `8` | Thickness of each drag handle in pixels. |
-| `handle` | `(info: HandleInfo) => ReactNode` | — | Render prop for each drag handle. Called once per boundary. |
-| `persistKey` | `string` | — | localStorage key to persist the sizes across sessions. |
-| `draggable` | `boolean` | `true` | Whether the user can drag the handles. |
-| `doubleClickReset` | `boolean` | `true` | Double-click a handle to reset to `defaultSizes` (or equal split). |
-| `style` | `CSSProperties` | `{}` | Inline styles merged with the wrapper. |
-| `className` | `string` | `''` | CSS class added to the wrapper. |
-
-### Types
-
-```typescript
-type SplitOrientation = 'horizontal' | 'vertical';
-
-interface HandleInfo {
-  /** Boundary index (0 = between pane 0 and pane 1). */
-  index: number;
-  /** Whether this specific handle is being dragged. */
-  isDragging: boolean;
-  /** Current orientation of the splitter. */
-  orientation: SplitOrientation;
-}
-
-interface ResizableSplitPaneProps {
-  children: ReactNode[];
-  orientation?: SplitOrientation;
-  defaultSizes?: number[];
-  sizes?: number[];
-  onSizesChange?: (sizes: number[]) => void;
-  onDrag?: (sizes: number[]) => void;
-  minSize?: number;
-  maxSize?: number;
-  handleSize?: number;
-  handle?: (info: HandleInfo) => ReactNode;
-  persistKey?: string;
-  draggable?: boolean;
-  doubleClickReset?: boolean;
-  style?: CSSProperties;
-  className?: string;
-}
-```
-
-### Data attributes
-
-| Attribute | Values |
-|-----------|--------|
-| `data-orientation` | `horizontal`, `vertical` |
-| `data-dragging` | present while any handle is being dragged |
-| `data-pane` | numeric pane index (`0`, `1`, `2`, ...) |
-| `data-handle` | numeric handle index (`0`, `1`, ...) |
-
-### CSS classes
-
-| Class | When |
-|-------|------|
-| `resizable-split-pane` | Always present |
-| `resizable-split-pane--dragging` | While any handle is being dragged |
-| `resizable-split-pane__pane` | On each pane wrapper |
-| `resizable-split-pane__handle` | On each handle wrapper |
-| `resizable-split-pane__handle--dragging` | On the specific handle being dragged |
+**Full API, more examples, and live demo →** <https://react-driftkit.saktichourasia.dev/resizable-split-pane>
 
 ---
 
 ## InspectorBubble
 
-A Chrome-DevTools-style element picker overlay for design QA. Turn it on, hover any DOM element, and the picker draws a highlight plus an info bubble showing tag, short CSS selector, dimensions, typography (including the actual rendered font), effective colors with WCAG contrast, padding/margin, ARIA role, computed accessible name, and a11y state flags. Click to select; Escape or a hotkey to exit.
-
-### Features
+A Chrome-DevTools-style element picker overlay for design QA. Turn it on, hover any DOM element, and the picker draws a highlight plus an info bubble showing tag, short CSS selector, dimensions, typography, effective colors with WCAG contrast, padding/margin, ARIA role, accessible name, and a11y state flags. Click to select; Escape or a hotkey to exit.
 
 - **DevTools-style box model** — 4-layer margin / border / padding / content overlay, or a single outline
-- **Rich info bubble** — tag, selector, dimensions, font + rendered family, fg/bg colors with WCAG contrast, spacing, ARIA role (explicit or implicit), computed accessible name, and a11y state flags
-- **Fully configurable** — each bubble field is its own toggle; disable the bubble entirely for a pure highlight
-- **Custom render** — take over the bubble with `bubble.render` and use the full `ElementInfo` however you want
-- **Hotkey toggle** — `cmd/meta`, `ctrl`, `shift`, `alt/option` + key
-- **Ignore rules** — skip elements matching `behavior.ignoreSelector`; overlays self-skip via `[data-inspector-bubble-ignore]` so the picker never highlights its own chrome
-- **Controlled & uncontrolled** — omit `active` for uncontrolled, pass it for parent-driven activation
-- **Portal + max z-index** — overlays always render above your app content
-
-### Examples
-
-#### Basic
-
-```tsx
-import { useState } from 'react';
-import { InspectorBubble } from 'react-driftkit';
-
-function App() {
-  const [active, setActive] = useState(false);
-
-  return (
-    <>
-      <button
-        data-inspector-bubble-ignore
-        onClick={() => setActive((a) => !a)}
-      >
-        {active ? 'Stop inspecting' : 'Inspect element'}
-      </button>
-
-      <InspectorBubble
-        active={active}
-        behavior={{ hotkey: 'cmd+shift+c' }}
-        on={{
-          activeChange: setActive,
-          select: (el, info) => console.log('selected', el, info),
-        }}
-      />
-    </>
-  );
-}
-```
-
-#### Minimal — single outline, no info bubble
-
-```tsx
-<InspectorBubble
-  highlight={{ boxModel: false }}
-  bubble={{ enabled: false }}
-/>
-```
-
-#### Granular bubble fields
-
-```tsx
-<InspectorBubble
-  bubble={{
-    fields: {
-      tag: true,
-      selector: true,
-      dimensions: true,
-      font: true,
-      colors: true,
-      spacing: false,     // hide padding/margin row
-      role: true,
-      accessibleName: true,
-      a11yState: false,   // hide tabindex / expanded / pressed …
-    },
-  }}
-/>
-```
-
-#### Custom bubble content
-
-```tsx
-<InspectorBubble
-  bubble={{
-    render: (info) => (
-      <MyDesignTokenCard
-        color={info.color}
-        bg={info.backgroundColor}
-        contrast={info.contrastRatio}
-      />
-    ),
-  }}
-/>
-```
-
-#### A11y audit workflow
+- **Rich info bubble** with tag, selector, dimensions, font + rendered family, WCAG contrast, spacing, ARIA role, accessible name, and a11y state
+- **Custom render** — take over the bubble with `bubble.render` and use the full `ElementInfo`
+- **Hotkey toggle**, ignore rules, and self-skipping overlay chrome
 
 ```tsx
 <InspectorBubble
   defaultActive
-  behavior={{ hotkey: 'cmd+shift+a' }}
-  on={{
-    select: (_, info) =>
-      console.log(info.selector, {
-        role: info.a11y.role,
-        name: info.a11y.accessibleName,
-        contrast: info.contrastRatio,
-      }),
-  }}
+  behavior={{ hotkey: 'cmd+shift+c' }}
+  on={{ select: (el, info) => console.log(info) }}
 />
 ```
 
-### Props
+**Full API, more examples, and live demo →** <https://react-driftkit.saktichourasia.dev/inspector-bubble>
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `active` | `boolean` | — | Controlled active state. Omit for uncontrolled. |
-| `defaultActive` | `boolean` | `false` | Uncontrolled initial active state. |
-| `on` | `InspectorBubbleEvents` | — | Event handlers — `activeChange`, `select`, `hover`. |
-| `behavior` | `InspectorBubbleBehavior` | — | Hotkey, ignore rule, and exit rules. |
-| `highlight` | `InspectorBubbleHighlight` | — | Box-model vs. outline, and overlay colors. |
-| `bubble` | `InspectorBubbleBubble` | — | Info bubble — `enabled`, `fields`, `render`. |
-| `zIndex` | `number` | `2147483647` | z-index for overlay and bubble. |
-| `className` | `string` | `''` | CSS class on the default bubble wrapper. |
-| `style` | `CSSProperties` | `{}` | Inline styles merged with the default bubble wrapper. |
+---
 
-#### `on`
+## ZoomLens
 
-| Key | Signature | Fires when |
-|-----|-----------|------------|
-| `activeChange` | `(active: boolean) => void` | Active toggles via click-select, Escape, or the hotkey. |
-| `select` | `(el: Element, info: ElementInfo) => void` | User clicks an element while the picker is active. |
-| `hover` | `(el: Element \| null, info: ElementInfo \| null) => void` | The hovered element changes. `null` when no valid target (e.g. over ignored nodes). |
+A draggable magnifier circle that zooms into whatever it hovers. Great for design review, image inspection, or dense data tables. Drag it anywhere on the page, scroll to change zoom, or pass a `target` to scope it to a single element (product-image-zoom style — hover the element to magnify, leave to hide).
 
-#### `behavior`
+- **Two modes** — free-drag over the whole page, or `target`-scoped (lens follows cursor inside one element, hides on leave)
+- **Live DOM clone** — mirrors the real page in real time; no snapshot staleness, no external deps
+- **Wheel to zoom**, hotkey + Escape, and controlled/uncontrolled `active` + `zoom`
+- **Ignore rules** — strip elements from the clone via `behavior.ignoreSelector` or `[data-zoom-lens-ignore]`
 
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `hotkey` | `string` | — | Toggle shortcut, e.g. `'cmd+shift+c'`. Supports `cmd/meta`, `ctrl`, `shift`, `alt/option` + key. |
-| `ignoreSelector` | `string` | — | CSS selector for elements the picker should skip entirely. |
-| `exitOnSelect` | `boolean` | `true` | Deactivate after a successful click-select. |
-| `exitOnEscape` | `boolean` | `true` | Deactivate when Escape is pressed. |
-
-#### `highlight`
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `boxModel` | `boolean` | `true` | Render the 4-layer DevTools box model (margin / border / padding / content). |
-| `outline` | `boolean` | `!boxModel` | Render a single outline around the element instead of the box model. |
-| `colors` | `InspectorBubbleColors` | DevTools-like | Override overlay colors — `margin`, `border`, `padding`, `content`, `outline`. |
-
-#### `bubble`
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `enabled` | `boolean` | `true` | Render the info bubble. Set `false` to show only the highlight. |
-| `fields` | `InspectorBubbleFields` | all `true` | Per-field toggles for the default bubble. |
-| `render` | `(info: ElementInfo) => ReactNode` | — | Full escape hatch — replaces the default bubble content. Receives the live `ElementInfo`. |
-
-#### `bubble.fields`
-
-Every key defaults to `true`. Pass `false` to hide that row.
-
-| Key | Description |
-|-----|-------------|
-| `tag` | Lowercase tag name. |
-| `selector` | Short CSS selector — `tag#id`, `tag[data-testid="…"]`, or `tag.class1.class2`. |
-| `dimensions` | Rendered `width × height`. |
-| `font` | Font size, rendered family (first loaded font from the declared list), and weight. |
-| `colors` | Foreground + effective background swatches and WCAG contrast ratio. |
-| `spacing` | Padding and margin values (T R B L). |
-| `role` | ARIA role — explicit or implicit from the tag. |
-| `accessibleName` | Computed accessible name (aria-labelledby → aria-label → alt → `<label>` → text content). |
-| `a11yState` | `tabindex`, `focusable`, `disabled`, `hidden`, and `expanded`/`pressed`/`checked`/`selected` when set. |
-
-### Types
-
-```typescript
-interface ElementInfo {
-  element: Element;
-  tag: string;
-  selector: string;
-  rect: DOMRect;
-  font: {
-    family: string;    // full declared font-family list
-    rendered: string;  // first family the browser actually has loaded
-    size: string;
-    weight: string;
-    lineHeight: string;
-  };
-  color: string;
-  backgroundColor: string;         // effective bg — walks ancestors
-  contrastRatio: number | null;    // WCAG contrast; null if indeterminate
-  padding: { top: number; right: number; bottom: number; left: number };
-  margin:  { top: number; right: number; bottom: number; left: number };
-  border:  { top: number; right: number; bottom: number; left: number };
-  a11y: A11yInfo;
-}
-
-interface A11yInfo {
-  role: string | null;                     // explicit or inferred
-  explicitRole: boolean;                   // came from a role="..." attribute
-  accessibleName: string | null;
-  ariaLabel: string | null;
-  ariaLabelledBy: string | null;
-  ariaDescribedBy: string | null;
-  tabIndex: number | null;
-  focusable: boolean;
-  disabled: boolean;
-  hidden: boolean;
-  expanded: boolean | null;
-  pressed: boolean | 'mixed' | null;
-  checked: boolean | 'mixed' | null;
-  selected: boolean | null;
-}
-
-interface InspectorBubbleColors {
-  margin?: string;
-  border?: string;
-  padding?: string;
-  content?: string;
-  outline?: string;
-}
-
-interface InspectorBubbleEvents {
-  activeChange?: (active: boolean) => void;
-  select?: (element: Element, info: ElementInfo) => void;
-  hover?: (element: Element | null, info: ElementInfo | null) => void;
-}
-
-interface InspectorBubbleBehavior {
-  hotkey?: string;
-  ignoreSelector?: string;
-  exitOnSelect?: boolean;  // default true
-  exitOnEscape?: boolean;  // default true
-}
-
-interface InspectorBubbleHighlight {
-  boxModel?: boolean;      // default true
-  outline?: boolean;       // default !boxModel
-  colors?: InspectorBubbleColors;
-}
-
-interface InspectorBubbleFields {
-  tag?: boolean;
-  selector?: boolean;
-  dimensions?: boolean;
-  font?: boolean;
-  colors?: boolean;
-  spacing?: boolean;
-  role?: boolean;
-  accessibleName?: boolean;
-  a11yState?: boolean;
-}
-
-interface InspectorBubbleBubble {
-  enabled?: boolean;       // default true
-  fields?: InspectorBubbleFields;
-  render?: (info: ElementInfo) => ReactNode;
-}
-
-interface InspectorBubbleProps {
-  active?: boolean;
-  defaultActive?: boolean;
-  on?: InspectorBubbleEvents;
-  behavior?: InspectorBubbleBehavior;
-  highlight?: InspectorBubbleHighlight;
-  bubble?: InspectorBubbleBubble;
-  zIndex?: number;
-  className?: string;
-  style?: CSSProperties;
-}
+```tsx
+<ZoomLens
+  defaultActive
+  target={imageRef}   // omit for a free-drag whole-page lens
+  defaultZoom={3}
+  size={200}
+/>
 ```
 
-### Attributes & CSS classes
-
-The overlay and the default bubble wrapper carry `data-inspector-bubble-ignore` so `document.elementFromPoint` will never return them. You can add the same attribute to your own toolbars, toggle buttons, or devtools chrome to exempt them from selection — or use `behavior.ignoreSelector` for the same effect without touching your markup.
-
-| Class | When |
-|-------|------|
-| `inspector-bubble__info` | Always present on the default bubble wrapper |
+**Full API, more examples, and live demo →** <https://react-driftkit.saktichourasia.dev/zoom-lens>
 
 ---
 
@@ -883,6 +252,8 @@ The overlay and the default bubble wrapper carry `data-inspector-bubble-ignore` 
 - **Accessibility helpers** — movable assistive overlays
 - **Design QA tooling** — hover-inspect contrast, typography, spacing, ARIA role, and accessible name on any element
 - **In-house devtools** — a built-in element picker for style audits, a11y audits, or click-to-log workflows
+- **Product image zoom** — magnifier scoped to a single image, follows the cursor, hides on leave
+- **Data table inspection** — drag a magnifier over dense tables, charts, or heatmaps to read small values without re-flowing the page
 
 ## How it works
 
@@ -893,6 +264,8 @@ Under the hood all components use the [Pointer Events API](https://developer.moz
 `ResizableSplitPane` uses a flexbox layout with `calc()` sizing. Dragging a handle only redistributes space between the two adjacent panes, leaving all others unchanged. Window resize events trigger re-clamping against min/max constraints.
 
 `InspectorBubble` renders its overlay into `document.body` via a React portal. Pointer tracking uses `document.elementFromPoint` and skips anything with `pointer-events: none` — so the box-model layers, outline, and bubble never block hit-testing. Computed values come from `getComputedStyle`; WCAG contrast is computed from the element's own `color` and the first non-transparent `background-color` walking up its ancestors. The "rendered font" is the first entry from the declared `font-family` list that `document.fonts.check()` reports as loaded — the same heuristic tools like WhatFont use.
+
+`ZoomLens` live-clones either `document.body` (free mode) or a target element (target mode) into a portalled host, then applies a `translate()` + `scale()` transform so the point under the lens center maps to target-local — or document — coords. A `MutationObserver` rebuilds the clone when the real DOM changes, debounced to 150 ms and skipped during drag. In target mode, pointer tracking attaches directly to the target, and the lens overlay is `pointer-events: none` so hover state keeps passing through to the real element underneath.
 
 ## Contributing
 

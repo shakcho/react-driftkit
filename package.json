@@ -17,13 +17,11 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "astro dev --root demo",
     "build": "vite build && tsc --emitDeclarationOnly",
     "build:demo": "astro build --root demo",
-    "dev:demo": "astro dev --root demo",
     "og": "node demo/scripts/gen-og.mjs",
     "prepublishOnly": "npm run build",
-    "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
   },

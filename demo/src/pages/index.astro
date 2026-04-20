@@ -3,12 +3,12 @@ import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Hero.astro';
 import InstallSection from '../components/InstallSection.astro';
 import GitHubCTA from '../components/GitHubCTA.astro';
-import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, InspectorIcon } from '../components/islands/Icons';
+import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, InspectorIcon, ZoomLensIcon } from '../components/islands/Icons';
 import { allComponents } from '../data/components';
 
 const title = 'react-driftkit — Floating UI primitives for React';
 const description =
-  'react-driftkit is a small, tree-shakable React library of floating UI primitives: MovableLauncher (draggable corner widget), SnapDock (edge-pinned dock), DraggableSheet (pull-up sheet), ResizableSplitPane (N-pane resizable layout), and InspectorBubble (Chrome-DevTools-style element picker). Unstyled, TypeScript-first, React 18 and 19.';
+  'react-driftkit is a small, tree-shakable React library of floating UI primitives: MovableLauncher (draggable corner widget), SnapDock (edge-pinned dock), DraggableSheet (pull-up sheet), ResizableSplitPane (N-pane resizable layout), InspectorBubble (Chrome-DevTools-style element picker), and ZoomLens (draggable magnifier circle, or target-scoped product-image zoom). Unstyled, TypeScript-first, React 18 and 19.';
 
 const icons: Record<string, typeof MoveIcon> = {
   launcher: MoveIcon,
@@ -16,6 +16,7 @@ const icons: Record<string, typeof MoveIcon> = {
   sheet: SheetIcon,
   splitter: SplitterIcon,
   inspector: InspectorIcon,
+  zoomlens: ZoomLensIcon,
 };
 
 const softwareJsonLd = {
@@ -39,7 +40,7 @@ const softwareJsonLd = {
 const faq = [
   {
     q: 'What is react-driftkit?',
-    a: 'react-driftkit is a small, tree-shakable React library of floating UI primitives — draggable launchers, edge-pinned docks, pull-up sheets, resizable split panes, and a Chrome-DevTools-style element picker overlay. It ships unstyled so it works with Tailwind, CSS Modules, or any design system, and has zero runtime dependencies.',
+    a: 'react-driftkit is a small, tree-shakable React library of floating UI primitives — draggable launchers, edge-pinned docks, pull-up sheets, resizable split panes, a Chrome-DevTools-style element picker overlay, and a draggable zoom lens. It ships unstyled so it works with Tailwind, CSS Modules, or any design system, and has zero runtime dependencies.',
   },
   {
     q: 'Does react-driftkit support React 19?',
@@ -47,7 +48,7 @@ const faq = [
   },
   {
     q: 'What components does react-driftkit include?',
-    a: 'Five components: MovableLauncher (draggable corner widget with snap-to-corners), SnapDock (edge-pinned dock that flips orientation), DraggableSheet (pull-up/pull-down sheet with peek/half/full snap points), ResizableSplitPane (N-pane split layout with draggable handles and localStorage persistence), and InspectorBubble (Chrome-DevTools-style element picker with tag, selector, font, WCAG contrast, ARIA role and accessible name).',
+    a: 'Six components: MovableLauncher (draggable corner widget with snap-to-corners), SnapDock (edge-pinned dock that flips orientation), DraggableSheet (pull-up/pull-down sheet with peek/half/full snap points), ResizableSplitPane (N-pane split layout with draggable handles and localStorage persistence), InspectorBubble (Chrome-DevTools-style element picker with tag, selector, font, WCAG contrast, ARIA role and accessible name), and ZoomLens (draggable magnifier circle, or target-scoped product-image zoom).',
   },
   {
     q: 'How do I install react-driftkit?',

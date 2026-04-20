@@ -246,6 +246,117 @@ const illustrations = {
     );
   },
 
+  zoomlens: () => {
+    // Geometric illustration in the same flat style as the other OG cards:
+    // a rainbow grid of small tiles in the background, with a circular
+    // magnifier lens on top showing a patch of visibly larger tiles so the
+    // "zoom" effect reads at a glance.
+    const BG_TILE = 32;
+    const BG_GAP = 6;
+    const BG_PAD = 16;
+    const BG_COLS = 11;
+    const BG_ROWS = 7;
+
+    // Shades of the card-set accent (indigo ≈ hsl(235, ~70%, ~74%)) instead
+    // of a rainbow — keeps the ZoomLens card visually coherent with the rest.
+    const tileColor = (r, c) => {
+      const i = r * BG_COLS + c;
+      const l = 26 + (i * 7) % 26;       // 26–52 — subtle, low-contrast grid
+      return `hsl(235 42% ${l}%)`;
+    };
+    const magColor = (r, c) => {
+      const i = r * 4 + c;
+      const l = 46 + (i * 9) % 28;       // 46–74 — brighter inside the lens
+      return `hsl(235 58% ${l}%)`;
+    };
+
+    const bgTiles = [];
+    for (let r = 0; r < BG_ROWS; r++) {
+      for (let c = 0; c < BG_COLS; c++) {
+        bgTiles.push(
+          box({
+            position: 'absolute',
+            top: BG_PAD + r * (BG_TILE + BG_GAP),
+            left: BG_PAD + c * (BG_TILE + BG_GAP),
+            width: BG_TILE,
+            height: BG_TILE,
+            borderRadius: 5,
+            background: tileColor(r, c),
+          }),
+        );
+      }
+    }
+
+    const LENS_D = 185;
+    const LENS_CX = 290;
+    const LENS_CY = 150;
+    const LENS_X = LENS_CX - LENS_D / 2;
+    const LENS_Y = LENS_CY - LENS_D / 2;
+
+    // Larger tiles inside the lens so the magnification reads clearly. We
+    // render a 4×4 patch wider than the lens so the tiles appear to flow
+    // out of its edges, like a real magnified window.
+    const ZOOM = 2.4;
+    const MAG_TILE = BG_TILE * ZOOM;
+    const MAG_GAP = BG_GAP * ZOOM;
+    const magTiles = [];
+    for (let r = 0; r < 4; r++) {
+      for (let c = 0; c < 4; c++) {
+        magTiles.push(
+          box({
+            position: 'absolute',
+            top: -28 + r * (MAG_TILE + MAG_GAP),
+            left: -24 + c * (MAG_TILE + MAG_GAP),
+            width: MAG_TILE,
+            height: MAG_TILE,
+            borderRadius: 6 * ZOOM,
+            background: magColor(r, c),
+          }),
+        );
+      }
+    }
+
+    return viewport(
+      box(
+        { width: '100%', height: '100%', position: 'relative', display: 'flex' },
+        ...bgTiles,
+        // Lens — circular clipped container holding the magnified tiles.
+        box(
+          {
+            position: 'absolute',
+            left: LENS_X,
+            top: LENS_Y,
+            width: LENS_D,
+            height: LENS_D,
+            borderRadius: 999,
+            overflow: 'hidden',
+            boxShadow:
+              'inset 0 0 0 3px rgba(255,255,255,0.95), 0 18px 50px rgba(0,0,0,0.45)',
+            display: 'flex',
+          },
+          ...magTiles,
+        ),
+        // Zoom badge in the lens corner — matches the real component UI.
+        box(
+          {
+            position: 'absolute',
+            left: LENS_CX + LENS_D / 2 - 54,
+            top: LENS_CY + LENS_D / 2 - 26,
+            padding: '3px 7px',
+            borderRadius: 5,
+            background: 'rgba(20,20,20,0.78)',
+            color: '#fff',
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '0.04em',
+            display: 'flex',
+          },
+          '2.40×',
+        ),
+      ),
+    );
+  },
+
   // Home: a 3x2 grid of mini-widget previews. Each tile contains a small
   // illustration of the component it represents, plus a short label.
   home: () =>
@@ -503,7 +614,7 @@ const pages = [
     slug: 'home',
     kind: 'home',
     title: 'Floating UI primitives for React',
-    tagline: 'Draggable launchers, docks, sheets, split panes, and a DevTools-style inspector. Tree-shakable and unstyled.',
+    tagline: 'Draggable launchers, docks, sheets, split panes, a DevTools-style inspector, and a zoom lens. Tree-shakable and unstyled.',
   },
   {
     slug: 'movable-launcher',
@@ -534,6 +645,12 @@ const pages = [
     kind: 'inspector',
     title: 'InspectorBubble',
     tagline: 'A Chrome-DevTools-style element picker. Tag, selector, font, WCAG contrast, ARIA role and accessible name.',
+  },
+  {
+    slug: 'zoom-lens',
+    kind: 'zoomlens',
+    title: 'ZoomLens',
+    tagline: 'A draggable magnifier circle that zooms into whatever it hovers. Drag to move, scroll to zoom, hotkey or Escape to dismiss.',
   },
 ];
 

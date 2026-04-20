@@ -1,6 +1,6 @@
 # react-driftkit
 
-> Small, focused React building blocks for floating UI: draggable launchers, edge-pinned docks, pull-up sheets, resizable split panes, and a Chrome-DevTools-style element picker overlay for design QA. Tree-shakable, unstyled, TypeScript-first, and compatible with React 18 and 19.
+> Small, focused React building blocks for floating UI: draggable launchers, edge-pinned docks, pull-up sheets, resizable split panes, a Chrome-DevTools-style element picker overlay for design QA, and a draggable zoom lens. Tree-shakable, unstyled, TypeScript-first, and compatible with React 18 and 19.
 
 react-driftkit is an npm package for React apps that need floating UI primitives without adopting a large draggable or UI framework. It handles pointer events, click-vs-drag thresholds, viewport-aware placement, snapping, edge docking, orientation changes, velocity-aware sheet resizing, resizable split layouts, and DOM inspection overlays — while leaving all visuals to the app.
 
@@ -219,7 +219,7 @@ Important implementation notes for agents:
 
 ## Examples
 
-- [Demo app source](https://github.com/shakcho/react-drift/blob/main/demo/main.tsx): Full demo implementation with live examples for all five components — MovableLauncher, SnapDock, DraggableSheet, ResizableSplitPane, and InspectorBubble.
+- [Demo app source](https://github.com/shakcho/react-drift/blob/main/demo/main.tsx): Full demo implementation with live examples for all six components — MovableLauncher, SnapDock, DraggableSheet, ResizableSplitPane, InspectorBubble, and ZoomLens.
 - [Demo styles](https://github.com/shakcho/react-drift/blob/main/demo/styles.css): Styling used by the documentation site and live demo.
 - [Demo Vite config](https://github.com/shakcho/react-drift/blob/main/demo/vite.config.ts): Build and development configuration, including `/llms.txt` serving for the deployed demo.
 
