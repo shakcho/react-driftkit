@@ -1,6 +1,6 @@
 {
   "name": "react-driftkit",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Small React primitives for floating UI: draggable launchers and edge-pinned docks",
   "type": "module",
   "main": "dist/react-driftkit.cjs",
