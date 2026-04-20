@@ -58,6 +58,18 @@ export function InspectorIcon({ size = 16, strokeWidth = 2 }: IconProps) {
   );
 }
 
+export function ZoomLensIcon({ size = 16, strokeWidth = 2 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="6" y="6" width="28" height="28" rx="3" opacity="0.35" />
+      <circle cx="18" cy="18" r="8" />
+      <path d="M14 18h8" />
+      <path d="M18 14v8" />
+      <path d="M24 24l6 6" strokeWidth={strokeWidth + 0.4} />
+    </svg>
+  );
+}
+
 export function ChevronDownIcon({ size = 14 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

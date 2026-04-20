@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, InspectorIcon, ChevronDownIcon } from './Icons';
+import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, InspectorIcon, ZoomLensIcon, ChevronDownIcon } from './Icons';
 
-export type ComponentKey = 'launcher' | 'dock' | 'sheet' | 'splitter' | 'inspector';
+export type ComponentKey = 'launcher' | 'dock' | 'sheet' | 'splitter' | 'inspector' | 'zoomlens';
 
 const items: { key: ComponentKey; label: string; href: string; icon: ReactNode }[] = [
   { key: 'launcher',  label: 'MovableLauncher',     href: '/movable-launcher',     icon: <MoveIcon size={16} strokeWidth={2.2} /> },
@@ -9,6 +9,7 @@ const items: { key: ComponentKey; label: string; href: string; icon: ReactNode }
   { key: 'sheet',     label: 'DraggableSheet',      href: '/draggable-sheet',      icon: <SheetIcon size={16} /> },
   { key: 'splitter',  label: 'ResizableSplitPane',  href: '/resizable-split-pane', icon: <SplitterIcon size={16} /> },
   { key: 'inspector', label: 'InspectorBubble',     href: '/inspector-bubble',     icon: <InspectorIcon size={16} /> },
+  { key: 'zoomlens',  label: 'ZoomLens',            href: '/zoom-lens',            icon: <ZoomLensIcon size={16} /> },
 ];
 
 export default function ComponentDropdown({ active }: { active: ComponentKey | null }) {

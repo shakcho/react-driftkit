@@ -332,7 +332,12 @@ code {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.88rem;
+  table-layout: fixed;
 }
+
+.api-table__col-prop    { width: 36%; }
+.api-table__col-type    { width: 44%; }
+.api-table__col-default { width: 20%; }
 
 .api-table th {
   text-align: left;
@@ -347,9 +352,11 @@ code {
 }
 
 .api-table td {
-  padding: 12px 14px;
+  padding: 14px 14px;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
+  line-height: 1.5;
+  word-break: break-word;
 }
 
 .api-table tr:last-child td {
@@ -359,6 +366,22 @@ code {
 .api-table td:first-child code {
   color: var(--accent);
   font-weight: 600;
+}
+
+.api-table__desc {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.api-table__desc code {
+  color: var(--text);
+  background: var(--bg-section);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.78rem;
+  font-weight: 400;
 }
 
 /* ── Code Blocks ──────────────────────────────── */

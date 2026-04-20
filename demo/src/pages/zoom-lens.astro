@@ -1,0 +1,58 @@
+---
+import Layout from '../layouts/Layout.astro';
+import WidgetHeader from '../components/WidgetHeader.astro';
+import InstallSection from '../components/InstallSection.astro';
+import ApiTable from '../components/ApiTable.astro';
+import CodeExamplesSection from '../components/CodeExamplesSection.astro';
+import GitHubCTA from '../components/GitHubCTA.astro';
+import { ZoomLensIcon } from '../components/islands/Icons';
+import ZoomLensDemo from '../components/islands/ZoomLensDemo';
+import { zoomLensMeta } from '../data/zoomlens';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareSourceCode',
+  name: 'react-driftkit / ZoomLens',
+  description: zoomLensMeta.tagline,
+  codeRepository: 'https://github.com/shakcho/react-drift',
+  programmingLanguage: 'TypeScript',
+  runtimePlatform: 'React 18, React 19',
+  url: 'https://react-driftkit.saktichourasia.dev/zoom-lens',
+};
+---
+
+<Layout
+  title={`${zoomLensMeta.title} — react-driftkit`}
+  description={zoomLensMeta.metaDescription}
+  path={`/${zoomLensMeta.slug}`}
+  jsonLd={jsonLd}
+  activeComponent="zoomlens"
+  ogSlug={zoomLensMeta.slug}
+>
+  <WidgetHeader
+    prefix="zoom-lens"
+    icon={ZoomLensIcon}
+    title={zoomLensMeta.title}
+    description={zoomLensMeta.tagline}
+  />
+
+  <InstallSection id="zoom-lens-install" />
+
+  <section id="zoom-lens-demo" class="section" style="padding-top: 16px;">
+    <div class="section-label">Interactive Demo</div>
+    <ZoomLensDemo client:load />
+  </section>
+
+  <section id="zoom-lens-api" class="section" style="padding-top: 0;">
+    <div class="section-label">API Reference</div>
+    <ApiTable rows={zoomLensMeta.apiRows} footnoteHtml={zoomLensMeta.apiFootnoteHtml} />
+  </section>
+
+  <CodeExamplesSection
+    id="zoom-lens-examples"
+    examples={zoomLensMeta.codeExamples}
+    typesCode={zoomLensMeta.typesCode}
+  />
+
+  <GitHubCTA />
+</Layout>

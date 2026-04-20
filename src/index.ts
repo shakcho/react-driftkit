@@ -8,3 +8,5 @@ export { ResizableSplitPane } from './ResizableSplitPane';
 export type { ResizableSplitPaneProps, SplitOrientation, HandleInfo } from './ResizableSplitPane';
 export { InspectorBubble } from './InspectorBubble';
 export type { InspectorBubbleProps, InspectorBubbleColors, ElementInfo } from './InspectorBubble';
+export { ZoomLens } from './ZoomLens';
+export type { ZoomLensProps, ZoomLensBehavior, ZoomLensEvents, ZoomLensTarget } from './ZoomLens';
