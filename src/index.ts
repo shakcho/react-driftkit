@@ -10,3 +10,10 @@ export { InspectorBubble } from './InspectorBubble';
 export type { InspectorBubbleProps, InspectorBubbleColors, ElementInfo } from './InspectorBubble';
 export { ZoomLens } from './ZoomLens';
 export type { ZoomLensProps, ZoomLensBehavior, ZoomLensEvents, ZoomLensTarget } from './ZoomLens';
+export { FlickDeck } from './FlickDeck';
+export type {
+  FlickDeckProps,
+  FlickDeckPeek,
+  FlickDeckEvents,
+  FlickDeckAnimation,
+} from './FlickDeck';
