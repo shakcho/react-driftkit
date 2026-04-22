@@ -1,0 +1,58 @@
+---
+import Layout from '../layouts/Layout.astro';
+import WidgetHeader from '../components/WidgetHeader.astro';
+import InstallSection from '../components/InstallSection.astro';
+import ApiTable from '../components/ApiTable.astro';
+import CodeExamplesSection from '../components/CodeExamplesSection.astro';
+import GitHubCTA from '../components/GitHubCTA.astro';
+import { FlickDeckIcon } from '../components/islands/Icons';
+import FlickDeckDemo from '../components/islands/FlickDeckDemo';
+import { flickDeckMeta } from '../data/flickdeck';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareSourceCode',
+  name: 'react-driftkit / FlickDeck',
+  description: flickDeckMeta.tagline,
+  codeRepository: 'https://github.com/shakcho/react-drift',
+  programmingLanguage: 'TypeScript',
+  runtimePlatform: 'React 18, React 19',
+  url: 'https://react-driftkit.saktichourasia.dev/flick-deck',
+};
+---
+
+<Layout
+  title={`${flickDeckMeta.title} — react-driftkit`}
+  description={flickDeckMeta.metaDescription}
+  path={`/${flickDeckMeta.slug}`}
+  jsonLd={jsonLd}
+  activeComponent="flickdeck"
+  ogSlug={flickDeckMeta.slug}
+>
+  <WidgetHeader
+    prefix="flick-deck"
+    icon={FlickDeckIcon}
+    title={flickDeckMeta.title}
+    description={flickDeckMeta.tagline}
+  />
+
+  <InstallSection id="flick-deck-install" />
+
+  <section id="flick-deck-demo" class="section" style="padding-top: 16px;">
+    <div class="section-label">Interactive Demo</div>
+    <FlickDeckDemo client:load />
+  </section>
+
+  <section id="flick-deck-api" class="section" style="padding-top: 0;">
+    <div class="section-label">API Reference</div>
+    <ApiTable rows={flickDeckMeta.apiRows} footnoteHtml={flickDeckMeta.apiFootnoteHtml} />
+  </section>
+
+  <CodeExamplesSection
+    id="flick-deck-examples"
+    examples={flickDeckMeta.codeExamples}
+    typesCode={flickDeckMeta.typesCode}
+  />
+
+  <GitHubCTA />
+</Layout>

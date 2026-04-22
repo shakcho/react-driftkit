@@ -13,6 +13,7 @@ demo/.astro
 
 # Local source material (screen recordings, GIFs)
 videos
+SOCIAL.md
 
 # Environment
 .env

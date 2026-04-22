@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Hero.astro';
 import InstallSection from '../components/InstallSection.astro';
 import GitHubCTA from '../components/GitHubCTA.astro';
-import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, InspectorIcon, ZoomLensIcon } from '../components/islands/Icons';
+import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, InspectorIcon, ZoomLensIcon, FlickDeckIcon } from '../components/islands/Icons';
 import { allComponents } from '../data/components';
 
 const title = 'react-driftkit — Floating UI primitives for React';
@@ -17,6 +17,7 @@ const icons: Record<string, typeof MoveIcon> = {
   splitter: SplitterIcon,
   inspector: InspectorIcon,
   zoomlens: ZoomLensIcon,
+  flickdeck: FlickDeckIcon,
 };
 
 const softwareJsonLd = {
