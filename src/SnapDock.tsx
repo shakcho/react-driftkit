@@ -408,3 +408,5 @@ export function SnapDock({
     </div>
   );
 }
+
+export default SnapDock;

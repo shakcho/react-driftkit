@@ -680,3 +680,5 @@ export function ZoomLens({
 
   return createPortal(overlay, document.body);
 }
+
+export default ZoomLens;

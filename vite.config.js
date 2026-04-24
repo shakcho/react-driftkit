@@ -8,13 +8,23 @@ export default defineConfig({
   plugins: [react()],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
-      name: 'ReactDriftKit',
+      entry: {
+        index: resolve(__dirname, 'src/index.ts'),
+        MovableLauncher: resolve(__dirname, 'src/MovableLauncher.tsx'),
+        SnapDock: resolve(__dirname, 'src/SnapDock.tsx'),
+        DraggableSheet: resolve(__dirname, 'src/DraggableSheet.tsx'),
+        ResizableSplitPane: resolve(__dirname, 'src/ResizableSplitPane.tsx'),
+        InspectorBubble: resolve(__dirname, 'src/InspectorBubble.tsx'),
+        ZoomLens: resolve(__dirname, 'src/ZoomLens.tsx'),
+        FlickDeck: resolve(__dirname, 'src/FlickDeck.tsx'),
+      },
       formats: ['es', 'cjs'],
-      fileName: 'react-driftkit',
     },
     rollupOptions: {
       external: ['react', 'react-dom', 'react/jsx-runtime'],
+      output: {
+        exports: 'named',
+      },
     },
   },
 });

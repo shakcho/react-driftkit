@@ -266,3 +266,5 @@ export function MovableLauncher({
     </div>
   );
 }
+
+export default MovableLauncher;

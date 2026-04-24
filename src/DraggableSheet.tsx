@@ -380,3 +380,5 @@ export function DraggableSheet({
     </div>
   );
 }
+
+export default DraggableSheet;
