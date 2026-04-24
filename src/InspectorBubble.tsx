@@ -930,3 +930,5 @@ function BubbleAnchor({
     </div>
   );
 }
+
+export default InspectorBubble;

@@ -378,3 +378,5 @@ export function FlickDeck({
     </div>
   );
 }
+
+export default FlickDeck;

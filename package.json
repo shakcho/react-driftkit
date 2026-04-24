@@ -3,14 +3,50 @@
   "version": "0.7.0",
   "description": "Small React primitives for floating UI: draggable launchers and edge-pinned docks",
   "type": "module",
-  "main": "dist/react-driftkit.cjs",
-  "module": "dist/react-driftkit.js",
+  "sideEffects": false,
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/react-driftkit.js",
-      "require": "./dist/react-driftkit.cjs"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./MovableLauncher": {
+      "types": "./dist/MovableLauncher.d.ts",
+      "import": "./dist/MovableLauncher.js",
+      "require": "./dist/MovableLauncher.cjs"
+    },
+    "./SnapDock": {
+      "types": "./dist/SnapDock.d.ts",
+      "import": "./dist/SnapDock.js",
+      "require": "./dist/SnapDock.cjs"
+    },
+    "./DraggableSheet": {
+      "types": "./dist/DraggableSheet.d.ts",
+      "import": "./dist/DraggableSheet.js",
+      "require": "./dist/DraggableSheet.cjs"
+    },
+    "./ResizableSplitPane": {
+      "types": "./dist/ResizableSplitPane.d.ts",
+      "import": "./dist/ResizableSplitPane.js",
+      "require": "./dist/ResizableSplitPane.cjs"
+    },
+    "./InspectorBubble": {
+      "types": "./dist/InspectorBubble.d.ts",
+      "import": "./dist/InspectorBubble.js",
+      "require": "./dist/InspectorBubble.cjs"
+    },
+    "./ZoomLens": {
+      "types": "./dist/ZoomLens.d.ts",
+      "import": "./dist/ZoomLens.js",
+      "require": "./dist/ZoomLens.cjs"
+    },
+    "./FlickDeck": {
+      "types": "./dist/FlickDeck.d.ts",
+      "import": "./dist/FlickDeck.js",
+      "require": "./dist/FlickDeck.cjs"
     }
   },
   "files": [

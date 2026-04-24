@@ -32,6 +32,7 @@ Building a chat widget, floating toolbar, debug panel, or side dock? You want th
 | [`<ResizableSplitPane>`](#resizablesplitter) | An N-pane resizable split layout with draggable handles, min/max constraints, and localStorage-persisted ratios. |
 | [`<InspectorBubble>`](#inspectorbubble) | A Chrome-DevTools-style element picker overlay for design QA — hover to see tag, selector, dimensions, font, colors + WCAG contrast, box model, ARIA role, and accessible name. |
 | [`<ZoomLens>`](#zoomlens) | A draggable magnifier circle that zooms into whatever it hovers — free-drag over the whole page or scope it to one element (product-image-zoom style). Wheel to zoom, hotkey or Escape to dismiss. |
+| [`<FlickDeck>`](#flickdeck) | A stack of cards where each back card peeks from one edge. Click the peek to flick that card to the front, or optionally swipe the front card off to dismiss it. |
 
 ## Installation
 
@@ -56,6 +57,21 @@ bun add react-driftkit
 
 </details>
 
+## Importing
+
+Every component is available two ways — both tree-shake to the same code.
+
+```tsx
+// 1. Barrel import — grab multiple components at once
+import { MovableLauncher, SnapDock, InspectorBubble } from 'react-driftkit';
+
+// 2. Per-component subpath — named or default, pick the style you prefer
+import { SnapDock } from 'react-driftkit/SnapDock';
+import SnapDock from 'react-driftkit/SnapDock';
+```
+
+Subpath imports are handy when you only need one component and want the import line to be explicit about bundle cost (your bundler will tree-shake the barrel import down to the same output either way, as long as `sideEffects` is respected — which it is here).
+
 ## Quick Start
 
 ```tsx
@@ -67,6 +83,7 @@ import {
   ResizableSplitPane,
   InspectorBubble,
   ZoomLens,
+  FlickDeck,
 } from 'react-driftkit';
 
 function App() {
@@ -104,6 +121,13 @@ function App() {
       {/* Magnifier scoped to one element — hover to zoom. */}
       <img ref={productRef} src="/product.jpg" alt="Product" />
       <ZoomLens defaultActive target={productRef} defaultZoom={3} />
+
+      {/* Stack of cards — click a peeking card to flick it to the front. */}
+      <FlickDeck defaultFrontId="overview" peek="bottom" peekSize={28}>
+        <div key="overview">Overview</div>
+        <div key="details">Details</div>
+        <div key="stats">Stats</div>
+      </FlickDeck>
     </>
   );
 }
@@ -125,6 +149,8 @@ A draggable floating wrapper that lets users pick up any widget and drop it anyw
 - **Click vs. drag threshold** (5 px) so nested buttons still fire
 
 ```tsx
+import MovableLauncher from 'react-driftkit/MovableLauncher';
+
 <MovableLauncher defaultPosition="bottom-right" snapToCorners>
   <button>Chat with us</button>
 </MovableLauncher>
@@ -143,6 +169,8 @@ An edge-pinned dock that slides along any side of the viewport. Drop it anywhere
 - **Unstyled** — `data-edge` and `data-orientation` attributes let you drive CSS without re-rendering
 
 ```tsx
+import SnapDock from 'react-driftkit/SnapDock';
+
 <SnapDock defaultEdge="bottom" shadow>
   <button>Home</button>
   <button>Search</button>
@@ -164,6 +192,8 @@ A pull-up / pull-down sheet pinned to an edge, with snap points like `peek`, `ha
 - **Drag handle selector** — confine drag to a nested handle so inner content stays scrollable
 
 ```tsx
+import DraggableSheet from 'react-driftkit/DraggableSheet';
+
 <DraggableSheet snapPoints={['peek', 'half', 'full']} defaultSnap="half">
   <div data-handle className="sheet-handle" />
   <div className="sheet-body">Details, filters, cart...</div>
@@ -184,6 +214,8 @@ An N-pane resizable split layout. Drag the handles between panes to redistribute
 - **Double-click reset** to `defaultSizes`
 
 ```tsx
+import ResizableSplitPane from 'react-driftkit/ResizableSplitPane';
+
 <ResizableSplitPane defaultSizes={[0.3, 0.7]} persistKey="app-split">
   <Sidebar />
   <MainContent />
@@ -204,6 +236,8 @@ A Chrome-DevTools-style element picker overlay for design QA. Turn it on, hover 
 - **Hotkey toggle**, ignore rules, and self-skipping overlay chrome
 
 ```tsx
+import InspectorBubble from 'react-driftkit/InspectorBubble';
+
 <InspectorBubble
   defaultActive
   behavior={{ hotkey: 'cmd+shift+c' }}
@@ -225,6 +259,8 @@ A draggable magnifier circle that zooms into whatever it hovers. Great for desig
 - **Ignore rules** — strip elements from the clone via `behavior.ignoreSelector` or `[data-zoom-lens-ignore]`
 
 ```tsx
+import ZoomLens from 'react-driftkit/ZoomLens';
+
 <ZoomLens
   defaultActive
   target={imageRef}   // omit for a free-drag whole-page lens
@@ -234,6 +270,30 @@ A draggable magnifier circle that zooms into whatever it hovers. Great for desig
 ```
 
 **Full API, more examples, and live demo →** <https://react-driftkit.saktichourasia.dev/zoom-lens>
+
+---
+
+## FlickDeck
+
+A stack of cards where each back card peeks from one edge — receding into depth for `top`/`bottom` peek, fanning out at an angle for `left`/`right`. Click the peek to flick that card to the front, or optionally swipe the front card off to dismiss it. Great for toggles between views, tip stacks, onboarding cards, and side-by-side comparisons.
+
+- **Four peek edges** — `top`, `bottom`, `left`, `right`; each child's React `key` is its card id
+- **Depth cues you can tune** — `depthScale` shrinks back cards, `fanAngle` rotates them, `depthFade` dims them, or set any to `0` for a flat stack
+- **Controlled or uncontrolled** — drive the front card via `frontId` + `on.frontChange`, or just pass `defaultFrontId`
+- **Optional swipe-to-dismiss** — drag the front card off in the opposite direction of the peek to fire `on.dismiss(id)`
+- **Unstyled** — `data-flick-deck-front`, `data-flick-deck-depth`, and `data-flick-deck-active` attributes let you drive CSS without re-rendering
+
+```tsx
+import FlickDeck from 'react-driftkit/FlickDeck';
+
+<FlickDeck defaultFrontId="overview" peek="bottom" peekSize={28}>
+  <Card key="overview">Overview</Card>
+  <Card key="details">Details</Card>
+  <Card key="stats">Stats</Card>
+</FlickDeck>
+```
+
+**Full API, more examples, and live demo →** <https://react-driftkit.saktichourasia.dev/flick-deck>
 
 ---
 
@@ -254,6 +314,8 @@ A draggable magnifier circle that zooms into whatever it hovers. Great for desig
 - **In-house devtools** — a built-in element picker for style audits, a11y audits, or click-to-log workflows
 - **Product image zoom** — magnifier scoped to a single image, follows the cursor, hides on leave
 - **Data table inspection** — drag a magnifier over dense tables, charts, or heatmaps to read small values without re-flowing the page
+- **Tip / onboarding stacks** — a deck of coachmark cards the user can flick through and swipe off one by one
+- **Comparison decks** — toggle between product plans, chart variants, or before/after states with a single click on the peek
 
 ## How it works
 
@@ -266,6 +328,8 @@ Under the hood all components use the [Pointer Events API](https://developer.moz
 `InspectorBubble` renders its overlay into `document.body` via a React portal. Pointer tracking uses `document.elementFromPoint` and skips anything with `pointer-events: none` — so the box-model layers, outline, and bubble never block hit-testing. Computed values come from `getComputedStyle`; WCAG contrast is computed from the element's own `color` and the first non-transparent `background-color` walking up its ancestors. The "rendered font" is the first entry from the declared `font-family` list that `document.fonts.check()` reports as loaded — the same heuristic tools like WhatFont use.
 
 `ZoomLens` live-clones either `document.body` (free mode) or a target element (target mode) into a portalled host, then applies a `translate()` + `scale()` transform so the point under the lens center maps to target-local — or document — coords. A `MutationObserver` rebuilds the clone when the real DOM changes, debounced to 150 ms and skipped during drag. In target mode, pointer tracking attaches directly to the target, and the lens overlay is `pointer-events: none` so hover state keeps passing through to the real element underneath.
+
+`FlickDeck` lays every card in a single CSS grid cell so the container auto-sizes to the largest card, then offsets back cards with pure `transform` — `translate` along the peek axis, plus `scale` (top/bottom peek) or `rotate` around the attached edge (left/right peek). Depth fade uses `opacity`. The front card's `key` is its id; a click or keyboard activation on a peek swaps ids with a CSS transition. Swipe-to-dismiss tracks pointer movement on the front card and fires `on.dismiss(id)` once the drag crosses `dismissThreshold` in the direction opposite the peek, leaving the consumer to remove that child.
 
 ## Contributing
 

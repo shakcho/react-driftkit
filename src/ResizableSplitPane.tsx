@@ -392,3 +392,5 @@ export function ResizableSplitPane({
     </div>
   );
 }
+
+export default ResizableSplitPane;
