@@ -30,7 +30,6 @@ Building a chat widget, floating toolbar, debug panel, or side dock? You want th
 | [`<SnapDock>`](#snapdock) | An edge-pinned dock that slides along any side of the viewport and flips orientation automatically between horizontal and vertical. |
 | [`<DraggableSheet>`](#draggablesheet) | A pull-up / pull-down sheet pinned to an edge with named snap points (`peek`, `half`, `full`) or arbitrary pixel / percentage stops. |
 | [`<ResizableSplitPane>`](#resizablesplitter) | An N-pane resizable split layout with draggable handles, min/max constraints, and localStorage-persisted ratios. |
-| [`<InspectorBubble>`](#inspectorbubble) | A Chrome-DevTools-style element picker overlay for design QA — hover to see tag, selector, dimensions, font, colors + WCAG contrast, box model, ARIA role, and accessible name. |
 | [`<ZoomLens>`](#zoomlens) | A draggable magnifier circle that zooms into whatever it hovers — free-drag over the whole page or scope it to one element (product-image-zoom style). Wheel to zoom, hotkey or Escape to dismiss. |
 | [`<FlickDeck>`](#flickdeck) | A stack of cards where each back card peeks from one edge. Click the peek to flick that card to the front, or optionally swipe the front card off to dismiss it. |
 
@@ -63,7 +62,7 @@ Every component is available two ways — both tree-shake to the same code.
 
 ```tsx
 // 1. Barrel import — grab multiple components at once
-import { MovableLauncher, SnapDock, InspectorBubble } from 'react-driftkit';
+import { MovableLauncher, SnapDock, ZoomLens } from 'react-driftkit';
 
 // 2. Per-component subpath — named or default, pick the style you prefer
 import { SnapDock } from 'react-driftkit/SnapDock';
@@ -81,7 +80,6 @@ import {
   SnapDock,
   DraggableSheet,
   ResizableSplitPane,
-  InspectorBubble,
   ZoomLens,
   FlickDeck,
 } from 'react-driftkit';
@@ -114,9 +112,6 @@ function App() {
         <Sidebar />
         <MainContent />
       </ResizableSplitPane>
-
-      {/* Chrome-DevTools-style element picker — press ⌘⇧C to inspect. */}
-      <InspectorBubble behavior={{ hotkey: 'cmd+shift+c' }} />
 
       {/* Magnifier scoped to one element — hover to zoom. */}
       <img ref={productRef} src="/product.jpg" alt="Product" />
@@ -184,7 +179,7 @@ import SnapDock from 'react-driftkit/SnapDock';
 
 ## DraggableSheet
 
-A pull-up / pull-down sheet pinned to an edge, with snap points like `peek`, `half`, and `full`. Built for mobile detail drawers, filter panels, and inspector flyouts — but works at any edge on any screen size.
+A pull-up / pull-down sheet pinned to an edge, with snap points like `peek`, `half`, and `full`. Built for mobile detail drawers, filter panels, and dev-tool flyouts — but works at any edge on any screen size.
 
 - **Named presets + raw values** — mix `'peek'`, `'half'`, `'full'`, pixel numbers, and `'40%'` strings in one `snapPoints` list
 - **Any edge** — `bottom` (default), `top`, `left`, or `right`; percentages resolve against the drag axis
@@ -223,29 +218,6 @@ import ResizableSplitPane from 'react-driftkit/ResizableSplitPane';
 ```
 
 **Full API, more examples, and live demo →** <https://react-driftkit.saktichourasia.dev/resizable-split-pane>
-
----
-
-## InspectorBubble
-
-A Chrome-DevTools-style element picker overlay for design QA. Turn it on, hover any DOM element, and the picker draws a highlight plus an info bubble showing tag, short CSS selector, dimensions, typography, effective colors with WCAG contrast, padding/margin, ARIA role, accessible name, and a11y state flags. Click to select; Escape or a hotkey to exit.
-
-- **DevTools-style box model** — 4-layer margin / border / padding / content overlay, or a single outline
-- **Rich info bubble** with tag, selector, dimensions, font + rendered family, WCAG contrast, spacing, ARIA role, accessible name, and a11y state
-- **Custom render** — take over the bubble with `bubble.render` and use the full `ElementInfo`
-- **Hotkey toggle**, ignore rules, and self-skipping overlay chrome
-
-```tsx
-import InspectorBubble from 'react-driftkit/InspectorBubble';
-
-<InspectorBubble
-  defaultActive
-  behavior={{ hotkey: 'cmd+shift+c' }}
-  on={{ select: (el, info) => console.log(info) }}
-/>
-```
-
-**Full API, more examples, and live demo →** <https://react-driftkit.saktichourasia.dev/inspector-bubble>
 
 ---
 
@@ -303,15 +275,12 @@ import FlickDeck from 'react-driftkit/FlickDeck';
 - **Floating toolbars** — draggable formatting bars or quick-action panels
 - **Side docks** — VS Code / Figma-style side rails that snap to any edge
 - **Mobile detail sheets** — pull-up drawers for details, filters, or carts
-- **Inspector panels** — developer tool drawers that expand between peek and full
 - **Code editors** — resizable file tree + editor + preview split layouts
 - **Admin dashboards** — adjustable sidebar and content regions
 - **Debug panels** — dev tool overlays that can be moved out of the way
 - **Media controls** — picture-in-picture style video or audio controls
 - **Notification centers** — persistent notification panels users can reposition
 - **Accessibility helpers** — movable assistive overlays
-- **Design QA tooling** — hover-inspect contrast, typography, spacing, ARIA role, and accessible name on any element
-- **In-house devtools** — a built-in element picker for style audits, a11y audits, or click-to-log workflows
 - **Product image zoom** — magnifier scoped to a single image, follows the cursor, hides on leave
 - **Data table inspection** — drag a magnifier over dense tables, charts, or heatmaps to read small values without re-flowing the page
 - **Tip / onboarding stacks** — a deck of coachmark cards the user can flick through and swipe off one by one
@@ -324,8 +293,6 @@ Under the hood all components use the [Pointer Events API](https://developer.moz
 `SnapDock`'s orientation flip uses a FLIP-style animation: it captures the old wrapper rect before the orientation changes, applies an inverse `scale()` anchored to the active edge, and animates back to identity in the next frame — so the dock glides between horizontal and vertical layouts instead of snapping.
 
 `ResizableSplitPane` uses a flexbox layout with `calc()` sizing. Dragging a handle only redistributes space between the two adjacent panes, leaving all others unchanged. Window resize events trigger re-clamping against min/max constraints.
-
-`InspectorBubble` renders its overlay into `document.body` via a React portal. Pointer tracking uses `document.elementFromPoint` and skips anything with `pointer-events: none` — so the box-model layers, outline, and bubble never block hit-testing. Computed values come from `getComputedStyle`; WCAG contrast is computed from the element's own `color` and the first non-transparent `background-color` walking up its ancestors. The "rendered font" is the first entry from the declared `font-family` list that `document.fonts.check()` reports as loaded — the same heuristic tools like WhatFont use.
 
 `ZoomLens` live-clones either `document.body` (free mode) or a target element (target mode) into a portalled host, then applies a `translate()` + `scale()` transform so the point under the lens center maps to target-local — or document — coords. A `MutationObserver` rebuilds the clone when the real DOM changes, debounced to 150 ms and skipped during drag. In target mode, pointer tracking attaches directly to the target, and the lens overlay is `pointer-events: none` so hover state keeps passing through to the real element underneath.
 

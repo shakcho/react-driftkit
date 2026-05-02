@@ -50,10 +50,6 @@ const COLORS = {
   muted: '#94a3b8',
   accent: '#818cf8',
   accentMuted: 'rgba(129,140,248,0.25)',
-  layerMargin: 'rgba(249,168,37,0.45)',
-  layerBorder: 'rgba(252,211,77,0.55)',
-  layerPadding: 'rgba(134,239,172,0.55)',
-  layerContent: 'rgba(147,197,253,0.60)',
 };
 
 /* ── illustrations ───────────────────────────────────────────────────── */
@@ -195,57 +191,6 @@ const illustrations = {
       ),
     ),
 
-  inspector: () => {
-    const layer = (color, label, inset) =>
-      box(
-        {
-          position: 'absolute',
-          top: inset,
-          left: inset,
-          right: inset,
-          bottom: inset,
-          border: `2px dashed ${color}`,
-          borderRadius: 8,
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-start',
-          padding: 6,
-          color,
-          fontSize: 13,
-          fontWeight: 700,
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
-        },
-        label,
-      );
-    return viewport(
-      box(
-        { width: '100%', height: '100%', position: 'relative', display: 'flex' },
-        layer(COLORS.layerMargin, 'margin', 20),
-        layer(COLORS.layerBorder, 'border', 50),
-        layer(COLORS.layerPadding, 'padding', 80),
-        box(
-          {
-            position: 'absolute',
-            top: 110,
-            left: 110,
-            right: 110,
-            bottom: 110,
-            background: COLORS.layerContent,
-            borderRadius: 6,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#0b1020',
-            fontSize: 14,
-            fontWeight: 700,
-          },
-          'content',
-        ),
-      ),
-    );
-  },
-
   zoomlens: () => {
     // Geometric illustration in the same flat style as the other OG cards:
     // a rainbow grid of small tiles in the background, with a circular
@@ -376,7 +321,7 @@ const illustrations = {
       box(
         { gap: 14, flex: 1 },
         miniTile('Splitter', '#f9a8d4', miniSplitter()),
-        miniTile('Inspector', '#7dd3fc', miniInspector()),
+        miniTile('ZoomLens', '#7dd3fc', miniZoomLens()),
         miniTile('+ more', COLORS.muted, miniWordmark(), true),
       ),
     ),
@@ -468,30 +413,16 @@ function miniSplitter() {
     box({ width: '25%', background: 'rgba(34,197,94,0.25)' }),
   );
 }
-function miniInspector() {
-  const layer = (color, inset) =>
-    box({
-      position: 'absolute',
-      top: inset,
-      left: inset,
-      right: inset,
-      bottom: inset,
-      border: `1px dashed ${color}`,
-      borderRadius: 3,
-    });
+function miniZoomLens() {
   return box(
-    { width: '100%', height: '100%', position: 'relative' },
-    layer(COLORS.layerMargin, 2),
-    layer(COLORS.layerBorder, 8),
-    layer(COLORS.layerPadding, 14),
+    { width: '100%', height: '100%', position: 'relative', alignItems: 'center', justifyContent: 'center' },
     box({
-      position: 'absolute',
-      top: 20,
-      left: 20,
-      right: 20,
-      bottom: 20,
-      background: COLORS.layerContent,
-      borderRadius: 2,
+      width: 28,
+      height: 28,
+      borderRadius: 999,
+      border: `2px solid ${COLORS.accent}`,
+      background: 'rgba(129,140,248,0.18)',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.35)',
     }),
   );
 }
@@ -614,7 +545,7 @@ const pages = [
     slug: 'home',
     kind: 'home',
     title: 'Floating UI primitives for React',
-    tagline: 'Draggable launchers, docks, sheets, split panes, a DevTools-style inspector, and a zoom lens. Tree-shakable and unstyled.',
+    tagline: 'Draggable launchers, docks, sheets, split panes, a zoom lens, and a flick deck. Tree-shakable and unstyled.',
   },
   {
     slug: 'movable-launcher',
@@ -639,12 +570,6 @@ const pages = [
     kind: 'splitter',
     title: 'ResizableSplitPane',
     tagline: 'An N-pane resizable layout with draggable handles, min/max constraints, and localStorage persistence.',
-  },
-  {
-    slug: 'inspector-bubble',
-    kind: 'inspector',
-    title: 'InspectorBubble',
-    tagline: 'A Chrome-DevTools-style element picker. Tag, selector, font, WCAG contrast, ARIA role and accessible name.',
   },
   {
     slug: 'zoom-lens',

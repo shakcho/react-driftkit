@@ -11,7 +11,7 @@ const importStyles = [
   {
     key: 'barrel',
     label: 'Barrel',
-    code: `import { SnapDock, InspectorBubble } from 'react-driftkit';`,
+    code: `import { SnapDock, ZoomLens } from 'react-driftkit';`,
   },
   {
     key: 'subpath-named',

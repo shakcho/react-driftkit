@@ -48,16 +48,6 @@ export function SplitterIcon({ size = 16, strokeWidth = 2 }: IconProps) {
   );
 }
 
-export function InspectorIcon({ size = 16, strokeWidth = 2 }: IconProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="6" y="6" width="20" height="20" rx="2" opacity="0.35" />
-      <path d="M22 22l5 5 3-2-5-5z" />
-      <path d="M16 10v2M10 16h2" />
-    </svg>
-  );
-}
-
 export function ZoomLensIcon({ size = 16, strokeWidth = 2 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

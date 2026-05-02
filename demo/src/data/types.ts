@@ -17,7 +17,7 @@ export type CodeExample = {
 };
 
 export type ComponentMeta = {
-  key: 'launcher' | 'dock' | 'sheet' | 'splitter' | 'inspector' | 'zoomlens' | 'flickdeck';
+  key: 'launcher' | 'dock' | 'sheet' | 'splitter' | 'zoomlens' | 'flickdeck';
   slug: string;
   title: string;
   tagline: string;
