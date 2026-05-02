@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, InspectorIcon, ZoomLensIcon, FlickDeckIcon, ChevronDownIcon } from './Icons';
+import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, ZoomLensIcon, FlickDeckIcon, ChevronDownIcon } from './Icons';
 
-export type ComponentKey = 'launcher' | 'dock' | 'sheet' | 'splitter' | 'inspector' | 'zoomlens' | 'flickdeck';
+export type ComponentKey = 'launcher' | 'dock' | 'sheet' | 'splitter' | 'zoomlens' | 'flickdeck';
 
 const items: { key: ComponentKey; label: string; href: string; icon: ReactNode }[] = [
-  { key: 'inspector', label: 'InspectorBubble',     href: '/inspector-bubble',     icon: <InspectorIcon size={16} /> },
   { key: 'zoomlens',  label: 'ZoomLens',            href: '/zoom-lens',            icon: <ZoomLensIcon size={16} /> },
   { key: 'flickdeck', label: 'FlickDeck',           href: '/flick-deck',           icon: <FlickDeckIcon size={16} /> },
   { key: 'launcher',  label: 'MovableLauncher',     href: '/movable-launcher',     icon: <MoveIcon size={16} strokeWidth={2.2} /> },

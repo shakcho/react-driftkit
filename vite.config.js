@@ -14,7 +14,6 @@ export default defineConfig({
         SnapDock: resolve(__dirname, 'src/SnapDock.tsx'),
         DraggableSheet: resolve(__dirname, 'src/DraggableSheet.tsx'),
         ResizableSplitPane: resolve(__dirname, 'src/ResizableSplitPane.tsx'),
-        InspectorBubble: resolve(__dirname, 'src/InspectorBubble.tsx'),
         ZoomLens: resolve(__dirname, 'src/ZoomLens.tsx'),
         FlickDeck: resolve(__dirname, 'src/FlickDeck.tsx'),
       },

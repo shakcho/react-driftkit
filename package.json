@@ -33,11 +33,6 @@
       "import": "./dist/ResizableSplitPane.js",
       "require": "./dist/ResizableSplitPane.cjs"
     },
-    "./InspectorBubble": {
-      "types": "./dist/InspectorBubble.d.ts",
-      "import": "./dist/InspectorBubble.js",
-      "require": "./dist/InspectorBubble.cjs"
-    },
     "./ZoomLens": {
       "types": "./dist/ZoomLens.d.ts",
       "import": "./dist/ZoomLens.js",
