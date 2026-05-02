@@ -6,7 +6,7 @@ react-driftkit is an npm package for React apps that need floating UI primitives
 
 Canonical package facts:
 - Package name: `react-driftkit`
-- Current documented version: `0.7.1`
+- Current documented version: `0.7.2`
 - Install: `npm install react-driftkit`
 - Runtime dependencies: none
 - Peer dependencies: `react@^18 || ^19`, `react-dom@^18 || ^19`
