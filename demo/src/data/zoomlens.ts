@@ -131,7 +131,10 @@ export const zoomLensMeta: ComponentMeta = {
   tagline:
     'A draggable magnifier circle that zooms into whatever it hovers. Great for design review, image inspection, or dense data tables. Drag to move, scroll to zoom, Escape or a hotkey to exit.',
   metaDescription:
-    'ZoomLens — a draggable magnifier circle for React. Live-clones the page into a circular lens, drag to reposition, scroll to change zoom, Escape or hotkey to dismiss. Tree-shakable, unstyled, zero runtime deps.',
+    'ZoomLens is a React image magnifier & zoom-lens component — draggable magnifier circle for product images, design review, dense data tables, or map inspection. Free-drag or scope to a single element (product zoom). Wheel to zoom, Escape to dismiss. React 18 & React 19.',
+  seoDescriptor: 'React Image Magnifier & Zoom Lens Component',
+  seoKeywords:
+    'react image magnifier, react zoom lens, react product image zoom, react magnifier component, react ecommerce zoom, react design review tool, react draggable magnifier, react-driftkit ZoomLens',
   apiRows: [
     { prop: 'active', typeHtml: '<code>boolean</code>', defaultHtml: '—', descriptionHtml: 'Controlled active state. Omit for uncontrolled.' },
     { prop: 'defaultActive', typeHtml: '<code>boolean</code>', defaultHtml: '<code>false</code>', descriptionHtml: 'Uncontrolled initial active state.' },

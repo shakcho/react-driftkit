@@ -8,24 +8,15 @@ import GitHubCTA from '../components/GitHubCTA.astro';
 import { SheetIcon } from '../components/islands/Icons';
 import SheetDemo from '../components/islands/SheetDemo';
 import { sheetMeta } from '../data/sheet';
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareSourceCode',
-  name: 'react-driftkit / DraggableSheet',
-  description: sheetMeta.tagline,
-  codeRepository: 'https://github.com/shakcho/react-drift',
-  programmingLanguage: 'TypeScript',
-  runtimePlatform: 'React 18, React 19',
-  url: 'https://react-driftkit.saktichourasia.dev/draggable-sheet',
-};
+import { componentJsonLd, componentPageTitle } from '../lib/seo';
 ---
 
 <Layout
-  title={`${sheetMeta.title} — react-driftkit`}
+  title={componentPageTitle(sheetMeta)}
   description={sheetMeta.metaDescription}
   path={`/${sheetMeta.slug}`}
-  jsonLd={jsonLd}
+  keywords={sheetMeta.seoKeywords}
+  jsonLd={componentJsonLd(sheetMeta)}
   activeComponent="sheet"
   ogSlug={sheetMeta.slug}
 >

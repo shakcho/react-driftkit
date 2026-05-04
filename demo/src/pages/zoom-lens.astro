@@ -8,24 +8,15 @@ import GitHubCTA from '../components/GitHubCTA.astro';
 import { ZoomLensIcon } from '../components/islands/Icons';
 import ZoomLensDemo from '../components/islands/ZoomLensDemo';
 import { zoomLensMeta } from '../data/zoomlens';
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareSourceCode',
-  name: 'react-driftkit / ZoomLens',
-  description: zoomLensMeta.tagline,
-  codeRepository: 'https://github.com/shakcho/react-drift',
-  programmingLanguage: 'TypeScript',
-  runtimePlatform: 'React 18, React 19',
-  url: 'https://react-driftkit.saktichourasia.dev/zoom-lens',
-};
+import { componentJsonLd, componentPageTitle } from '../lib/seo';
 ---
 
 <Layout
-  title={`${zoomLensMeta.title} — react-driftkit`}
+  title={componentPageTitle(zoomLensMeta)}
   description={zoomLensMeta.metaDescription}
   path={`/${zoomLensMeta.slug}`}
-  jsonLd={jsonLd}
+  keywords={zoomLensMeta.seoKeywords}
+  jsonLd={componentJsonLd(zoomLensMeta)}
   activeComponent="zoomlens"
   ogSlug={zoomLensMeta.slug}
 >

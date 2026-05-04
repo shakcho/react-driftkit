@@ -8,24 +8,15 @@ import GitHubCTA from '../components/GitHubCTA.astro';
 import { FlickDeckIcon } from '../components/islands/Icons';
 import FlickDeckDemo from '../components/islands/FlickDeckDemo';
 import { flickDeckMeta } from '../data/flickdeck';
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareSourceCode',
-  name: 'react-driftkit / FlickDeck',
-  description: flickDeckMeta.tagline,
-  codeRepository: 'https://github.com/shakcho/react-drift',
-  programmingLanguage: 'TypeScript',
-  runtimePlatform: 'React 18, React 19',
-  url: 'https://react-driftkit.saktichourasia.dev/flick-deck',
-};
+import { componentJsonLd, componentPageTitle } from '../lib/seo';
 ---
 
 <Layout
-  title={`${flickDeckMeta.title} — react-driftkit`}
+  title={componentPageTitle(flickDeckMeta)}
   description={flickDeckMeta.metaDescription}
   path={`/${flickDeckMeta.slug}`}
-  jsonLd={jsonLd}
+  keywords={flickDeckMeta.seoKeywords}
+  jsonLd={componentJsonLd(flickDeckMeta)}
   activeComponent="flickdeck"
   ogSlug={flickDeckMeta.slug}
 >

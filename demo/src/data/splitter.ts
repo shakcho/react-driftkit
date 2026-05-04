@@ -122,7 +122,10 @@ export const splitterMeta: ComponentMeta = {
   tagline:
     'An N-pane split view with draggable handles and a single render prop for custom handle UI. Supports min/max constraints, persisted sizes, and both horizontal and vertical layouts.',
   metaDescription:
-    'ResizableSplitPane — an N-pane resizable split layout for React with draggable handles, min/max constraints, localStorage persistence, and controlled/uncontrolled modes.',
+    'ResizableSplitPane is a React resizable split pane component for IDE-style layouts — N panes, draggable handles, min/max constraints, localStorage-persisted ratios, horizontal & vertical orientations. Tree-shakable, unstyled, TypeScript-first, React 18 & React 19.',
+  seoDescriptor: 'React Resizable Split Pane (N-Pane Layout) Component',
+  seoKeywords:
+    'react resizable split pane, react split view, react split pane component, react resizable panes, react ide layout, react allotment alternative, react split.js alternative, react-driftkit ResizableSplitPane',
   apiRows: [
     { prop: 'children', typeHtml: '<code>ReactNode[]</code>', defaultHtml: '—', descriptionHtml: 'Two or more child elements to render in the split panes.' },
     { prop: 'orientation', typeHtml: "<code>'horizontal' | 'vertical'</code>", defaultHtml: "<code>'horizontal'</code>", descriptionHtml: "Split direction. 'horizontal' puts panes side-by-side; 'vertical' stacks them." },

@@ -77,7 +77,10 @@ export const dockMeta: ComponentMeta = {
   tagline:
     'An edge-pinned dock that slides along any side of the viewport and flips orientation automatically between horizontal and vertical layouts.',
   metaDescription:
-    'SnapDock — an edge-pinned React dock that snaps to left, right, top, or bottom. Horizontal/vertical layout flip, drag offset, unstyled primitive for React 18 and 19.',
+    'SnapDock is a React floating dock / sidebar component — edge-pinned to left, right, top, or bottom of the viewport with automatic orientation flip between horizontal and vertical. Tree-shakable, unstyled, TypeScript-first, React 18 & React 19.',
+  seoDescriptor: 'React Floating Dock & Edge-Pinned Toolbar',
+  seoKeywords:
+    'react dock component, react floating toolbar, react sidebar component, react edge dock, react snap to edge, react vertical toolbar, react app dock, react-driftkit SnapDock',
   apiRows: [
     { prop: 'children', typeHtml: '<code>ReactNode</code>', defaultHtml: '—', descriptionHtml: 'Content rendered inside the dock.' },
     { prop: 'defaultEdge', typeHtml: "<code>'left' | 'right' | 'top' | 'bottom'</code>", defaultHtml: "<code>'left'</code>", descriptionHtml: 'Which edge the dock pins to initially.' },

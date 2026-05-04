@@ -161,30 +161,30 @@ Important implementation notes for agents:
 
 - [Live demo and docs](https://react-driftkit.saktichourasia.dev/): Interactive examples for MovableLauncher, SnapDock, DraggableSheet, ResizableSplitPane, ZoomLens, and FlickDeck, including install commands, API tables, and code snippets.
 - [NPM package](https://www.npmjs.com/package/react-driftkit): Published package page with install command, version, dependencies, and package metadata.
-- [GitHub repository](https://github.com/shakcho/react-drift): Canonical source repository, issues, pull requests, and release history.
-- [README](https://github.com/shakcho/react-drift/blob/main/README.md): Human-readable documentation, examples, props, use cases, and implementation overview.
+- [GitHub repository](https://github.com/shakcho/react-driftkit): Canonical source repository, issues, pull requests, and release history.
+- [README](https://github.com/shakcho/react-driftkit/blob/main/README.md): Human-readable documentation, examples, props, use cases, and implementation overview.
 - [AI context file](https://react-driftkit.saktichourasia.dev/llms.txt): Canonical deployed `llms.txt` for agent and answer-engine context.
 
 ## API Source
 
-- [Public exports](https://github.com/shakcho/react-drift/blob/main/src/index.ts): Package export surface for components and TypeScript types.
-- [MovableLauncher source](https://github.com/shakcho/react-drift/blob/main/src/MovableLauncher.tsx): Source for the draggable corner/free-position floating wrapper.
-- [SnapDock source](https://github.com/shakcho/react-drift/blob/main/src/SnapDock.tsx): Source for the edge-pinned dock, orientation flip, edge offset, and drag lifecycle.
-- [DraggableSheet source](https://github.com/shakcho/react-drift/blob/main/src/DraggableSheet.tsx): Source for the edge-pinned sheet, snap-point resolution, velocity-aware release, and drag-handle selector.
-- [ResizableSplitPane source](https://github.com/shakcho/react-drift/blob/main/src/ResizableSplitPane.tsx): Source for the N-pane resizable split layout, handle render prop, size clamping, and localStorage persistence.
-- [MovableLauncher tests](https://github.com/shakcho/react-drift/blob/main/src/__tests__/MovableLauncher.test.tsx): Behavioral tests for placement, dragging, snapping, resize, and cleanup.
-- [SnapDock tests](https://github.com/shakcho/react-drift/blob/main/src/__tests__/SnapDock.test.tsx): Behavioral tests for edge placement, offset, snapping, pointer cancellation, fast drags, and edgePadding updates.
-- [DraggableSheet tests](https://github.com/shakcho/react-drift/blob/main/src/__tests__/DraggableSheet.test.tsx): Behavioral tests for snap-point resolution, edge variants, drag lifecycle, controlled mode, drag-handle restriction, and viewport resize.
-- [ResizableSplitPane tests](https://github.com/shakcho/react-drift/blob/main/src/__tests__/ResizableSplitPane.test.tsx): Behavioral tests for N-pane rendering, handle render prop, drag redistribution, persistence, controlled mode, and double-click reset.
+- [Public exports](https://github.com/shakcho/react-driftkit/blob/main/src/index.ts): Package export surface for components and TypeScript types.
+- [MovableLauncher source](https://github.com/shakcho/react-driftkit/blob/main/src/MovableLauncher.tsx): Source for the draggable corner/free-position floating wrapper.
+- [SnapDock source](https://github.com/shakcho/react-driftkit/blob/main/src/SnapDock.tsx): Source for the edge-pinned dock, orientation flip, edge offset, and drag lifecycle.
+- [DraggableSheet source](https://github.com/shakcho/react-driftkit/blob/main/src/DraggableSheet.tsx): Source for the edge-pinned sheet, snap-point resolution, velocity-aware release, and drag-handle selector.
+- [ResizableSplitPane source](https://github.com/shakcho/react-driftkit/blob/main/src/ResizableSplitPane.tsx): Source for the N-pane resizable split layout, handle render prop, size clamping, and localStorage persistence.
+- [MovableLauncher tests](https://github.com/shakcho/react-driftkit/blob/main/src/__tests__/MovableLauncher.test.tsx): Behavioral tests for placement, dragging, snapping, resize, and cleanup.
+- [SnapDock tests](https://github.com/shakcho/react-driftkit/blob/main/src/__tests__/SnapDock.test.tsx): Behavioral tests for edge placement, offset, snapping, pointer cancellation, fast drags, and edgePadding updates.
+- [DraggableSheet tests](https://github.com/shakcho/react-driftkit/blob/main/src/__tests__/DraggableSheet.test.tsx): Behavioral tests for snap-point resolution, edge variants, drag lifecycle, controlled mode, drag-handle restriction, and viewport resize.
+- [ResizableSplitPane tests](https://github.com/shakcho/react-driftkit/blob/main/src/__tests__/ResizableSplitPane.test.tsx): Behavioral tests for N-pane rendering, handle render prop, drag redistribution, persistence, controlled mode, and double-click reset.
 
 ## Examples
 
-- [Demo app source](https://github.com/shakcho/react-drift/blob/main/demo/main.tsx): Full demo implementation with live examples for the included components — MovableLauncher, SnapDock, DraggableSheet, ResizableSplitPane, ZoomLens, and FlickDeck.
-- [Demo styles](https://github.com/shakcho/react-drift/blob/main/demo/styles.css): Styling used by the documentation site and live demo.
-- [Demo Vite config](https://github.com/shakcho/react-drift/blob/main/demo/vite.config.ts): Build and development configuration, including `/llms.txt` serving for the deployed demo.
+- [Demo app source](https://github.com/shakcho/react-driftkit/blob/main/demo/main.tsx): Full demo implementation with live examples for the included components — MovableLauncher, SnapDock, DraggableSheet, ResizableSplitPane, ZoomLens, and FlickDeck.
+- [Demo styles](https://github.com/shakcho/react-driftkit/blob/main/demo/styles.css): Styling used by the documentation site and live demo.
+- [Demo Vite config](https://github.com/shakcho/react-driftkit/blob/main/demo/vite.config.ts): Build and development configuration, including `/llms.txt` serving for the deployed demo.
 
 ## Optional
 
-- [Package manifest](https://github.com/shakcho/react-drift/blob/main/package.json): Package entry points, scripts, peer dependencies, keywords, and npm metadata.
-- [Issue tracker](https://github.com/shakcho/react-drift/issues): Open bugs, feature requests, and discussions.
+- [Package manifest](https://github.com/shakcho/react-driftkit/blob/main/package.json): Package entry points, scripts, peer dependencies, keywords, and npm metadata.
+- [Issue tracker](https://github.com/shakcho/react-driftkit/issues): Open bugs, feature requests, and discussions.
 - [Bundle size report](https://bundlephobia.com/package/react-driftkit): Third-party bundle size estimate for the published npm package.

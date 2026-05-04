@@ -8,24 +8,15 @@ import GitHubCTA from '../components/GitHubCTA.astro';
 import { MoveIcon } from '../components/islands/Icons';
 import LauncherDemo from '../components/islands/LauncherDemo';
 import { launcherMeta } from '../data/launcher';
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareSourceCode',
-  name: 'react-driftkit / MovableLauncher',
-  description: launcherMeta.tagline,
-  codeRepository: 'https://github.com/shakcho/react-drift',
-  programmingLanguage: 'TypeScript',
-  runtimePlatform: 'React 18, React 19',
-  url: 'https://react-driftkit.saktichourasia.dev/movable-launcher',
-};
+import { componentJsonLd, componentPageTitle } from '../lib/seo';
 ---
 
 <Layout
-  title={`${launcherMeta.title} — react-driftkit`}
+  title={componentPageTitle(launcherMeta)}
   description={launcherMeta.metaDescription}
   path={`/${launcherMeta.slug}`}
-  jsonLd={jsonLd}
+  keywords={launcherMeta.seoKeywords}
+  jsonLd={componentJsonLd(launcherMeta)}
   activeComponent="launcher"
   ogSlug={launcherMeta.slug}
 >

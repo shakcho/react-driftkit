@@ -8,24 +8,15 @@ import GitHubCTA from '../components/GitHubCTA.astro';
 import { SplitterIcon } from '../components/islands/Icons';
 import SplitterDemo from '../components/islands/SplitterDemo';
 import { splitterMeta } from '../data/splitter';
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareSourceCode',
-  name: 'react-driftkit / ResizableSplitPane',
-  description: splitterMeta.tagline,
-  codeRepository: 'https://github.com/shakcho/react-drift',
-  programmingLanguage: 'TypeScript',
-  runtimePlatform: 'React 18, React 19',
-  url: 'https://react-driftkit.saktichourasia.dev/resizable-split-pane',
-};
+import { componentJsonLd, componentPageTitle } from '../lib/seo';
 ---
 
 <Layout
-  title={`${splitterMeta.title} — react-driftkit`}
+  title={componentPageTitle(splitterMeta)}
   description={splitterMeta.metaDescription}
   path={`/${splitterMeta.slug}`}
-  jsonLd={jsonLd}
+  keywords={splitterMeta.seoKeywords}
+  jsonLd={componentJsonLd(splitterMeta)}
   activeComponent="splitter"
   ogSlug={splitterMeta.slug}
 >

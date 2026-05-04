@@ -113,7 +113,10 @@ export const flickDeckMeta: ComponentMeta = {
   tagline:
     'A stack of cards where each back card peeks from one edge — receding into depth for top/bottom peek, fanning out at an angle for left/right. Click the peek to flick that card to the front, or optionally swipe the front card off to dismiss it. Useful for toggles between views, tip stacks, and side-by-side comparisons.',
   metaDescription:
-    'FlickDeck — a stacked card component for React. Back cards peek from a configurable edge, click the peek to flick it forward with a smooth transition, optional swipe-to-dismiss. Controlled or uncontrolled, unstyled, zero runtime deps.',
+    'FlickDeck is a React card stack & swipeable cards component — back cards peek from a configurable edge, click the peek to flick it forward, optional swipe-to-dismiss. Useful for tip stacks, view toggles, side-by-side comparisons, and onboarding flows. React 18 & React 19.',
+  seoDescriptor: 'React Card Stack & Swipeable Cards Component',
+  seoKeywords:
+    'react card stack, react swipeable cards, react card deck, react tinder cards alternative, react onboarding cards, react flick deck, react peek cards, react-driftkit FlickDeck',
   apiRows: [
     { prop: 'frontId', typeHtml: '<code>string</code>', defaultHtml: '—', descriptionHtml: "Controlled id of the front card — matches a child's React <code>key</code>. Omit for uncontrolled." },
     { prop: 'defaultFrontId', typeHtml: '<code>string</code>', defaultHtml: '—', descriptionHtml: "Uncontrolled initial front card id. Falls back to the first child's key if unset." },
