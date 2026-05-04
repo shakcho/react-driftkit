@@ -2,15 +2,16 @@
 
 # react-driftkit
 
-**Small, focused building blocks for floating UI in React.**
-Tree-shakable, unstyled, one component per job.
+**A tree-shakable React component library for floating UI: draggable widgets, an edge-pinned dock, a draggable bottom sheet, an N-pane resizable split pane, an image magnifier (zoom lens), and a peek-and-flick card stack.**
+
+Unstyled, TypeScript-first, zero dependencies, React 18 & React 19.
 
 [![npm version](https://img.shields.io/npm/v/react-driftkit)](https://www.npmjs.com/package/react-driftkit)
 [![npm downloads](https://img.shields.io/npm/dm/react-driftkit)](https://www.npmjs.com/package/react-driftkit)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/react-driftkit)](https://bundlephobia.com/package/react-driftkit)
 [![license](https://img.shields.io/npm/l/react-driftkit)](./LICENSE)
 
-[Live Demo](https://react-driftkit.saktichourasia.dev/) · [NPM](https://www.npmjs.com/package/react-driftkit) · [GitHub](https://github.com/shakcho/react-drift)
+[Live Demo](https://react-driftkit.saktichourasia.dev/) · [NPM](https://www.npmjs.com/package/react-driftkit) · [GitHub](https://github.com/shakcho/react-driftkit)
 
 </div>
 
@@ -26,12 +27,12 @@ Building a chat widget, floating toolbar, debug panel, or side dock? You want th
 
 | Component | What it does |
 |-----------|--------------|
-| [`<MovableLauncher>`](#movablelauncher) | A draggable floating wrapper that pins to any viewport corner or lives at custom `{x, y}` — drop-anywhere with optional snap-on-release. |
-| [`<SnapDock>`](#snapdock) | An edge-pinned dock that slides along any side of the viewport and flips orientation automatically between horizontal and vertical. |
-| [`<DraggableSheet>`](#draggablesheet) | A pull-up / pull-down sheet pinned to an edge with named snap points (`peek`, `half`, `full`) or arbitrary pixel / percentage stops. |
-| [`<ResizableSplitPane>`](#resizablesplitter) | An N-pane resizable split layout with draggable handles, min/max constraints, and localStorage-persisted ratios. |
-| [`<ZoomLens>`](#zoomlens) | A draggable magnifier circle that zooms into whatever it hovers — free-drag over the whole page or scope it to one element (product-image-zoom style). Wheel to zoom, hotkey or Escape to dismiss. |
-| [`<FlickDeck>`](#flickdeck) | A stack of cards where each back card peeks from one edge. Click the peek to flick that card to the front, or optionally swipe the front card off to dismiss it. |
+| [`<MovableLauncher>`](#movablelauncher) | **React draggable floating widget** — pin a chat bubble, AI assistant, debug panel, or toolbar to any viewport corner with snap-on-release. |
+| [`<SnapDock>`](#snapdock) | **React floating dock / edge-pinned toolbar** — slides along any side of the viewport and flips orientation between horizontal and vertical. |
+| [`<DraggableSheet>`](#draggablesheet) | **React bottom sheet & pull-up drawer** — `peek`, `half`, `full` snap points, velocity-aware release. Mobile-style filters, cart drawers, detail panels. |
+| [`<ResizableSplitPane>`](#resizablesplitter) | **React resizable split pane** — N-pane IDE-style layout with draggable handles, min/max constraints, and localStorage-persisted ratios. |
+| [`<ZoomLens>`](#zoomlens) | **React image magnifier / zoom lens** — free-drag over the whole page or scope to one element (product-image zoom). Wheel to zoom, Escape to dismiss. |
+| [`<FlickDeck>`](#flickdeck) | **React card stack & swipeable cards** — back cards peek from one edge, click the peek to flick it forward; optional swipe-to-dismiss. |
 
 ## Installation
 
@@ -286,6 +287,20 @@ import FlickDeck from 'react-driftkit/FlickDeck';
 - **Tip / onboarding stacks** — a deck of coachmark cards the user can flick through and swipe off one by one
 - **Comparison decks** — toggle between product plans, chart variants, or before/after states with a single click on the peek
 
+## Looking for…
+
+If you're searching for any of these, react-driftkit has a primitive for it:
+
+- **React draggable component** / **react draggable widget** → [`MovableLauncher`](#movablelauncher)
+- **React chat widget** / **floating support button** → [`MovableLauncher`](#movablelauncher) + your UI
+- **React floating dock** / **react sidebar** / **react vertical toolbar** → [`SnapDock`](#snapdock)
+- **React bottom sheet** / **react pull-up drawer** / **mobile sheet** → [`DraggableSheet`](#draggablesheet)
+- **React resizable split pane** / **react split view** / **alternative to allotment, react-split-pane, react-resizable-panels** → [`ResizableSplitPane`](#resizablesplitter)
+- **React image magnifier** / **react product zoom** / **ecommerce hover zoom** → [`ZoomLens`](#zoomlens)
+- **React card stack** / **swipeable cards** / **alternative to react-tinder-card** → [`FlickDeck`](#flickdeck)
+
+Each one is independently importable, ships unstyled, and works with React 18 and React 19.
+
 ## How it works
 
 Under the hood all components use the [Pointer Events API](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events) for universal input handling. `MovableLauncher`, `SnapDock`, and `DraggableSheet` render as `position: fixed` elements at the top of the z-index stack (`2147483647`) and use a `ResizeObserver` to stay pinned when their content changes size.
@@ -303,8 +318,8 @@ Under the hood all components use the [Pointer Events API](https://developer.moz
 Contributions are welcome. Open an issue or send a pull request.
 
 ```bash
-git clone https://github.com/shakcho/react-drift.git
-cd react-drift
+git clone https://github.com/shakcho/react-driftkit.git
+cd react-driftkit
 npm install
 npm run dev      # Start the demo app
 npm test         # Run the test suite
