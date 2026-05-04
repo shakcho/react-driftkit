@@ -87,7 +87,10 @@ export const launcherMeta: ComponentMeta = {
   tagline:
     'A draggable floating wrapper that lets users pick up any widget and drop it anywhere on the viewport — or snap it to the nearest corner on release.',
   metaDescription:
-    'MovableLauncher — a tree-shakable draggable floating wrapper for React. Corner snapping, free positioning, pointer-event based, unstyled, TypeScript-first, React 18 and 19.',
+    'MovableLauncher is a React draggable floating widget component — pin a chat bubble, AI assistant, debug panel, or toolbar to any viewport corner with snap-on-release. Tree-shakable, unstyled, TypeScript-first, React 18 & React 19.',
+  seoDescriptor: 'React Draggable Floating Widget Component',
+  seoKeywords:
+    'react draggable component, react draggable widget, react floating widget, react chat widget, react draggable corner, react snap to corner, react draggable launcher, react-driftkit MovableLauncher',
   apiRows: [
     { prop: 'children', typeHtml: '<code>ReactNode</code>', defaultHtml: '—', descriptionHtml: 'Content rendered inside the draggable container.' },
     {

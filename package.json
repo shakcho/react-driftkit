@@ -58,11 +58,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/shakcho/react-drift.git"
+    "url": "https://github.com/shakcho/react-driftkit.git"
   },
   "homepage": "https://react-driftkit.saktichourasia.dev/",
   "bugs": {
-    "url": "https://github.com/shakcho/react-drift/issues"
+    "url": "https://github.com/shakcho/react-driftkit/issues"
   },
   "author": "Sakti Kumar Chourasia",
   "peerDependencies": {
@@ -88,15 +88,42 @@
   },
   "keywords": [
     "react",
+    "react18",
+    "react19",
+    "typescript",
+    "driftkit",
+    "react-driftkit",
+    "ui",
+    "ui-components",
+    "ui-library",
+    "tree-shakable",
+    "unstyled",
+    "floating",
+    "floating-ui",
     "draggable",
     "movable",
     "widget",
-    "driftkit",
-    "floating",
-    "floating-ui",
+    "chat-widget",
+    "launcher",
     "dock",
     "toolbar",
-    "chat-widget"
+    "sidebar",
+    "bottom-sheet",
+    "drawer",
+    "pull-up-sheet",
+    "split-pane",
+    "split-view",
+    "resizable",
+    "resizable-panels",
+    "allotment",
+    "magnifier",
+    "zoom",
+    "zoom-lens",
+    "image-zoom",
+    "product-zoom",
+    "card-stack",
+    "swipeable-cards",
+    "flick-deck"
   ],
   "license": "MIT"
 }

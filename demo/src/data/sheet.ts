@@ -96,7 +96,10 @@ export const sheetMeta: ComponentMeta = {
   tagline:
     'A pull-up / pull-down sheet pinned to an edge with snap points like peek, half, and full. Great for mobile-style details, filters, or cart drawers.',
   metaDescription:
-    'DraggableSheet — an edge-pinned React sheet with named and custom snap points, velocity-aware release, and a drag-handle selector. Unstyled, TypeScript-first, React 18 and 19.',
+    'DraggableSheet is a React bottom sheet & pull-up drawer component — peek, half, and full snap points, velocity-aware release, drag-handle selector. Mobile-style filters, cart drawers, and detail panels. Unstyled, TypeScript-first, React 18 & React 19.',
+  seoDescriptor: 'React Bottom Sheet & Pull-Up Drawer Component',
+  seoKeywords:
+    'react bottom sheet, react pull-up drawer, react draggable sheet, react snap points sheet, react cart drawer, react filter drawer, react mobile sheet, react-driftkit DraggableSheet',
   apiRows: [
     { prop: 'children', typeHtml: '<code>ReactNode</code>', defaultHtml: '—', descriptionHtml: 'Content rendered inside the sheet.' },
     { prop: 'edge', typeHtml: "<code>'bottom' | 'top' | 'left' | 'right'</code>", defaultHtml: "<code>'bottom'</code>", descriptionHtml: 'Edge the sheet is pinned to.' },

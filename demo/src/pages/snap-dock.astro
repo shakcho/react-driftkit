@@ -8,24 +8,15 @@ import GitHubCTA from '../components/GitHubCTA.astro';
 import { DockGlyphIcon } from '../components/islands/Icons';
 import DockDemo from '../components/islands/DockDemo';
 import { dockMeta } from '../data/dock';
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareSourceCode',
-  name: 'react-driftkit / SnapDock',
-  description: dockMeta.tagline,
-  codeRepository: 'https://github.com/shakcho/react-drift',
-  programmingLanguage: 'TypeScript',
-  runtimePlatform: 'React 18, React 19',
-  url: 'https://react-driftkit.saktichourasia.dev/snap-dock',
-};
+import { componentJsonLd, componentPageTitle } from '../lib/seo';
 ---
 
 <Layout
-  title={`${dockMeta.title} — react-driftkit`}
+  title={componentPageTitle(dockMeta)}
   description={dockMeta.metaDescription}
   path={`/${dockMeta.slug}`}
-  jsonLd={jsonLd}
+  keywords={dockMeta.seoKeywords}
+  jsonLd={componentJsonLd(dockMeta)}
   activeComponent="dock"
   ogSlug={dockMeta.slug}
 >

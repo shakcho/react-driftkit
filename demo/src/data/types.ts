@@ -22,6 +22,10 @@ export type ComponentMeta = {
   title: string;
   tagline: string;
   metaDescription: string;
+  /** Short, keyword-rich descriptor appended to <title> for SEO (e.g. "React Draggable Floating Widget"). */
+  seoDescriptor?: string;
+  /** Comma-separated keywords for <meta name="keywords"> hints. */
+  seoKeywords?: string;
   apiRows: ApiRow[];
   apiFootnoteHtml?: string;
   codeExamples: CodeExample[];

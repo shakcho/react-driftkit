@@ -12,6 +12,8 @@ export interface Props {
   activeComponent?: 'launcher' | 'dock' | 'sheet' | 'splitter' | 'zoomlens' | 'flickdeck' | null;
   /** Per-page OG image slug under /og/ (e.g. "movable-launcher"). Defaults to "home". */
   ogSlug?: string;
+  /** Optional comma-separated keywords for the page (used by some search engines as hints). */
+  keywords?: string;
 }
 
 const {
@@ -21,6 +23,7 @@ const {
   jsonLd,
   activeComponent = null,
   ogSlug = 'home',
+  keywords,
 } = Astro.props;
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://react-driftkit.saktichourasia.dev';
@@ -37,19 +40,32 @@ const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {keywords && <meta name="keywords" content={keywords} />}
+    <meta name="author" content="Sakti Kumar Chourasia" />
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1" />
+    <meta name="theme-color" content="#6366f1" />
     <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
 
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="react-driftkit" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={title} />
 
     {jsonLdArray.map((ld) => (
       <script type="application/ld+json" set:html={JSON.stringify(ld)} />
