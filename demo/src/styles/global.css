@@ -519,6 +519,31 @@ code {
   color: var(--text-label);
 }
 
+.footer-more {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px 28px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-label);
+}
+
+.footer-more a {
+  color: var(--accent);
+}
+
+.footer-more-label {
+  margin-right: 2px;
+}
+
+.footer-sep {
+  color: var(--text-label);
+  opacity: 0.6;
+}
+
 /* ── Demo Widget (floating) ───────────────────── */
 .demo-widget {
   background: var(--bar-bg);

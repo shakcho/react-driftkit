@@ -1,4 +1,8 @@
 ---
+const moreProjects = [
+  { href: 'https://console-logger.saktichourasia.dev/docs/', name: 'console-logger' },
+  { href: 'https://layout-inspector.saktichourasia.dev/', name: 'layout-inspector' },
+];
 ---
 
 <footer class="footer">
@@ -10,5 +14,14 @@
       </a>
     </p>
     <span class="footer-license">MIT License</span>
+  </div>
+  <div class="footer-more">
+    <span class="footer-more-label">More open source:</span>
+    {moreProjects.map((p, i) => (
+      <>
+        {i > 0 && <span class="footer-sep" aria-hidden="true">·</span>}
+        <a href={p.href} target="_blank" rel="noopener noreferrer">{p.name}</a>
+      </>
+    ))}
   </div>
 </footer>
