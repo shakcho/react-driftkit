@@ -1,0 +1,49 @@
+---
+import Layout from '../layouts/Layout.astro';
+import WidgetHeader from '../components/WidgetHeader.astro';
+import InstallSection from '../components/InstallSection.astro';
+import ApiTable from '../components/ApiTable.astro';
+import CodeExamplesSection from '../components/CodeExamplesSection.astro';
+import GitHubCTA from '../components/GitHubCTA.astro';
+import { PullToRefreshIcon } from '../components/islands/Icons';
+import PullToRefreshDemo from '../components/islands/PullToRefreshDemo';
+import { pullToRefreshMeta } from '../data/pulltorefresh';
+import { componentJsonLd, componentPageTitle } from '../lib/seo';
+---
+
+<Layout
+  title={componentPageTitle(pullToRefreshMeta)}
+  description={pullToRefreshMeta.metaDescription}
+  path={`/${pullToRefreshMeta.slug}`}
+  keywords={pullToRefreshMeta.seoKeywords}
+  jsonLd={componentJsonLd(pullToRefreshMeta)}
+  activeComponent="pulltorefresh"
+  ogSlug={pullToRefreshMeta.slug}
+>
+  <WidgetHeader
+    prefix="pull-to-refresh"
+    icon={PullToRefreshIcon}
+    title={pullToRefreshMeta.title}
+    description={pullToRefreshMeta.tagline}
+  />
+
+  <InstallSection id="pull-to-refresh-install" component={pullToRefreshMeta.title} />
+
+  <section id="pull-to-refresh-demo" class="section" style="padding-top: 16px;">
+    <div class="section-label">Interactive Demo</div>
+    <PullToRefreshDemo client:load />
+  </section>
+
+  <section id="pull-to-refresh-api" class="section" style="padding-top: 0;">
+    <div class="section-label">API Reference</div>
+    <ApiTable rows={pullToRefreshMeta.apiRows} footnoteHtml={pullToRefreshMeta.apiFootnoteHtml} />
+  </section>
+
+  <CodeExamplesSection
+    id="pull-to-refresh-examples"
+    examples={pullToRefreshMeta.codeExamples}
+    typesCode={pullToRefreshMeta.typesCode}
+  />
+
+  <GitHubCTA />
+</Layout>

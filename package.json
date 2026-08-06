@@ -42,6 +42,11 @@
       "types": "./dist/FlickDeck.d.ts",
       "import": "./dist/FlickDeck.js",
       "require": "./dist/FlickDeck.cjs"
+    },
+    "./PullToRefresh": {
+      "types": "./dist/PullToRefresh.d.ts",
+      "import": "./dist/PullToRefresh.js",
+      "require": "./dist/PullToRefresh.cjs"
     }
   },
   "files": [
@@ -123,7 +128,16 @@
     "product-zoom",
     "card-stack",
     "swipeable-cards",
-    "flick-deck"
+    "flick-deck",
+    "pull-to-refresh",
+    "pull-down-to-refresh",
+    "swipe-to-refresh",
+    "refresh",
+    "overscroll",
+    "react-pull-to-refresh",
+    "react-simple-pull-to-refresh",
+    "rmc-pull-to-refresh",
+    "infinite-scroll"
   ],
   "license": "MIT"
 }

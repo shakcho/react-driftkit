@@ -191,6 +191,99 @@ const illustrations = {
       ),
     ),
 
+  // A deck with the front card on top and two back cards peeking from the
+  // bottom edge, each one narrower and dimmer to read as receding depth.
+  flickdeck: () => {
+    const CARD_W = 250;
+    const CARD_H = 150;
+    const PEEK = 26;
+    const TOP = 52;
+
+    // Painted back-to-front: later children sit on top at equal z-index.
+    const card = (depth) => {
+      const inset = depth * 14;
+      const front = depth === 0;
+      return box(
+        {
+          position: 'absolute',
+          top: TOP + depth * PEEK,
+          left: (440 - CARD_W) / 2 + inset,
+          width: CARD_W - inset * 2,
+          height: CARD_H,
+          borderRadius: 14,
+          background: front ? 'rgba(49,46,129,0.98)' : 'rgba(30,41,59,0.96)',
+          border: `1px solid ${front ? COLORS.accentMuted : COLORS.panelBorder}`,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10,
+          padding: 18,
+        },
+        // Only the front card shows content — the others are just peeking.
+        ...(front
+          ? [
+              box({ width: 78, height: 10, borderRadius: 999, background: COLORS.accent }),
+              box({ width: '88%', height: 8, borderRadius: 999, background: 'rgba(255,255,255,0.20)' }),
+              box({ width: '66%', height: 8, borderRadius: 999, background: 'rgba(255,255,255,0.14)' }),
+            ]
+          : []),
+      );
+    };
+
+    return viewport(
+      box(
+        { position: 'relative', width: '100%', height: '100%' },
+        card(2),
+        card(1),
+        card(0),
+      ),
+    );
+  },
+
+  // A list pushed down by an open pull, with the refresh indicator revealed in
+  // the gap above it — the moment right before release.
+  pullrefresh: () => {
+    const arrow = box(
+      { width: 36, height: 36, position: 'relative', display: 'flex' },
+      box({ position: 'absolute', left: 16, top: 4, width: 4, height: 28, borderRadius: 999, background: COLORS.accent }),
+      box({ position: 'absolute', left: 7, top: 18, width: 4, height: 17, borderRadius: 999, background: COLORS.accent, transform: 'rotate(-45deg)' }),
+      box({ position: 'absolute', left: 25, top: 18, width: 4, height: 17, borderRadius: 999, background: COLORS.accent, transform: 'rotate(45deg)' }),
+    );
+
+    const row = (width, highlighted) =>
+      box(
+        {
+          height: 40,
+          borderRadius: 10,
+          background: highlighted ? 'rgba(99,102,241,0.20)' : 'rgba(255,255,255,0.07)',
+          alignItems: 'center',
+          paddingLeft: 14,
+          gap: 12,
+        },
+        box({ width: 18, height: 18, borderRadius: 999, background: highlighted ? COLORS.accent : 'rgba(255,255,255,0.18)' }),
+        box({ height: 8, width, borderRadius: 999, background: 'rgba(255,255,255,0.16)' }),
+      );
+
+    return viewport(
+      box(
+        { display: 'flex', flexDirection: 'column', width: '100%', height: '100%' },
+        // The revealed strip: indicator sitting in the gap the pull opened up.
+        box(
+          { height: 96, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14 },
+          arrow,
+          text({ fontSize: 20, fontWeight: 600, color: COLORS.muted }, 'Release to refresh'),
+        ),
+        // The content, translated down out of the frame's bottom edge.
+        box(
+          { display: 'flex', flexDirection: 'column', gap: 12, padding: '0 20px' },
+          row(150, true),
+          row(120, false),
+          row(170, false),
+          row(110, false),
+        ),
+      ),
+    );
+  },
+
   zoomlens: () => {
     // Geometric illustration in the same flat style as the other OG cards:
     // a rainbow grid of small tiles in the background, with a circular
@@ -545,7 +638,7 @@ const pages = [
     slug: 'home',
     kind: 'home',
     title: 'Floating UI primitives for React',
-    tagline: 'Draggable launchers, docks, sheets, split panes, a zoom lens, and a flick deck. Tree-shakable and unstyled.',
+    tagline: 'Draggable launchers, docks, sheets, split panes, a zoom lens, a flick deck, and pull-to-refresh. Tree-shakable and unstyled.',
   },
   {
     slug: 'movable-launcher',
@@ -576,6 +669,18 @@ const pages = [
     kind: 'zoomlens',
     title: 'ZoomLens',
     tagline: 'A draggable magnifier circle that zooms into whatever it hovers. Drag to move, scroll to zoom, hotkey or Escape to dismiss.',
+  },
+  {
+    slug: 'flick-deck',
+    kind: 'flickdeck',
+    title: 'FlickDeck',
+    tagline: 'A stack of cards where back cards peek from one edge. Click a peek to flick it forward, or swipe the front card off.',
+  },
+  {
+    slug: 'pull-to-refresh',
+    kind: 'pullrefresh',
+    title: 'PullToRefresh',
+    tagline: 'Pull down at the top of a list to reload it — on touch, on mouse, and on trackpad, where wheel overscroll drives the same gesture.',
   },
 ];
 
