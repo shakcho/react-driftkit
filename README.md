@@ -2,7 +2,7 @@
 
 # react-driftkit
 
-**A tree-shakable React component library for floating UI: draggable widgets, an edge-pinned dock, a draggable bottom sheet, an N-pane resizable split pane, an image magnifier (zoom lens), and a peek-and-flick card stack.**
+**A tree-shakable React component library for floating UI: draggable widgets, an edge-pinned dock, a draggable bottom sheet, an N-pane resizable split pane, an image magnifier (zoom lens), a peek-and-flick card stack, and a pull-to-refresh that works on mobile *and* desktop.**
 
 Unstyled, TypeScript-first, zero dependencies, React 18 & React 19.
 
@@ -33,6 +33,7 @@ Building a chat widget, floating toolbar, debug panel, or side dock? You want th
 | [`<ResizableSplitPane>`](#resizablesplitter) | **React resizable split pane** — N-pane IDE-style layout with draggable handles, min/max constraints, and localStorage-persisted ratios. |
 | [`<ZoomLens>`](#zoomlens) | **React image magnifier / zoom lens** — free-drag over the whole page or scope to one element (product-image zoom). Wheel to zoom, Escape to dismiss. |
 | [`<FlickDeck>`](#flickdeck) | **React card stack & swipeable cards** — back cards peek from one edge, click the peek to flick it forward; optional swipe-to-dismiss. |
+| [`<PullToRefresh>`](#pulltorefresh) | **React pull to refresh** — pull down at the top of a list to reload it. Touch drag, mouse drag, *and* trackpad/wheel overscroll drive the same gesture. |
 
 ## Installation
 
@@ -83,6 +84,7 @@ import {
   ResizableSplitPane,
   ZoomLens,
   FlickDeck,
+  PullToRefresh,
 } from 'react-driftkit';
 
 function App() {
@@ -124,6 +126,16 @@ function App() {
         <div key="details">Details</div>
         <div key="stats">Stats</div>
       </FlickDeck>
+
+      {/* Pull down (or trackpad-overscroll) at the top of a list to reload. */}
+      <PullToRefresh
+        on={{ refresh: () => fetchFeed() }}
+        indicator={({ armed, refreshing }) => (
+          <span>{refreshing ? 'Refreshing…' : armed ? 'Release' : 'Pull'}</span>
+        )}
+      >
+        <Feed />
+      </PullToRefresh>
     </>
   );
 }
@@ -270,6 +282,35 @@ import FlickDeck from 'react-driftkit/FlickDeck';
 
 ---
 
+## PullToRefresh
+
+Pull down at the top of a list to reload it. Most pull-to-refresh libraries are touch-only, so the feature silently disappears on desktop — this one treats wheel and trackpad overscroll as the same gesture, so the same code works everywhere.
+
+- **Two input paths, one gesture** — Pointer Events cover mouse, touch, and pen; a non-passive wheel listener covers trackpads and mouse wheels, releasing when the input goes quiet
+- **Never hijacks scrolling** — the gesture only arms when the nearest scrollable ancestor is already at its top, detected per-gesture from the element you touched
+- **Rubber-band damping** — `resistance` and `maxPull` shape an exponential curve, so the pull is linear at first and asymptotically firm at the end
+- **Promise-aware or controlled** — return a promise from `on.refresh` and the indicator holds until it settles, or drive `refreshing` yourself so a toolbar button and the gesture share one path
+- **Unstyled** — you render the indicator from a state render prop; `data-ptr-phase`, `data-ptr-armed`, and `data-ptr-source` drive CSS without re-rendering, and `aria-busy` plus a polite live region come for free
+
+```tsx
+import PullToRefresh from 'react-driftkit/PullToRefresh';
+
+<PullToRefresh
+  on={{ refresh: async () => setItems(await fetchItems()) }}
+  indicator={({ progress, armed, refreshing }) => (
+    <Spinner spinning={refreshing} rotate={progress * 180} armed={armed} />
+  )}
+>
+  {items.map((item) => <Row key={item.id} {...item} />)}
+</PullToRefresh>
+```
+
+Because a drag gesture is not reachable by keyboard, pair it with a plain Refresh button in controlled mode when the refresh is the only way to get fresh data.
+
+**Full API, more examples, and live demo →** <https://react-driftkit.saktichourasia.dev/pull-to-refresh>
+
+---
+
 ## Use Cases
 
 - **Chat widgets** — floating support buttons that stay accessible
@@ -286,6 +327,8 @@ import FlickDeck from 'react-driftkit/FlickDeck';
 - **Data table inspection** — drag a magnifier over dense tables, charts, or heatmaps to read small values without re-flowing the page
 - **Tip / onboarding stacks** — a deck of coachmark cards the user can flick through and swipe off one by one
 - **Comparison decks** — toggle between product plans, chart variants, or before/after states with a single click on the peek
+- **Feeds and inboxes** — pull down to reload a timeline, notification list, or message thread, on phones and desktops alike
+- **Dashboards** — refresh live metrics without hunting for a reload button, with the gesture and a toolbar button sharing one code path
 
 ## Looking for…
 
@@ -298,6 +341,7 @@ If you're searching for any of these, react-driftkit has a primitive for it:
 - **React resizable split pane** / **react split view** / **alternative to allotment, react-split-pane, react-resizable-panels** → [`ResizableSplitPane`](#resizablesplitter)
 - **React image magnifier** / **react product zoom** / **ecommerce hover zoom** → [`ZoomLens`](#zoomlens)
 - **React card stack** / **swipeable cards** / **alternative to react-tinder-card** → [`FlickDeck`](#flickdeck)
+- **React pull to refresh** / **swipe to refresh** / **alternative to react-simple-pull-to-refresh, rmc-pull-to-refresh** → [`PullToRefresh`](#pulltorefresh)
 
 Each one is independently importable, ships unstyled, and works with React 18 and React 19.
 
@@ -310,6 +354,8 @@ Under the hood all components use the [Pointer Events API](https://developer.moz
 `ResizableSplitPane` uses a flexbox layout with `calc()` sizing. Dragging a handle only redistributes space between the two adjacent panes, leaving all others unchanged. Window resize events trigger re-clamping against min/max constraints.
 
 `ZoomLens` live-clones either `document.body` (free mode) or a target element (target mode) into a portalled host, then applies a `translate()` + `scale()` transform so the point under the lens center maps to target-local — or document — coords. A `MutationObserver` rebuilds the clone when the real DOM changes, debounced to 150 ms and skipped during drag. In target mode, pointer tracking attaches directly to the target, and the lens overlay is `pointer-events: none` so hover state keeps passing through to the real element underneath.
+
+`PullToRefresh` gates every gesture on the scroll offset of the nearest scrollable ancestor of the element you touched, so an inner list scrolls normally until it reaches its top. Raw input travel — pointer delta or accumulated `wheel` deltas — runs through `max * (1 - e^(-raw/max))`, which is near-linear at small pulls and asymptotically firm at `maxPull`. The wheel path is the desktop half of the story: wheels emit no `pointerup`, so a quiet period (`wheelReleaseMs`) stands in for release. Both paths converge on the same phase machine (`idle → pulling → armed → refreshing → settling`), and the content and indicator move by `transform` alone. The container uses `overflow: clip` rather than `hidden` so `position: sticky` children still work, and a non-passive `touchmove` handler suppresses the browser's own overscroll while a pull is live.
 
 `FlickDeck` lays every card in a single CSS grid cell so the container auto-sizes to the largest card, then offsets back cards with pure `transform` — `translate` along the peek axis, plus `scale` (top/bottom peek) or `rotate` around the attached edge (left/right peek). Depth fade uses `opacity`. The front card's `key` is its id; a click or keyboard activation on a peek swaps ids with a CSS transition. Swipe-to-dismiss tracks pointer movement on the front card and fires `on.dismiss(id)` once the drag crosses `dismissThreshold` in the direction opposite the peek, leaving the consumer to remove that child.
 

@@ -16,6 +16,7 @@ export default defineConfig({
         ResizableSplitPane: resolve(__dirname, 'src/ResizableSplitPane.tsx'),
         ZoomLens: resolve(__dirname, 'src/ZoomLens.tsx'),
         FlickDeck: resolve(__dirname, 'src/FlickDeck.tsx'),
+        PullToRefresh: resolve(__dirname, 'src/PullToRefresh.tsx'),
       },
       formats: ['es', 'cjs'],
     },

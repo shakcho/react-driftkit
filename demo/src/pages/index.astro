@@ -3,13 +3,13 @@ import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Hero.astro';
 import InstallSection from '../components/InstallSection.astro';
 import GitHubCTA from '../components/GitHubCTA.astro';
-import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, ZoomLensIcon, FlickDeckIcon } from '../components/islands/Icons';
+import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, ZoomLensIcon, FlickDeckIcon, PullToRefreshIcon } from '../components/islands/Icons';
 import { allComponents } from '../data/components';
 import pkg from '../../../package.json';
 
 const title = 'react-driftkit — React draggable, resizable & floating UI components';
 const description =
-  'react-driftkit is a free, tree-shakable React component library of floating UI primitives: a draggable widget launcher, edge-pinned dock, draggable bottom sheet, resizable split pane, image magnifier (zoom lens), and card-stack flick deck. Unstyled, TypeScript-first, zero dependencies, works with React 18 and React 19.';
+  'react-driftkit is a free, tree-shakable React component library of floating UI primitives: a draggable widget launcher, edge-pinned dock, draggable bottom sheet, resizable split pane, image magnifier (zoom lens), card-stack flick deck, and a pull-to-refresh that works on mobile and desktop. Unstyled, TypeScript-first, zero dependencies, works with React 18 and React 19.';
 const keywords = [
   'react-driftkit',
   'react draggable component',
@@ -21,6 +21,7 @@ const keywords = [
   'react floating ui library',
   'react dock component',
   'react card stack',
+  'react pull to refresh',
   'react tree-shakable component library',
   'react 19 ui components',
   'typescript react components',
@@ -34,6 +35,7 @@ const icons: Record<string, typeof MoveIcon> = {
   splitter: SplitterIcon,
   zoomlens: ZoomLensIcon,
   flickdeck: FlickDeckIcon,
+  pulltorefresh: PullToRefreshIcon,
 };
 
 const softwareJsonLd = {
@@ -93,6 +95,12 @@ const websiteJsonLd = {
 
 const useCases = [
   {
+    h: 'React pull to refresh (mobile and desktop)',
+    p: 'Reload a feed, inbox, or dashboard by pulling down at the top — touch drag, mouse drag, and trackpad overscroll all drive the same gesture.',
+    href: '/pull-to-refresh',
+    cta: 'See PullToRefresh →',
+  },
+  {
     h: 'React draggable widget / chat launcher',
     p: 'Pin a chat bubble, AI assistant, support widget, or debug panel to a viewport corner with snap-on-release.',
     href: '/movable-launcher',
@@ -141,7 +149,7 @@ const faq = [
   },
   {
     q: 'What components does react-driftkit include?',
-    a: 'Six components: MovableLauncher (draggable corner widget with snap-to-corners), SnapDock (edge-pinned dock that flips orientation), DraggableSheet (pull-up/pull-down sheet with peek/half/full snap points), ResizableSplitPane (N-pane split layout with draggable handles and localStorage persistence), ZoomLens (draggable magnifier circle, or target-scoped product-image zoom), and FlickDeck (peek-and-flick card stack).',
+    a: 'Seven components: MovableLauncher (draggable corner widget with snap-to-corners), SnapDock (edge-pinned dock that flips orientation), DraggableSheet (pull-up/pull-down sheet with peek/half/full snap points), ResizableSplitPane (N-pane split layout with draggable handles and localStorage persistence), ZoomLens (draggable magnifier circle, or target-scoped product-image zoom), FlickDeck (peek-and-flick card stack), and PullToRefresh (pull-down-to-reload that also works on desktop via wheel and trackpad overscroll).',
   },
   {
     q: 'How do I install react-driftkit?',
@@ -177,7 +185,7 @@ const faqJsonLd = {
 >
   <Hero
     title="react-driftkit"
-    taglineHtml="A small, tree-shakable React component library for floating UI: <strong>draggable widgets</strong>, an <strong>edge-pinned dock</strong>, a <strong>draggable bottom sheet</strong>, an <strong>N-pane resizable split pane</strong>, an <strong>image magnifier (zoom lens)</strong>, and a <strong>peek-and-flick card stack</strong>. Unstyled, TypeScript-first, zero dependencies, React 18 &amp; React 19."
+    taglineHtml="A small, tree-shakable React component library for floating UI: <strong>draggable widgets</strong>, an <strong>edge-pinned dock</strong>, a <strong>draggable bottom sheet</strong>, an <strong>N-pane resizable split pane</strong>, an <strong>image magnifier (zoom lens)</strong>, a <strong>peek-and-flick card stack</strong>, and <strong>pull-to-refresh</strong>. Unstyled, TypeScript-first, zero dependencies, React 18 &amp; React 19."
   />
 
   <section class="section" style="padding-top: 16px;">

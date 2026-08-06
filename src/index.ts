@@ -15,3 +15,13 @@ export type {
   FlickDeckEvents,
   FlickDeckAnimation,
 } from './FlickDeck';
+export { PullToRefresh } from './PullToRefresh';
+export type {
+  PullToRefreshProps,
+  PullToRefreshPhase,
+  PullToRefreshState,
+  PullToRefreshBehavior,
+  PullToRefreshAnimation,
+  PullToRefreshEvents,
+  PullSource,
+} from './PullToRefresh';

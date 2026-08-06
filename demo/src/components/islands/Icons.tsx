@@ -72,6 +72,17 @@ export function FlickDeckIcon({ size = 16, strokeWidth = 2 }: IconProps) {
   );
 }
 
+export function PullToRefreshIcon({ size = 16, strokeWidth = 2 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="6" y="6" width="28" height="28" rx="3" opacity="0.35" />
+      <path d="M20 11v12" />
+      <path d="M15 18l5 5 5-5" />
+      <path d="M13 29h14" opacity="0.6" />
+    </svg>
+  );
+}
+
 export function ChevronDownIcon({ size = 14 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

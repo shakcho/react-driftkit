@@ -3,12 +3,15 @@ import InstallTabs from './islands/InstallTabs';
 
 export interface Props {
   id?: string;
+  /** Component name to build the import examples from, e.g. `PullToRefresh`.
+   *  Omit on the home page to get a generic multi-component barrel example. */
+  component?: string;
 }
 
-const { id = 'install' } = Astro.props;
+const { id = 'install', component } = Astro.props;
 ---
 
 <section id={id} class="section section--subtle" style="padding-top: 32px; padding-bottom: 64px;">
   <div class="section-label">Installation</div>
-  <InstallTabs client:load />
+  <InstallTabs client:load component={component} />
 </section>

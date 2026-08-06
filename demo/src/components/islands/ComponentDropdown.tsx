@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, ZoomLensIcon, FlickDeckIcon, ChevronDownIcon } from './Icons';
+import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, ZoomLensIcon, FlickDeckIcon, PullToRefreshIcon, ChevronDownIcon } from './Icons';
 
-export type ComponentKey = 'launcher' | 'dock' | 'sheet' | 'splitter' | 'zoomlens' | 'flickdeck';
+export type ComponentKey = 'launcher' | 'dock' | 'sheet' | 'splitter' | 'zoomlens' | 'flickdeck' | 'pulltorefresh';
 
+// Alphabetical by label — keep it that way when adding a component.
 const items: { key: ComponentKey; label: string; href: string; icon: ReactNode }[] = [
-  { key: 'zoomlens',  label: 'ZoomLens',            href: '/zoom-lens',            icon: <ZoomLensIcon size={16} /> },
-  { key: 'flickdeck', label: 'FlickDeck',           href: '/flick-deck',           icon: <FlickDeckIcon size={16} /> },
-  { key: 'launcher',  label: 'MovableLauncher',     href: '/movable-launcher',     icon: <MoveIcon size={16} strokeWidth={2.2} /> },
-  { key: 'dock',      label: 'SnapDock',            href: '/snap-dock',            icon: <DockGlyphIcon size={16} /> },
-  { key: 'sheet',     label: 'DraggableSheet',      href: '/draggable-sheet',      icon: <SheetIcon size={16} /> },
-  { key: 'splitter',  label: 'ResizableSplitPane',  href: '/resizable-split-pane', icon: <SplitterIcon size={16} /> },
+  { key: 'sheet',         label: 'DraggableSheet',      href: '/draggable-sheet',      icon: <SheetIcon size={16} /> },
+  { key: 'flickdeck',     label: 'FlickDeck',           href: '/flick-deck',           icon: <FlickDeckIcon size={16} /> },
+  { key: 'launcher',      label: 'MovableLauncher',     href: '/movable-launcher',     icon: <MoveIcon size={16} strokeWidth={2.2} /> },
+  { key: 'pulltorefresh', label: 'PullToRefresh',       href: '/pull-to-refresh',      icon: <PullToRefreshIcon size={16} /> },
+  { key: 'splitter',      label: 'ResizableSplitPane',  href: '/resizable-split-pane', icon: <SplitterIcon size={16} /> },
+  { key: 'dock',          label: 'SnapDock',            href: '/snap-dock',            icon: <DockGlyphIcon size={16} /> },
+  { key: 'zoomlens',      label: 'ZoomLens',            href: '/zoom-lens',            icon: <ZoomLensIcon size={16} /> },
 ];
 
 export default function ComponentDropdown({ active }: { active: ComponentKey | null }) {

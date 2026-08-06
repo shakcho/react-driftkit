@@ -7,25 +7,36 @@ const installCommands = [
   { pm: 'pnpm', cmd: 'pnpm add react-driftkit' },
 ];
 
-const importStyles = [
-  {
-    key: 'barrel',
-    label: 'Barrel',
-    code: `import { SnapDock, ZoomLens } from 'react-driftkit';`,
-  },
-  {
-    key: 'subpath-named',
-    label: 'Per-component (named)',
-    code: `import { SnapDock } from 'react-driftkit/SnapDock';`,
-  },
-  {
-    key: 'subpath-default',
-    label: 'Per-component (default)',
-    code: `import SnapDock from 'react-driftkit/SnapDock';`,
-  },
-];
+/**
+ * Import examples for one component. The subpath export is named after the
+ * component itself (`react-driftkit/SnapDock`), so the name is all we need.
+ * Without a component — the home page — fall back to a two-component barrel
+ * example, which is the case the barrel import actually exists for.
+ */
+function importStylesFor(component?: string) {
+  const barrelNames = component ?? 'SnapDock, ZoomLens';
+  const subpath = component ?? 'SnapDock';
+  return [
+    {
+      key: 'barrel',
+      label: 'Barrel',
+      code: `import { ${barrelNames} } from 'react-driftkit';`,
+    },
+    {
+      key: 'subpath-named',
+      label: 'Per-component (named)',
+      code: `import { ${subpath} } from 'react-driftkit/${subpath}';`,
+    },
+    {
+      key: 'subpath-default',
+      label: 'Per-component (default)',
+      code: `import ${subpath} from 'react-driftkit/${subpath}';`,
+    },
+  ];
+}
 
-export default function InstallTabs() {
+export default function InstallTabs({ component }: { component?: string }) {
+  const importStyles = importStylesFor(component);
   const [activePm, setActivePm] = useState('npm');
   const [activeImport, setActiveImport] = useState('barrel');
   const active = installCommands.find((c) => c.pm === activePm) ?? installCommands[0];
