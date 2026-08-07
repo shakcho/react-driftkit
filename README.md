@@ -35,6 +35,8 @@ Building a chat widget, floating toolbar, debug panel, or side dock? You want th
 | [`<FlickDeck>`](#flickdeck) | **React card stack & swipeable cards** — back cards peek from one edge, click the peek to flick it forward; optional swipe-to-dismiss. |
 | [`<PullToRefresh>`](#pulltorefresh) | **React pull to refresh** — pull down at the top of a list to reload it. Touch drag, mouse drag, *and* trackpad/wheel overscroll drive the same gesture. |
 
+Plus the [hooks layer](#hooks) the components are built on, if you'd rather build your own primitive than use one of ours.
+
 ## Installation
 
 ```bash
@@ -69,6 +71,10 @@ import { MovableLauncher, SnapDock, ZoomLens } from 'react-driftkit';
 // 2. Per-component subpath — named or default, pick the style you prefer
 import { SnapDock } from 'react-driftkit/SnapDock';
 import SnapDock from 'react-driftkit/SnapDock';
+
+// 3. The hooks layer, from the barrel or its own subpath
+import { useDrag } from 'react-driftkit';
+import { useDrag } from 'react-driftkit/hooks';
 ```
 
 Subpath imports are handy when you only need one component and want the import line to be explicit about bundle cost (your bundler will tree-shake the barrel import down to the same output either way, as long as `sideEffects` is respected — which it is here).
@@ -311,6 +317,69 @@ Because a drag gesture is not reachable by keyboard, pair it with a plain Refres
 
 ---
 
+## Hooks
+
+Every component here is a thin layer over the same handful of gesture problems: pointer capture, telling a click from a drag, tracking velocity, resolving snap points, staying inside the viewport, remembering a layout. Those are published as hooks, so you can build a primitive the kit doesn't ship without rewriting any of it.
+
+```tsx
+import { useDrag, useSnapPoints } from 'react-driftkit/hooks';
+```
+
+| Hook | What it owns |
+|------|--------------|
+| `useDrag` | Pointer capture, a click-vs-drag threshold, delta + velocity tracking, optional nested drag handle |
+| `useSnapPoints` | Resolves `'peek' \| 'half' \| 'full' \| 240 \| '40%'` to pixels, and picks the stop a velocity-aware release should settle on |
+| `useViewportBounds` | `ResizeObserver` + window resize + orientation change, plus a `clamp()` that keeps an element on screen |
+| `useInertia` | Momentum decay after a release — feed it the velocity `useDrag` reports |
+| `usePersistedState` | `persistKey` → `localStorage`, SSR-safe, validated, and tolerant of quota and privacy-mode failures |
+| `useLongPress` | Press-and-hold to arm a drag on a surface that also scrolls |
+| `useReducedMotion` | Tracks `prefers-reduced-motion` so you can drop a transition rather than fight it |
+
+All seven together are about 4 KB gzipped, and they tree-shake individually. Nothing touches the DOM during render, so they are safe to run through SSR.
+
+A minimal draggable box, which is most of what `MovableLauncher` does:
+
+```tsx
+import { useState } from 'react';
+import { useDrag, useViewportBounds } from 'react-driftkit/hooks';
+
+function Box() {
+  const [pos, setPos] = useState({ x: 24, y: 24 });
+  const [origin, setOrigin] = useState(pos);
+  const { clamp } = useViewportBounds({ padding: 16 });
+
+  const { ref, dragging, handlers } = useDrag<HTMLDivElement>({
+    onStart: () => setOrigin(pos),
+    onMove: ({ dx, dy }) => setPos(clamp({ x: origin.x + dx, y: origin.y + dy })),
+  });
+
+  return (
+    <div
+      ref={ref}
+      {...handlers}
+      data-dragging={dragging ? '' : undefined}
+      style={{ position: 'fixed', left: pos.x, top: pos.y, touchAction: 'none' }}
+    >
+      Drag me
+    </div>
+  );
+}
+```
+
+`useDrag` reports velocity in px/ms, which is what makes a flick feel different from a slow drag — hand it to `useSnapPoints().select()` for a sheet, or to `useInertia().start()` for a scroller:
+
+```tsx
+const snaps = useSnapPoints({ points: ['peek', 'half', 'full'], size: window.innerHeight });
+
+useDrag({
+  axis: 'y',
+  onEnd: ({ vy }) => {
+    const target = snaps.select(sizePx, -vy, currentSnap);
+    if (target) setSnap(target.point, target.px);
+  },
+});
+```
+
 ## Use Cases
 
 - **Chat widgets** — floating support buttons that stay accessible
@@ -342,6 +411,7 @@ If you're searching for any of these, react-driftkit has a primitive for it:
 - **React image magnifier** / **react product zoom** / **ecommerce hover zoom** → [`ZoomLens`](#zoomlens)
 - **React card stack** / **swipeable cards** / **alternative to react-tinder-card** → [`FlickDeck`](#flickdeck)
 - **React pull to refresh** / **swipe to refresh** / **alternative to react-simple-pull-to-refresh, rmc-pull-to-refresh** → [`PullToRefresh`](#pulltorefresh)
+- **React drag hook** / **use-drag** / **pointer gesture hook** / **lighter alternative to @use-gesture/react, react-draggable** → [the hooks layer](#hooks)
 
 Each one is independently importable, ships unstyled, and works with React 18 and React 19.
 
@@ -358,6 +428,8 @@ Under the hood all components use the [Pointer Events API](https://developer.moz
 `PullToRefresh` gates every gesture on the scroll offset of the nearest scrollable ancestor of the element you touched, so an inner list scrolls normally until it reaches its top. Raw input travel — pointer delta or accumulated `wheel` deltas — runs through `max * (1 - e^(-raw/max))`, which is near-linear at small pulls and asymptotically firm at `maxPull`. The wheel path is the desktop half of the story: wheels emit no `pointerup`, so a quiet period (`wheelReleaseMs`) stands in for release. Both paths converge on the same phase machine (`idle → pulling → armed → refreshing → settling`), and the content and indicator move by `transform` alone. The container uses `overflow: clip` rather than `hidden` so `position: sticky` children still work, and a non-passive `touchmove` handler suppresses the browser's own overscroll while a pull is live.
 
 `FlickDeck` lays every card in a single CSS grid cell so the container auto-sizes to the largest card, then offsets back cards with pure `transform` — `translate` along the peek axis, plus `scale` (top/bottom peek) or `rotate` around the attached edge (left/right peek). Depth fade uses `opacity`. The front card's `key` is its id; a click or keyboard activation on a peek swaps ids with a CSS transition. Swipe-to-dismiss tracks pointer movement on the front card and fires `on.dismiss(id)` once the drag crosses `dismissThreshold` in the direction opposite the peek, leaving the consumer to remove that child.
+
+The hooks layer holds the parts of that story that were written more than once. `useDrag` is the interesting one: it runs window-level `pointermove` / `pointerup` / `pointercancel` listeners *alongside* the element handlers, because a gesture can move or end somewhere the element never sees — a fast drag that leaves the surface before crossing the threshold (pre-capture moves dispatch elsewhere), a release outside the element, an OS-level cancel, or stolen capture. Both paths feed one handler, de-duplicated by native event identity, so a move is never counted twice. Velocity is averaged over a 100 ms trailing window rather than a single frame, which is why pausing before you let go cancels a flick instead of firing one.
 
 ## Contributing
 

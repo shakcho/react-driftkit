@@ -47,6 +47,11 @@
       "types": "./dist/PullToRefresh.d.ts",
       "import": "./dist/PullToRefresh.js",
       "require": "./dist/PullToRefresh.cjs"
+    },
+    "./hooks": {
+      "types": "./dist/hooks.d.ts",
+      "import": "./dist/hooks.js",
+      "require": "./dist/hooks.cjs"
     }
   },
   "files": [
@@ -147,7 +152,27 @@
     "react-pull-to-refresh",
     "react-simple-pull-to-refresh",
     "rmc-pull-to-refresh",
-    "infinite-scroll"
+    "infinite-scroll",
+    "hooks",
+    "react-hooks",
+    "use-drag",
+    "usedrag",
+    "drag-hook",
+    "gesture",
+    "gestures",
+    "pointer-events",
+    "use-gesture",
+    "@use-gesture/react",
+    "react-use-gesture",
+    "react-draggable",
+    "use-long-press",
+    "long-press",
+    "inertia",
+    "momentum",
+    "snap-points",
+    "use-local-storage",
+    "persisted-state",
+    "prefers-reduced-motion"
   ],
   "license": "MIT"
 }

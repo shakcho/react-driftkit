@@ -17,6 +17,7 @@ export default defineConfig({
         ZoomLens: resolve(__dirname, 'src/ZoomLens.tsx'),
         FlickDeck: resolve(__dirname, 'src/FlickDeck.tsx'),
         PullToRefresh: resolve(__dirname, 'src/PullToRefresh.tsx'),
+        hooks: resolve(__dirname, 'src/hooks.ts'),
       },
       formats: ['es', 'cjs'],
     },
