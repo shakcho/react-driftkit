@@ -15,6 +15,8 @@ export type {
   FlickDeckEvents,
   FlickDeckAnimation,
 } from './FlickDeck';
+// Hooks layer — also importable on its own via `react-driftkit/hooks`.
+export * from './hooks';
 export { PullToRefresh } from './PullToRefresh';
 export type {
   PullToRefreshProps,
