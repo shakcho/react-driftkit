@@ -1,0 +1,49 @@
+---
+import Layout from '../layouts/Layout.astro';
+import WidgetHeader from '../components/WidgetHeader.astro';
+import InstallSection from '../components/InstallSection.astro';
+import ApiTable from '../components/ApiTable.astro';
+import CodeExamplesSection from '../components/CodeExamplesSection.astro';
+import GitHubCTA from '../components/GitHubCTA.astro';
+import { MarqueeSelectIcon } from '../components/islands/Icons';
+import MarqueeSelectDemo from '../components/islands/MarqueeSelectDemo';
+import { marqueeSelectMeta } from '../data/marqueeselect';
+import { componentJsonLd, componentPageTitle } from '../lib/seo';
+---
+
+<Layout
+  title={componentPageTitle(marqueeSelectMeta)}
+  description={marqueeSelectMeta.metaDescription}
+  path={`/${marqueeSelectMeta.slug}`}
+  keywords={marqueeSelectMeta.seoKeywords}
+  jsonLd={componentJsonLd(marqueeSelectMeta)}
+  activeComponent="marqueeselect"
+  ogSlug={marqueeSelectMeta.slug}
+>
+  <WidgetHeader
+    prefix="marquee-select"
+    icon={MarqueeSelectIcon}
+    title={marqueeSelectMeta.title}
+    description={marqueeSelectMeta.tagline}
+  />
+
+  <InstallSection id="marquee-select-install" component={marqueeSelectMeta.title} />
+
+  <section id="marquee-select-demo" class="section" style="padding-top: 16px;">
+    <div class="section-label">Interactive Demo</div>
+    <MarqueeSelectDemo client:load />
+  </section>
+
+  <section id="marquee-select-api" class="section" style="padding-top: 0;">
+    <div class="section-label">API Reference</div>
+    <ApiTable rows={marqueeSelectMeta.apiRows} footnoteHtml={marqueeSelectMeta.apiFootnoteHtml} />
+  </section>
+
+  <CodeExamplesSection
+    id="marquee-select-examples"
+    examples={marqueeSelectMeta.codeExamples}
+    typesCode={marqueeSelectMeta.typesCode}
+  />
+
+  <GitHubCTA />
+</Layout>
