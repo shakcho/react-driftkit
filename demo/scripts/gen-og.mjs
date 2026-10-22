@@ -284,6 +284,70 @@ const illustrations = {
     );
   },
 
+  // A grid of tiles with a dashed lasso drawn over the top-left block — the
+  // tiles it covers are lit up, the ones outside it are not.
+  marqueeselect: () => {
+    const TILE = 78;
+    const GAP = 16;
+    const PAD = 26;
+    const COLS = 4;
+    const ROWS = 3;
+
+    // The lasso covers the first 3 columns and the first 2 rows.
+    const HIT_COLS = 3;
+    const HIT_ROWS = 2;
+
+    const tiles = [];
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const caught = c < HIT_COLS && r < HIT_ROWS;
+        tiles.push(
+          box({
+            position: 'absolute',
+            left: PAD + c * (TILE + GAP),
+            top: PAD + r * (TILE + GAP),
+            width: TILE,
+            height: TILE,
+            borderRadius: 10,
+            background: caught ? 'rgba(99,102,241,0.30)' : 'rgba(255,255,255,0.07)',
+            border: `1px solid ${caught ? COLORS.accent : COLORS.panelBorder}`,
+          }),
+        );
+      }
+    }
+
+    const lassoW = HIT_COLS * TILE + (HIT_COLS - 1) * GAP + 22;
+    const lassoH = HIT_ROWS * TILE + (HIT_ROWS - 1) * GAP + 22;
+
+    return viewport(
+      box(
+        { position: 'relative', width: '100%', height: '100%' },
+        ...tiles,
+        // The marquee itself, overhanging the tiles it caught.
+        box({
+          position: 'absolute',
+          left: PAD - 11,
+          top: PAD - 11,
+          width: lassoW,
+          height: lassoH,
+          borderRadius: 6,
+          border: `3px dashed ${COLORS.accent}`,
+          background: 'rgba(99,102,241,0.14)',
+        }),
+        // Pointer sitting at the far corner of the drag.
+        box({
+          position: 'absolute',
+          left: PAD - 11 + lassoW - 7,
+          top: PAD - 11 + lassoH - 7,
+          width: 16,
+          height: 16,
+          borderRadius: 999,
+          background: COLORS.accent,
+        }),
+      ),
+    );
+  },
+
   zoomlens: () => {
     // Geometric illustration in the same flat style as the other OG cards:
     // a rainbow grid of small tiles in the background, with a circular
@@ -681,6 +745,12 @@ const pages = [
     kind: 'pullrefresh',
     title: 'PullToRefresh',
     tagline: 'Pull down at the top of a list to reload it — on touch, on mouse, and on trackpad, where wheel overscroll drives the same gesture.',
+  },
+  {
+    slug: 'marquee-select',
+    kind: 'marqueeselect',
+    title: 'MarqueeSelect',
+    tagline: 'Drag a rectangle across a canvas, board, or file grid to select what it touches. Modifier keys, edge auto-scroll, Escape to cancel.',
   },
 ];
 

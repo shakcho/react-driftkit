@@ -25,3 +25,14 @@ export type {
   PullToRefreshEvents,
   PullSource,
 } from './PullToRefresh';
+export { MarqueeSelect } from './MarqueeSelect';
+export type {
+  MarqueeSelectProps,
+  MarqueeSelectState,
+  MarqueeSelectInfo,
+  MarqueeSelectBehavior,
+  MarqueeSelectEvents,
+  MarqueeRect,
+  MarqueeMode,
+  MarqueeHitTest,
+} from './MarqueeSelect';

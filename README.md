@@ -2,7 +2,7 @@
 
 # react-driftkit
 
-**A tree-shakable React component library for floating UI: draggable widgets, an edge-pinned dock, a draggable bottom sheet, an N-pane resizable split pane, an image magnifier (zoom lens), a peek-and-flick card stack, and a pull-to-refresh that works on mobile *and* desktop.**
+**A tree-shakable React component library for floating UI: draggable widgets, an edge-pinned dock, a draggable bottom sheet, an N-pane resizable split pane, an image magnifier (zoom lens), a peek-and-flick card stack, a pull-to-refresh that works on mobile *and* desktop, and a drag-to-lasso marquee selection.**
 
 Unstyled, TypeScript-first, zero dependencies, React 18 & React 19.
 
@@ -34,6 +34,7 @@ Building a chat widget, floating toolbar, debug panel, or side dock? You want th
 | [`<ZoomLens>`](#zoomlens) | **React image magnifier / zoom lens** — free-drag over the whole page or scope to one element (product-image zoom). Wheel to zoom, Escape to dismiss. |
 | [`<FlickDeck>`](#flickdeck) | **React card stack & swipeable cards** — back cards peek from one edge, click the peek to flick it forward; optional swipe-to-dismiss. |
 | [`<PullToRefresh>`](#pulltorefresh) | **React pull to refresh** — pull down at the top of a list to reload it. Touch drag, mouse drag, *and* trackpad/wheel overscroll drive the same gesture. |
+| [`<MarqueeSelect>`](#marqueeselect) | **React marquee / lasso multi-select** — drag a rectangle across a canvas, board, or file grid to select what it touches. Modifier keys, edge auto-scroll, Escape to cancel. |
 
 ## Installation
 
@@ -76,7 +77,7 @@ Subpath imports are handy when you only need one component and want the import l
 ## Quick Start
 
 ```tsx
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import {
   MovableLauncher,
   SnapDock,
@@ -85,10 +86,12 @@ import {
   ZoomLens,
   FlickDeck,
   PullToRefresh,
+  MarqueeSelect,
 } from 'react-driftkit';
 
 function App() {
   const productRef = useRef<HTMLImageElement>(null);
+  const [selected, setSelected] = useState<string[]>([]);
 
   return (
     <>
@@ -136,6 +139,13 @@ function App() {
       >
         <Feed />
       </PullToRefresh>
+
+      {/* Drag a rectangle across the board to select what it touches. */}
+      <MarqueeSelect selection={selected} on={{ select: setSelected }}>
+        {nodes.map((node) => (
+          <Card key={node.id} data-marquee-item data-marquee-id={node.id} />
+        ))}
+      </MarqueeSelect>
     </>
   );
 }
@@ -311,6 +321,45 @@ Because a drag gesture is not reachable by keyboard, pair it with a plain Refres
 
 ---
 
+## MarqueeSelect
+
+Drag a rectangle across a canvas, board, or file grid and everything it touches gets selected — the selection gesture every editor-style UI needs and almost no React kit ships.
+
+- **Selector-driven, not registration-driven** — mark items with `data-marquee-item` (or any selector you like) and they join the gesture. No context, no per-item hook, no wrapper component, so items rendered by a virtualiser or a third-party chart work unchanged
+- **Modifier keys out of the box** — plain drag replaces, shift or ctrl/cmd unions, alt subtracts; swap the whole mapping with `behavior.resolveMode`, or set `additive` to make every drag additive
+- **Measured once per drag** — item boxes are snapshotted at pointer-down in container coordinates, so a move is pure arithmetic no matter how many items are on the board, and the box stays pinned to the content while the container scrolls
+- **Edge auto-scroll** — drag toward the edge of a scrolling board and it scrolls under you, at a speed that ramps up as you get closer
+- **Doesn't steal your other gestures** — a press that starts on an item, a button, a link, or a text field is left alone, and a press that never crosses `threshold` counts as an empty-space click that clears the selection
+- **Unstyled** — `data-marquee-selected` and `data-marquee-hit` land on the items themselves so plain CSS can style them without a re-render, and `marquee` lets you replace the box entirely. Escape or a pointer cancel rolls the drag back
+
+```tsx
+import MarqueeSelect from 'react-driftkit/MarqueeSelect';
+
+const [selected, setSelected] = useState<string[]>([]);
+
+<MarqueeSelect
+  selection={selected}
+  on={{ select: setSelected }}
+  behavior={{ hitTest: 'intersect' }}
+  style={{ overflow: 'auto', height: 600 }}
+>
+  {nodes.map((node) => (
+    <div key={node.id} data-marquee-item data-marquee-id={node.id} className="node" />
+  ))}
+</MarqueeSelect>
+```
+
+```css
+.node[data-marquee-selected] { outline: 2px solid var(--accent); }
+.node[data-marquee-hit]      { outline: 2px dashed var(--accent); }
+```
+
+Marquee is a pointer gesture, so touch is opt-in (`behavior.touch`) — by default touch pointers are left to pan the board. Pair it with checkboxes or a Select all control when selection is the only route to an action.
+
+**Full API, more examples, and live demo →** <https://react-driftkit.saktichourasia.dev/marquee-select>
+
+---
+
 ## Use Cases
 
 - **Chat widgets** — floating support buttons that stay accessible
@@ -329,6 +378,10 @@ Because a drag gesture is not reachable by keyboard, pair it with a plain Refres
 - **Comparison decks** — toggle between product plans, chart variants, or before/after states with a single click on the peek
 - **Feeds and inboxes** — pull down to reload a timeline, notification list, or message thread, on phones and desktops alike
 - **Dashboards** — refresh live metrics without hunting for a reload button, with the gesture and a toolbar button sharing one code path
+- **Design canvases and whiteboards** — lasso shapes, sticky notes, or nodes, then move, group, or delete them together
+- **File and asset grids** — drag a box across thumbnails the way Finder and Explorer do, with shift to extend and alt to deselect
+- **Dashboard editors** — select several widgets on a grid layout before aligning, resizing, or removing them
+- **Node graphs and flow builders** — box-select a subgraph on a scrolling canvas, with the edges auto-scrolling as you reach them
 
 ## Looking for…
 
@@ -342,6 +395,7 @@ If you're searching for any of these, react-driftkit has a primitive for it:
 - **React image magnifier** / **react product zoom** / **ecommerce hover zoom** → [`ZoomLens`](#zoomlens)
 - **React card stack** / **swipeable cards** / **alternative to react-tinder-card** → [`FlickDeck`](#flickdeck)
 - **React pull to refresh** / **swipe to refresh** / **alternative to react-simple-pull-to-refresh, rmc-pull-to-refresh** → [`PullToRefresh`](#pulltorefresh)
+- **React marquee select** / **drag select** / **lasso select** / **rubber band selection** / **box select** / **alternative to react-selectable-fast, dragselect** → [`MarqueeSelect`](#marqueeselect)
 
 Each one is independently importable, ships unstyled, and works with React 18 and React 19.
 
@@ -358,6 +412,8 @@ Under the hood all components use the [Pointer Events API](https://developer.moz
 `PullToRefresh` gates every gesture on the scroll offset of the nearest scrollable ancestor of the element you touched, so an inner list scrolls normally until it reaches its top. Raw input travel — pointer delta or accumulated `wheel` deltas — runs through `max * (1 - e^(-raw/max))`, which is near-linear at small pulls and asymptotically firm at `maxPull`. The wheel path is the desktop half of the story: wheels emit no `pointerup`, so a quiet period (`wheelReleaseMs`) stands in for release. Both paths converge on the same phase machine (`idle → pulling → armed → refreshing → settling`), and the content and indicator move by `transform` alone. The container uses `overflow: clip` rather than `hidden` so `position: sticky` children still work, and a non-passive `touchmove` handler suppresses the browser's own overscroll while a pull is live.
 
 `FlickDeck` lays every card in a single CSS grid cell so the container auto-sizes to the largest card, then offsets back cards with pure `transform` — `translate` along the peek axis, plus `scale` (top/bottom peek) or `rotate` around the attached edge (left/right peek). Depth fade uses `opacity`. The front card's `key` is its id; a click or keyboard activation on a peek swaps ids with a CSS transition. Swipe-to-dismiss tracks pointer movement on the front card and fires `on.dismiss(id)` once the drag crosses `dismissThreshold` in the direction opposite the peek, leaving the consumer to remove that child.
+
+`MarqueeSelect` works in *content coordinates* — client pixels minus the root's padding-box origin, plus its scroll offset. Every item box is measured once at pointer-down and converted into that space, which makes it immune to scrolling: the container moving under the content changes neither the stored item boxes nor the drag anchor, so the box stays glued to the point you pressed while the edges auto-scroll. Each subsequent move is then a rectangle overlap test over a plain array, with no DOM reads at all. The pre-drag selection is kept separately from the live hit set, so the mode (`replace` / `add` / `subtract` / `toggle`) is re-applied from scratch on every frame rather than accumulated — which is what makes dragging back out of an area undo itself cleanly, and what lets Escape roll the whole drag back in one step.
 
 ## Contributing
 

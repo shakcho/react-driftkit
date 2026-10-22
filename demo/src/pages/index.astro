@@ -3,13 +3,13 @@ import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Hero.astro';
 import InstallSection from '../components/InstallSection.astro';
 import GitHubCTA from '../components/GitHubCTA.astro';
-import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, ZoomLensIcon, FlickDeckIcon, PullToRefreshIcon } from '../components/islands/Icons';
+import { MoveIcon, DockGlyphIcon, SheetIcon, SplitterIcon, ZoomLensIcon, FlickDeckIcon, PullToRefreshIcon, MarqueeSelectIcon } from '../components/islands/Icons';
 import { allComponents } from '../data/components';
 import pkg from '../../../package.json';
 
 const title = 'react-driftkit — React draggable, resizable & floating UI components';
 const description =
-  'react-driftkit is a free, tree-shakable React component library of floating UI primitives: a draggable widget launcher, edge-pinned dock, draggable bottom sheet, resizable split pane, image magnifier (zoom lens), card-stack flick deck, and a pull-to-refresh that works on mobile and desktop. Unstyled, TypeScript-first, zero dependencies, works with React 18 and React 19.';
+  'react-driftkit is a free, tree-shakable React component library of floating UI primitives: a draggable widget launcher, edge-pinned dock, draggable bottom sheet, resizable split pane, image magnifier (zoom lens), card-stack flick deck, a pull-to-refresh that works on mobile and desktop, and a marquee drag-select for canvases and grids. Unstyled, TypeScript-first, zero dependencies, works with React 18 and React 19.';
 const keywords = [
   'react-driftkit',
   'react draggable component',
@@ -22,6 +22,9 @@ const keywords = [
   'react dock component',
   'react card stack',
   'react pull to refresh',
+  'react marquee select',
+  'react drag select',
+  'react lasso select',
   'react tree-shakable component library',
   'react 19 ui components',
   'typescript react components',
@@ -36,6 +39,7 @@ const icons: Record<string, typeof MoveIcon> = {
   zoomlens: ZoomLensIcon,
   flickdeck: FlickDeckIcon,
   pulltorefresh: PullToRefreshIcon,
+  marqueeselect: MarqueeSelectIcon,
 };
 
 const softwareJsonLd = {
@@ -136,12 +140,18 @@ const useCases = [
     href: '/flick-deck',
     cta: 'See FlickDeck →',
   },
+  {
+    h: 'React marquee / lasso drag-select',
+    p: 'Drag a rectangle across a canvas, whiteboard, node graph, or file grid to select what it touches. Shift to add, alt to subtract, edges auto-scroll.',
+    href: '/marquee-select',
+    cta: 'See MarqueeSelect →',
+  },
 ];
 
 const faq = [
   {
     q: 'What is react-driftkit?',
-    a: 'react-driftkit is a small, tree-shakable React library of floating UI primitives — draggable launchers, edge-pinned docks, pull-up sheets, resizable split panes, and a draggable zoom lens. It ships unstyled so it works with Tailwind, CSS Modules, or any design system, and has zero runtime dependencies.',
+    a: 'react-driftkit is a small, tree-shakable React library of floating UI and gesture primitives — draggable launchers, edge-pinned docks, pull-up sheets, resizable split panes, a draggable zoom lens, a card-stack flick deck, pull-to-refresh, and marquee drag-select. It ships unstyled so it works with Tailwind, CSS Modules, or any design system, and has zero runtime dependencies.',
   },
   {
     q: 'Does react-driftkit support React 19?',
@@ -149,7 +159,7 @@ const faq = [
   },
   {
     q: 'What components does react-driftkit include?',
-    a: 'Seven components: MovableLauncher (draggable corner widget with snap-to-corners), SnapDock (edge-pinned dock that flips orientation), DraggableSheet (pull-up/pull-down sheet with peek/half/full snap points), ResizableSplitPane (N-pane split layout with draggable handles and localStorage persistence), ZoomLens (draggable magnifier circle, or target-scoped product-image zoom), FlickDeck (peek-and-flick card stack), and PullToRefresh (pull-down-to-reload that also works on desktop via wheel and trackpad overscroll).',
+    a: 'Eight components: MovableLauncher (draggable corner widget with snap-to-corners), SnapDock (edge-pinned dock that flips orientation), DraggableSheet (pull-up/pull-down sheet with peek/half/full snap points), ResizableSplitPane (N-pane split layout with draggable handles and localStorage persistence), ZoomLens (draggable magnifier circle, or target-scoped product-image zoom), FlickDeck (peek-and-flick card stack), PullToRefresh (pull-down-to-reload that also works on desktop via wheel and trackpad overscroll), and MarqueeSelect (drag a rectangle to multi-select items on a canvas, board, or file grid).',
   },
   {
     q: 'How do I install react-driftkit?',
@@ -185,7 +195,7 @@ const faqJsonLd = {
 >
   <Hero
     title="react-driftkit"
-    taglineHtml="A small, tree-shakable React component library for floating UI: <strong>draggable widgets</strong>, an <strong>edge-pinned dock</strong>, a <strong>draggable bottom sheet</strong>, an <strong>N-pane resizable split pane</strong>, an <strong>image magnifier (zoom lens)</strong>, a <strong>peek-and-flick card stack</strong>, and <strong>pull-to-refresh</strong>. Unstyled, TypeScript-first, zero dependencies, React 18 &amp; React 19."
+    taglineHtml="A small, tree-shakable React component library for floating UI: <strong>draggable widgets</strong>, an <strong>edge-pinned dock</strong>, a <strong>draggable bottom sheet</strong>, an <strong>N-pane resizable split pane</strong>, an <strong>image magnifier (zoom lens)</strong>, a <strong>peek-and-flick card stack</strong>, <strong>pull-to-refresh</strong>, and <strong>marquee drag-select</strong>. Unstyled, TypeScript-first, zero dependencies, React 18 &amp; React 19."
   />
 
   <section class="section" style="padding-top: 16px;">

@@ -47,6 +47,11 @@
       "types": "./dist/PullToRefresh.d.ts",
       "import": "./dist/PullToRefresh.js",
       "require": "./dist/PullToRefresh.cjs"
+    },
+    "./MarqueeSelect": {
+      "types": "./dist/MarqueeSelect.d.ts",
+      "import": "./dist/MarqueeSelect.js",
+      "require": "./dist/MarqueeSelect.cjs"
     }
   },
   "files": [
@@ -147,7 +152,19 @@
     "react-pull-to-refresh",
     "react-simple-pull-to-refresh",
     "rmc-pull-to-refresh",
-    "infinite-scroll"
+    "infinite-scroll",
+    "marquee-select",
+    "drag-select",
+    "lasso-select",
+    "rubber-band-selection",
+    "box-select",
+    "multi-select",
+    "selection",
+    "canvas",
+    "whiteboard",
+    "file-grid",
+    "dragselect",
+    "react-selectable"
   ],
   "license": "MIT"
 }

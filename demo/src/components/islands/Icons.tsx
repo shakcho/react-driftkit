@@ -83,6 +83,20 @@ export function PullToRefreshIcon({ size = 16, strokeWidth = 2 }: IconProps) {
   );
 }
 
+export function MarqueeSelectIcon({ size = 16, strokeWidth = 2 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {/* Four tiles, the two on the lasso's diagonal marked as caught. */}
+      <rect x="6" y="6" width="11" height="11" rx="2" opacity="0.35" />
+      <rect x="23" y="6" width="11" height="11" rx="2" opacity="0.35" />
+      <rect x="6" y="23" width="11" height="11" rx="2" opacity="0.35" />
+      <rect x="23" y="23" width="11" height="11" rx="2" opacity="0.35" />
+      {/* The marquee itself — dashed, drawn across the top-left pair. */}
+      <rect x="3" y="3" width="21" height="21" rx="2" strokeDasharray="4 3" />
+    </svg>
+  );
+}
+
 export function ChevronDownIcon({ size = 14 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
